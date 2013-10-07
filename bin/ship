@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+require('coffee-script');
+
+var argv = require('optimist').alias('e', 'environment').argv,
+    colors = require('colors'),
+    ship = require('../lib'),
+    commands = require('../lib/commands');
+
+commands.default(argv._, argv.environment, function(err, res){
+  if (err) return console.error(err.red)
+});

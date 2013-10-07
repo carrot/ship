@@ -1,0 +1,31 @@
+{
+  "name": "ship",
+  "preferGlobal": true,
+  "version": "0.0.1-alpha",
+  "author": "Carrot Creative <dev@carrotcreative.com>",
+  "description": "multi-platform deployment with node",
+  "keywords": [
+    "deploy",
+    "ship",
+    "squirrel"
+  ],
+  "bin": {
+    "ship": "./bin/ship"
+  },
+  "main": "./lib",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carrot/ship.git"
+  },
+  "dependencies": {
+    "optimist": "0.6.x",
+    "coffee-script": "1.x.x",
+    "js-yaml": "2.x.x",
+    "colors": "0.6.x",
+    "indx": "0.0.x"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  }
+}
