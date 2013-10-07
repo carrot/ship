@@ -12,11 +12,11 @@ describe 'commands', ->
       err.should.match /specify a deployer/
       done()
 
-  it 'should error when 0 args, ship.conf has multiple deployers', (done) ->
+  it 'should succeed when 0 args, ship.conf has multiple deployers', (done) ->
     process.chdir('../multiple_deployers')
 
     cmd.default [], null, (err, res) ->
-      err.should.match /specify a deployer/
+      should.not.exist(err)
       done()
 
   it 'should succeed when 0 args, ship.conf w/ one deployer', (done) ->
@@ -43,9 +43,9 @@ describe 'commands', ->
       err.should.match /specify a deployer/
       done()
 
-  it 'should error when 1 arg, ship.conf at path w/ multiple deployers', (done) ->
+  it 'should succeed when 1 arg, ship.conf at path w/ multiple deployers', (done) ->
     cmd.default ['multiple_deployers'], null, (err, res) ->
-      err.should.match /specify a deployer/
+      should.not.exist(err)
       done()
 
   it 'should succeed when 1 arg, ship.conf at path w/ one deployer', (done) ->

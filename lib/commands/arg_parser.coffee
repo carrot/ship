@@ -17,7 +17,6 @@ class ArgsParser
       conf_file = find_conf_file(process.cwd(), env)
 
       if not conf_file then return new Error(@errors.missing_deployer)
-      if not has_one_deployer(conf_file) then return new Error(@errors.missing_deployer)
 
       return { path: process.cwd(), deployer: Object.keys(conf_file)[0] }
 
@@ -29,7 +28,6 @@ class ArgsParser
 
       conf_file = find_conf_file(args[0], env)
       if not conf_file then return new Error(@errors.missing_deployer)
-      if not has_one_deployer(conf_file) then return new Error(@errors.missing_deployer)      
 
       return { path: args[0], deployer: Object.keys(conf_file)[0] }
 
@@ -56,8 +54,5 @@ class ArgsParser
 
   path_exists = (p) ->
     fs.existsSync(p)
-
-  has_one_deployer = (json) ->
-    Object.keys(json).length == 1
 
 module.exports = ArgsParser
