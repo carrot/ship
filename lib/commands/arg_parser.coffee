@@ -18,25 +18,25 @@ class ArgsParser
 
       if not conf_file then return new Error(@errors.missing_deployer)
 
-      return { path: process.cwd(), deployer: Object.keys(conf_file)[0] }
+      return { path: process.cwd(), deployers: Object.keys(conf_file) }
 
     if args.length == 1
 
-      if is_deployer(args[0]) then return { path: process.cwd(), deployer: args[0] }
+      if is_deployer(args[0]) then return { path: process.cwd(), deployers: [args[0]] }
 
       if not path_exists(args[0]) then return new Error(@errors.path_nonexistant)
 
       conf_file = find_conf_file(args[0], env)
       if not conf_file then return new Error(@errors.missing_deployer)
 
-      return { path: args[0], deployer: Object.keys(conf_file)[0] }
+      return { path: args[0], deployers: Object.keys(conf_file) }
 
     if args.length > 1
 
       if not path_exists(args[0]) then return new Error(@errors.path_nonexistant)
       if not is_deployer(args[1]) then return new Error(@errors.deployer_not_found)
 
-      return { path: args[0], deployer: args[1] }
+      return { path: args[0], deployers: args[1] }
 
   # 
   # @api private

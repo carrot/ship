@@ -22,7 +22,8 @@
     "coffee-script": "1.x.x",
     "js-yaml": "2.x.x",
     "colors": "0.6.x",
-    "indx": "0.0.x"
+    "indx": "0.0.x",
+    "async": "0.2.x"
   },
   "devDependencies": {
     "mocha": "*",
