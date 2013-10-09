@@ -1,8 +1,10 @@
 class Dropbox
 
   constructor: (@path) ->
-
-  configure: (c) -> @config = c
+    @name = 'Dropbox'
+    @config =
+      access_key: ''
+      secret_key: ''
 
   deploy: (cb) ->
     console.log "deploying #{@path} to Dropbox"
