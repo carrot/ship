@@ -1,14 +1,16 @@
 require 'coffee-script'
-fs = require 'fs'
-path = require 'path'
+require 'colors'
+
 Q = require 'q'
 async = require 'async'
-colors = require 'colors'
 prompt = require 'prompt'
-yaml = require 'js-yaml'
-arg_parser = require './arg_parser'
+
+arg_parser = require '../arg_parser'
+prompt = require '../prompt'
+shipfile = require '../shipfile'
 Deployers = require '../deployers'
 
+# TODO: better error handling
 class DefaultCommand
 
   constructor: (args, @env) ->
@@ -55,39 +57,22 @@ class DefaultCommand
     Object.keys(t.config).indexOf(t.deployer) > -1
 
   create_conf_with_deployer = (deferred) ->
-    Q.nfcall(config_prompt.bind(@))
+    Q.nfcall(prompt.bind(@))
       .catch((err) -> deferred.reject(err))
       .then (res) =>
         @config = {}
         @config[@deployer] = res
-        create_config_file(@path)
-        update_config_file(@path, @config)
+        shipfile.create(@path)
+        shipfile.update(@path, @config)
         deferred.resolve()
 
   add_deployer_to_conf = (deferred) ->
-    Q.nfcall(config_prompt.bind(@))
+    Q.nfcall(prompt.bind(@))
       .catch((err) -> deferred.reject(err))
       .then (res) =>
         @config[@deployer] = res
-        update_config_file(@path, @config)
+        shipfile.update(@path, @config)
         deferred.resolve()
-
-  config_prompt = (cb) ->
-    console.log "please enter the following config details for #{@deployers[0].name.bold}".green
-    console.log "need help? see #{'HELP URL'}".grey
-
-    prompt.start()
-    async.mapSeries(Object.keys(@deployers[0].config), ((k,c)-> prompt.get([k],c)), cb)
-
-  create_config_file = (p) ->
-    console.log "creating conf file"
-    # fs.openSync(path.join(p, 'ship.conf'), 'w')
-
-  update_config_file = (p, new_config) ->
-    shipfile = path.join(p, 'ship.conf')
-    console.log "updating conf file"
-    console.log yaml.safeDump(new_config)
-    # fs.writeFileSync(shipfile, yaml.safeDump(new_config))
 
   set_deployer_config = ->
     @deployer.config = @config for deployer in @deployers

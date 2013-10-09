@@ -1,7 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 yaml = require 'js-yaml'
-deployers = require '../deployers'
+deployers = require './deployers'
 
 class ArgsParser
 
