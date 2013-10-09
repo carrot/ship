@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
 require('coffee-script');
+require('colors');
 
 var argv = require('optimist').alias('e', 'environment').argv,
     colors = require('colors'),
     ship = require('../lib'),
-    commands = require('../lib/commands');
+    Commands = require('../lib/commands');
 
-commands.default(argv._, argv.environment, function(err, res){
-  if (err) return console.error(err.red)
+default_cmd = new Commands['default'](argv._, argv.environment)
+default_cmd.run(function(err, res){
+  if (err) return console.error(err.red);
+  console.log('shipped!'.green)
 });

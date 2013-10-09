@@ -1,83 +1,105 @@
 require 'coffee-script'
 fs = require 'fs'
 path = require 'path'
-yaml = require 'js-yaml'
+Q = require 'q'
 async = require 'async'
 colors = require 'colors'
 prompt = require 'prompt'
+yaml = require 'js-yaml'
 arg_parser = require './arg_parser'
 Deployers = require '../deployers'
 
-module.exports = (args, env, cb) ->
+class DefaultCommand
 
-  # parse arguments. if it resulted in an error, callback with error
-  # args comes back as an object with three keys:
-  # - path(str): path to the folder being deployed
-  # - config(obj): contents of ship.conf as json
-  # - deployer(str): either false (implying all) or a targeted deployer name
-  args = arg_parser(args, env)
-  if args instanceof Error then return cb(args.toString())
+  constructor: (args, @env) ->
+    @args = arg_parser(args, env)
+    if @args instanceof Error then return @
 
-  # - make sure configuration for each deployer is set up correctly
-  # - run the deploy action for each deployer asynchronously
-  configure_deployers args, (deployers) ->
-    async.map(deployers, ((d,c) -> d.deploy(c)), cb)
+    @path = @args.path
+    @config = @args.config
+    @deployer = @args.deployer
 
-# 
-# @api private
-# 
+  run: (cb) ->
+    if @args instanceof Error then return cb(@args.toString())
 
-configure_deployers = (args, cb) ->
+    deployer_names = if @deployer then [@deployer] else Object.keys(@config)
+    @deployers = deployer_names.map((name) -> new Deployers[name](@path))
 
-  # if a deployer is provided, we have some interesting options
-  setup_new_deployer args, (args) ->
+    check_deployer_config.call(@)
+      .then(set_deployer_config.bind(@))
+      .then(deploy_async)
+      .catch((err) -> console.error(err))
+      .done(cb)
 
-    # get the correct deployer(s) from the config info
-    deployers = if args.deployer then [args.deployer] else Object.keys(args.config)
+  # 
+  # @api private
+  # 
 
-    # convert the deployer names to actual deployers and configure them
-    cb deployers.map (name) ->
-      deployer = new Deployers[name](args.path)
-      deployer.config = args.config
-      return deployer
+  check_deployer_config = ->
+    deferred = Q.defer()
 
-setup_new_deployer = (args, cb) ->
-  # if there is no deployer in the args, setup not needed
-  if !args.deployer then return cb(args)
+    if @deployer
+      configure_deployer.call(@, deferred)
+    else
+      deferred.resolve()
 
-  # there's no config file, set one up for that deployer
-  if !args.config
-    config_prompt new Deployers[args.deployer](args.path), (err, res) ->
-      args.config = {}
-      args.config[args.deployer] = res
-      create_config_file(args.path)
-      update_config(args.path, args.config)
-      cb(args)
+    return deferred.promise
 
-  # deployer isn't present in the config file, add it
-  else if !contains_deployer(args)
-    config_prompt Deployers[args.deployer], (err, res) ->
-      args.config[args.deployer] = res
-      update_config(args.path, args.config)
-      cb(args)
+  configure_deployer = (deferred) ->
+    if not @deployer then return deferred.resolve()
+    if not @config then return create_conf_with_deployer.call(@, deferred)
+    if not contains_deployer(@) then return add_deployer_to_conf.call(@, deferred)
+    deferred.resolve()
 
-contains_deployer = (args) ->
-  Object.keys(args.config).indexOf(args.deployer) > -1
+  contains_deployer = (t) ->
+    Object.keys(t.config).indexOf(t.deployer) > -1
 
-config_prompt = (d, cb) ->
+  create_conf_with_deployer = (deferred) ->
+    Q.nfcall(config_prompt.bind(@))
+      .catch((err) -> deferred.reject(err))
+      .then (res) =>
+        @config = {}
+        @config[@deployer] = res
+        create_config_file(@path)
+        update_config_file(@path, @config)
+        deferred.resolve()
 
-  console.log "please enter the following config details for #{d.name.bold}".green
-  console.log "need help? see #{'HELP URL'}".grey
+  add_deployer_to_conf = (deferred) ->
+    Q.nfcall(config_prompt.bind(@))
+      .catch((err) -> deferred.reject(err))
+      .then (res) =>
+        @config[@deployer] = res
+        update_config_file(@path, @config)
+        deferred.resolve()
 
-  prompt.start()
-  async.mapSeries(Object.keys(d.config), ((k,c)-> prompt.get([k],c)), cb)
+  config_prompt = (cb) ->
+    console.log "please enter the following config details for #{@deployers[0].name.bold}".green
+    console.log "need help? see #{'HELP URL'}".grey
 
-create_config_file = (p) ->
-  console.log "creating conf file"
-  # fs.openSync(path.join(p, 'ship.conf'), 'w')
+    prompt.start()
+    async.mapSeries(Object.keys(@deployers[0].config), ((k,c)-> prompt.get([k],c)), cb)
 
-update_config = (p, new_config) ->
-  shipfile = path.join(p, 'ship.conf')
-  console.log "updating conf file"
-  console.log yaml.safeDump(new_config)
-  # fs.writeFileSync(shipfile, yaml.safeDump(new_config))
+  create_config_file = (p) ->
+    console.log "creating conf file"
+    # fs.openSync(path.join(p, 'ship.conf'), 'w')
+
+  update_config_file = (p, new_config) ->
+    shipfile = path.join(p, 'ship.conf')
+    console.log "updating conf file"
+    console.log yaml.safeDump(new_config)
+    # fs.writeFileSync(shipfile, yaml.safeDump(new_config))
+
+  set_deployer_config = ->
+    @deployer.config = @config for deployer in @deployers
+    return Q.fcall => @deployers
+  
+  deploy_async = (deployers) ->
+    deferred = Q.defer()
+
+    async.map deployers, ((d,c) -> d.deploy(c)), (err, res) ->
+      if err then deferred.reject(err)
+      deferred.resolve()
+
+    return deferred.promise
+
+module.exports = DefaultCommand
