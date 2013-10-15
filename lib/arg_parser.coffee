@@ -6,7 +6,7 @@ deployers = require './deployers'
 class ArgsParser
 
   constructor: (args, env) ->
-
+    args ?= []
     @path = process.cwd()
 
     @errors =

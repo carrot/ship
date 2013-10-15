@@ -1,4 +1,6 @@
-class Dropbox
+Deployer = require '../deployer'
+
+class Dropbox extends Deployer
 
   constructor: (@path) ->
     @name = 'Dropbox'

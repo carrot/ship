@@ -3,11 +3,15 @@ path = require 'path'
 yaml = require 'js-yaml'
 
 exports.create = (filepath) ->
-  console.log "creating conf file"
-  # fs.openSync(path.join(filepath, 'ship.conf'), 'w')
+  if process.env.NODE_ENV == 'test'
+    console.log 'creating shipfile'
+  else
+    fs.openSync(path.join(filepath, 'ship.conf'), 'w')
 
 exports.update = (filepath, contents) ->
   file = path.join(filepath, 'ship.conf')
-  console.log "updating conf file"
-  console.log yaml.safeDump(contents)
-  # fs.writeFileSync(file, yaml.safeDump(contents))
+  
+  if process.env.NODE_ENV == 'test'
+    console.log 'updating shipfile'
+  else
+    fs.writeFileSync(file, yaml.safeDump(contents))
