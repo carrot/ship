@@ -13,5 +13,6 @@ exports.update = (filepath, contents) ->
   
   if process.env.NODE_ENV == 'test'
     console.log 'updating shipfile'
+    console.log yaml.safeDump(contents)
   else
     fs.writeFileSync(file, yaml.safeDump(contents))

@@ -8,7 +8,12 @@ module.exports = (cb) ->
 
   prompt.message = ''
   prompt.delimiter = ''
-  prompt.start()
+
+  if process.env.NODE_ENV == 'test'
+    helpers = require '../test/helpers'
+    prompt.start(stdin: helpers.stdin)
+  else
+    prompt.start()
   
   async.mapSeries(Object.keys(@deployers[0].config), ((k,c)-> prompt.get([k],c)), cb)
 

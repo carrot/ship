@@ -1,6 +1,7 @@
 should = require 'should'
-cmd = require '../lib/commands'
 path = require 'path'
+cmd = require '../lib/commands'
+helpers = require './helpers'
 test_dir = path.join(process.cwd(), 'test')
 
 process.env.NODE_ENV = 'test'
@@ -30,6 +31,10 @@ describe 'commands', ->
 
   it 'should succeed when 1 arg which is a deployer name', (done) ->
     process.chdir('../')
+
+    process.nextTick ->
+      helpers.stdin.writeNextTick('test\n');
+      helpers.stdin.writeNextTick('test2\n');
 
     new cmd.default(['s3']).run (err, res) ->
       should.not.exist(err)
