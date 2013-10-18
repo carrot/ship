@@ -75,7 +75,7 @@ class DefaultCommand
         deferred.resolve()
 
   set_deployer_config = ->
-    @deployer.config = @config for deployer in @deployers
+    @deployer.configure(@config) for deployer in @deployers
     return Q.fcall => @deployers
   
   deploy_async = (deployers) ->

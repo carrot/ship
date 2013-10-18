@@ -1,4 +1,5 @@
 require 'colors'
+Deployer = require '../deployer'
 path = require 'path'
 fs = require 'fs'
 shell = require 'shelljs/global'
@@ -6,14 +7,12 @@ readdirp = require 'readdirp'
 W = require 'when'
 fn = require 'when/function'
 
-class Github
+class Github extends Deployer
 
   constructor: (@path) ->
     @name = 'Github Pages'
     @config =
       target: null
-
-    @public = path.join(@path, @config.target)
 
     @errors = 
       not_installed: 'You must install git - see http://git-scm.com'
@@ -80,7 +79,7 @@ class Github
 
     console.log "switching back to #{@original_branch} branch".grey
     execute "git checkout #{@original_branch}"
-
+ 
     console.log 'deployed to github pages'.grey
     fn.call()
 

@@ -1,10 +1,11 @@
 require 'colors'
+Deployer = require '../deployer'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'underscore'
 W = require 'when'
 
-class FTP
+class FTP extends Deployer
 
   constructor: (@path) ->
     @name = 'FTP'
@@ -15,8 +16,6 @@ class FTP
       username: null
       password: null
       root: null
-
-    @public = path.join(@path, @config.target)
 
     @client = new FTPClient
 
