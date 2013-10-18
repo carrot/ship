@@ -29,7 +29,8 @@
     "ftp": "0.3.x",
     "underscore": "1.x.x",
     "readdirp": "0.x.x",
-    "dbox": "0.6.x"
+    "dbox": "0.6.x",
+    "semver": "~2.1.0"
   },
   "devDependencies": {
     "mocha": "*",

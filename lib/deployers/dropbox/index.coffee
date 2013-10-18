@@ -18,8 +18,8 @@ class Dropbox extends Deployer
     console.log "deploying #{@path} to Dropbox"
 
     upload_files.call(@)
-      .otherwise((err) -> console.error(err))
-      .ensure(cb)
+    .otherwise((err) -> console.error(err))
+    .ensure(cb)
 
   configure: (data) ->
     @config = data
