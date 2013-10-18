@@ -2,17 +2,21 @@ require 'colors'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'underscore'
+W = require 'when'
 
 class FTP
 
   constructor: (@path) ->
     @name = 'FTP'
     @config =
+      target: null
       host: null
       port: null
       username: null
       password: null
       root: null
+
+    @public = path.join(@path, @config.target)
 
     @client = new FTPClient
 
@@ -44,7 +48,7 @@ class FTP
 
     clean_files.call(@).then ->
 
-      readdirp { root: @path }, (err, res) ->
+      readdirp { root: @public }, (err, res) ->
         if (err) then return deferred.reject(err)
 
         folders = _.pluck(res.directories, 'path')
@@ -83,6 +87,6 @@ class FTP
 
   put_file = (f, cb) ->
     console.log "uploading #{f}".green
-    @client.put(path.join(@path, f), f, cb)
+    @client.put(path.join(@public, f), f, cb)
 
 module.exports = FTP
