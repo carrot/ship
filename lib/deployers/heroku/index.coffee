@@ -13,8 +13,8 @@ class Heroku
       name: null
 
     @errors =
-      not_installed: "You need to install heroku first. We'll open the download page for you"
-      not_authenticated: "You are not logged in to heroku -- try running `heroku login`"
+      not_installed: "Heroku toolbelt not installed -- we'll open the download page for you"
+      not_authenticated: "You are not logged in to heroku, try `heroku login`"
 
   deploy: (cb) ->
     console.log "deploying #{@path} to Heroku"
@@ -51,13 +51,11 @@ class Heroku
     if exec('git branch -r | grep heroku').output != '' then return
 
     console.log 'creating app on heroku...'.grey
-    cmd = exec "heroku create #{@config.name || ''}"
-    if cmd.code > 0 then throw cmd.output
+    execute "heroku create #{@config.name || ''}"
 
   push_code = ->
     console.log 'pushing master branch to heroku (this may take a few seconds)...'.grey
-    cmd = exec 'git push heroku master'
-    if (cmd.code > 0) then throw cmd.output
+    execute 'git push heroku master'
 
   # 
   # @api private
@@ -65,5 +63,9 @@ class Heroku
   
   sync = (func, ctx) ->
     fn.lift(func.bind(@))
+
+  execute = (cmd) ->
+    cmd = exec(cmd)
+    if (cmd.code > 0) then throw cmd.output
 
 module.exports = Heroku
