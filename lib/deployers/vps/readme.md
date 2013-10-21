@@ -33,6 +33,9 @@ This small before script would optimize our svgs locally, and notify all users o
 
 You may have also noticed that there's at least one variable available to us. It turns out there are a few that you might find to be useful, which are listed below:
 
+- **target**: path to the local folder you want to deploy
+- **remote_target**: path to the remote destination of your deploys
+
 ### Deploy Structure
 
 Ship adopts the convention seen in [capistrano](https://github.com/capistrano/capistrano/wiki/2.x-from-the-beginning#deployment-directory-structure) -- each deploy is added to a `releases` folder and symlinked to a folder called `current` after the files are finished transferring. This means no-downtime deploys and a history of releases is kept.
