@@ -61,6 +61,8 @@ s3:
 
 If there are other network configs, they appear namespaced under the deployer name in a similar manner.
 
+If you want to deploy to multiple environments, you can do this. Just drop an environment name after "ship" and before ".conf" like this: `ship.staging.conf`, and provide the environment in your command, like this `ship --env staging`, and ship will look for the appropriate environment file and use that.
+
 ### Javascript API
 
 The interface is fairly straightforward. An example is below:
