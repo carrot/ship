@@ -3,8 +3,9 @@ fn = require 'when/function'
 open = require 'open'
 run = require('child_process').exec
 fs = require 'fs'
+Deployer = require '../deployer'
 
-class Heroku
+class Heroku extends Deployer
 
   constructor: (@path) ->
     @name = 'Heroku'

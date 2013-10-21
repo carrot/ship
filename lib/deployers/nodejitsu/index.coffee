@@ -3,8 +3,9 @@ fn = require 'when/function'
 run = require('child_process').exec
 fs = require 'fs'
 semver = require 'semver'
+Deployer = require '../deployer'
 
-class Nodejitsu
+class Nodejitsu extends Deployer
 
   constructor: (@path) ->
     @name = 'Nodejitsu'

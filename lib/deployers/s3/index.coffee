@@ -7,8 +7,9 @@ _ = require 'underscore'
 async = require 'async'
 mime = require 'mime'
 readdirp = require 'readdirp'
+Deployer = require '../deployer'
 
-class S3
+class S3 extends Deployer
 
   constructor: (@path) ->
     @name = 'Amazon S3'
