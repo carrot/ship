@@ -30,7 +30,8 @@
     "underscore": "1.x.x",
     "readdirp": "0.x.x",
     "dbox": "0.6.x",
-    "semver": "~2.1.0"
+    "semver": "~2.1.0",
+    "open": "0.0.4"
   },
   "devDependencies": {
     "mocha": "*",

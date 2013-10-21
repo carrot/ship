@@ -1,4 +1,5 @@
 W = require 'when'
+fn = require 'when/function'
 run = require('child_process').exec
 fs = require 'fs'
 semver = require 'semver'
@@ -18,29 +19,28 @@ class Nodejitsu
   deploy: (cb) ->
     console.log "deploying #{@path} to Nodejitsu"
 
-    check_install.call(@)
+    fn.call(check_install.bind(@))
     .then(check_credentials.bind(@))
-    .then(add_config_files.bind(@))
-    .then(push_code.bind(@))
+    .then(sync(add_config_files, @))
+    .then(sync(push_code, @))
     .otherwise((err) -> console.error(err))
     .ensure(cb)
 
   check_install = ->
-    deferred = W.defer()
-    if not which('jitsu') then return deferred.reject(@errors.not_installed)
-    deferred.resolve()
+    if not which('jitsu') then throw @errors.not_installed
 
   check_credentials = ->
     deferred = W.defer()
+
     run 'jitsu list', { timeout: 5000 }, (err, out) ->
       if err then return deferred.reject(@errors.not_logged_in)
       deferred.resolve()
 
-  add_config_files = ->
-    deferred = W.defer()
+    return deferred.promise
 
+  add_config_files = ->
     # if package.json is present, you're set
-    if fs.existsSync(path.join(@public, 'package.json')) then return deferred.resolve()
+    if fs.existsSync(path.join(@public, 'package.json')) then return
 
     # if not, let's get a template in there
     source = path.join(__dirname, 'template.json')
@@ -50,18 +50,21 @@ class Nodejitsu
     pkg.name = if @config.name == '' then path.basename(@path) else @config.name
     pkg.subdomain = pkg.name
     fs.writeFileSync(path.join(@path, 'package.json'), JSON.stringify(pkg))
-    deferred.resolve()
 
   push_code = ->
-    deferred = W.defer()
-
     # bump version
     pkg = require(path.join(@path, 'package.json'))
     pkg.version = semver.inc(pkg.version, 'build')
     fs.writeFileSync(path.join(@path, 'package.json'), JSON.stringify(pkg))
 
     cmd = exec 'jitsu deploy'
-    if cmd.code > 0 then return deferred.reject(cmd.output)
-    deferred.resolve()
+    if cmd.code > 0 then throw cmd.output
+
+  # 
+  # @api private
+  # 
+  
+  sync = (func, ctx) ->
+    fn.lift(func.bind(@))
 
 module.exports = Nodejitsu
