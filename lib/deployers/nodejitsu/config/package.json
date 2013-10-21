@@ -1,0 +1,14 @@
+{
+  "name": "testing app",
+  "version": "0.0.1",
+  "dependencies": {
+    "connect": "2.x.x"
+  },
+  "subdomain": "",
+  "scripts": {
+    "start": "server.js"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
+}
