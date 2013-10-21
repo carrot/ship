@@ -49,7 +49,7 @@ class VPS extends Deployer
   # 
   
   run_script = (type, deferred) ->
-    # make correct variable available here
+    # make correct variables available here
     s = require(path.normalize(@config[type]))
 
     # make sure to record output
