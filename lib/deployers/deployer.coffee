@@ -5,7 +5,10 @@ class Deployer
 
   constructor: ->
     @name = 'deployer'
-    @config = {}
+    @config =
+      target: ''
+      before: ''
+      after: ''
 
   configure: (data) ->
     @config = data

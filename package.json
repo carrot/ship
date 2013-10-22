@@ -32,7 +32,8 @@
     "dbox": "0.6.x",
     "semver": "2.x.x",
     "open": "0.0.x",
-    "mime": "1.x.x"
+    "mime": "1.x.x",
+    "ssh2": "0.2.x"
   },
   "devDependencies": {
     "mocha": "*",
