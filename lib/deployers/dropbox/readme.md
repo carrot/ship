@@ -1,6 +1,8 @@
 Dropbox
 -------
 
+Straightforward push, target folder to dropbox root. If you are running a live site, you may experience brief glitches during deploy as the files are overwritten.
+
 ### Config Values
 
 **target**: folder that you would like to deploy _(optional)_    

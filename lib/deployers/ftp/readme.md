@@ -1,6 +1,8 @@
 FTP
 ---
 
+This deployer will push the target folder to the root specified in the configuration. This is not a zero-downtime deploy, and will clear the root folder's previous contents before pushing the new files, meaning if you are running a live site, it will be down for a few seconds.
+
 ### Config Values
 
 **target**: folder that you would like to deploy _(optional)_    

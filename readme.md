@@ -9,13 +9,13 @@ If you often need to deploy files to different platforms, or you have an app or 
 
 Ship is small library that deploys files smoothly to the platforms listed below:
 
-- Amazon s3
-- Github Pages
-- Heroku
-- Nodejitsu
-- FTP
-- Dropbox
-- Linux VPS
+- [Amazon S3](lib/deployers/s3)
+- [Github Pages](lib/deployers/gh-pages)
+- [Heroku](lib/deployers/heroku)
+- [Nodejitsu](lib/deployers/nodejitsu)
+- [FTP](lib/deployers/ftp)
+- [Dropbox](lib/deployers/dropbox)
+- [Linux VPS](lib/deployers/vps)
 
 Ship is also built on the adapter pattern, so if there's another platforms you'd like to deploy to, the project structure is easy to understand, and you can write a deployer, send a pull request, and we'd be happy to include it.
 
@@ -119,15 +119,3 @@ s3.deploy('path/to/folder')
 ```
 
 So in summary, require `ship`, get the deployer name you are after, make sure it's configured, run `deploy` and pass it a path to the file or folder you want to deploy, and get feedback with a callback or promise.
-
-### Deployer Configuration
-
-Some deployers need authentication and config information in order to correctly deploy. The information needed is linked below for each deployer currently supported.
-
-- [Amazon S3](#)
-- [Github Pages](#)
-- [Heroku](#)
-- [Nodejitsu](#)
-- [FTP](#)
-- [Dropbox](#)
-- [Linux VPS](#)
