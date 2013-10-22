@@ -5,13 +5,15 @@ class Deployer
 
   constructor: ->
     @name = 'deployer'
-    @config =
-      target: ''
-      before: ''
-      after: ''
+
+    # optional global config
+    # - target: folder to deploy (default process.cwd())
+    # - before: path to before hook script
+    # - after: path to after hook script
 
   configure: (data) ->
     @config = data
+    @config.target ||= process.cwd()
     @public = path.join(@path, data.target)
 
   deploy: (cb) ->

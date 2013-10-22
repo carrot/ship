@@ -2,6 +2,7 @@ W = require 'when'
 path = require 'path'
 _ = require 'underscore'
 readdirp = require 'readdirp'
+async = require 'async'
 
 class SFTPUploader
 
