@@ -37,8 +37,8 @@ class Github extends Deployer
     if not execute('git remote | grep origin')
       return deferred.reject(@errors.remote_origin)
 
-    @original_branch = if not execute('git rev-parse --abbrev-ref HEAD')
-      return deferred.reject(@errors.make_commit)
+    @original_branch = execute('git rev-parse --abbrev-ref HEAD') 
+    if not @original_branch then return deferred.reject(@errors.make_commit)
 
     console.log "starting on branch #{original_branch}"
     deferred.resolve()

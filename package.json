@@ -33,7 +33,9 @@
     "semver": "2.x.x",
     "open": "0.0.x",
     "mime": "1.x.x",
-    "ssh2": "0.2.x"
+    "ssh2": "0.2.x",
+    "when": "2.x.x",
+    "aws-sdk": "1.x.x"
   },
   "devDependencies": {
     "mocha": "*",

@@ -9,7 +9,7 @@ process.env.NODE_ENV = 'test'
 describe 'commands', ->
 
   it 'should error when 0 args, no ship.conf', (done) ->
-    process.chdir path.join(test_dir, 'no_ship_conf')
+    process.chdir path.join(test_dir, 'fixtures/no_ship_conf')
 
     (new cmd.default).run (err, res) ->
       err.should.match /specify a deployer/
