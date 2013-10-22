@@ -4,7 +4,7 @@ W = require 'when'
 fs = require 'fs'
 path = require 'path'
 SSH = require 'ssh2'
-_ = require 'underscore'
+SFTPUploader = require './uploader'
 
 class VPS extends Deployer
 
@@ -51,15 +51,16 @@ class VPS extends Deployer
   deploy_files = ->
     deferred = W.defer()
 
-    ssh.sftp (err, sftp) ->
+    ssh.sftp (err, sftp) =>
       if err then return deferred.reject(err)
-      
-      create_folder_structure.call(@)
-        .then(upload_files.bind(@))
-        .then(symlink_current.bind(@))
-        .then(end_session.bind(@))
+
+      uploader = new SFTPUploader(sftp)
+
+      uploader.upload_project(@public, @config.remote_target)
         .otherwise(deferred.reject)
-        .ensure(deferred.resolve)
+        .ensure ->
+          sftp.end()
+          deferred.resolve()
 
     return deferred.promise
   
@@ -72,39 +73,6 @@ class VPS extends Deployer
   # 
   # @api private
   # 
-  
-  create_folder_structure = (sftp) ->
-    deferred = W.defer()
-
-    # create release folder
-    @release = path.join(@config.remote_target, 'releases', (new Date).getTime())
-    @sftp.mkdir(release)
-
-    # mirror project folder structure
-    readdirp { root: @public }, (err, res) ->
-      if err then return deferred.reject(err)
-      folders = _.pluck(res.directories, 'path').map((f) -> path.join(release, f))
-      files = _.pluck(res.files, 'path')
-
-      async.map folders, @sftp.mkdir, (err) ->
-        if err then return deferred.reject(err)
-        deferred.resolve(files)
-
-    return deferred.promise
-
-  upload_files = (files) ->
-    deferred = W.defer()
-
-    put_file = (f, cb) -> @sftp.fastPut(f, path.join(@release, f), cb)
-
-    async.map files, put_file, (err) ->
-      if err then return deferred.reject(err)
-      deferred.resolve()
-
-    return deferred.promise
-  
-  symlink_current = ->
-    @sftp.symlink(@release, path.join(@config.remote_target, 'current'))
 
   run_script = (type, deferred) ->
     # make correct variables available here
