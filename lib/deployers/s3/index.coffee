@@ -12,6 +12,7 @@ Deployer = require '../deployer'
 class S3 extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'Amazon S3'
     @config =
       bucket: null
@@ -26,17 +27,21 @@ class S3 extends Deployer
   configure: (config) ->
     @config = config
 
+    # defaults
+    @config.bucket ||= process.cwd().split(path.sep).reverse()[0]
+    @config.region ||= 'us-east-1'
+    
     AWS.config = new AWS.Config(secretAccessKey: @config.secret_key, accessKeyId: @config.access_key)
-    AWS.config.bucket = @config.bucket || process.cwd().split(path.sep).reverse()[0]
-    AWS.config.region = @config.region || 'us-east-1'
+    AWS.config.bucket = @config.bucket
+    AWS.config.region = @config.region
     @client = new AWS.S3
 
   deploy: (cb) ->
-    console.log "deploying #{@path} to S3"
+    @debug.log "deploying #{@path} to #{@name}"
 
     create_bucket.call(@)
     .then(upload_files.bind(@))
-    .otherwise((err) -> console.error(err))
+    .otherwise((err) -> cb(err))
     .ensure(cb)
 
   create_bucket = ->
@@ -70,9 +75,9 @@ class S3 extends Deployer
     readdirp { root: @public }, (err, res) ->
       files = _.pluck(res.files, 'path')
 
-      async.map files, put_file, (err) ->
+      async.map files, put_file, (err) =>
         if err then return deferred.reject(err)
-        console.log "success! your site has been deployed to: http://#{AWS.config.bucket}.s3-website-#{AWS.config.region}.amazonaws.com".green
+        @debug.log "success! your site has been deployed to: http://#{AWS.config.bucket}.s3-website-#{AWS.config.region}.amazonaws.com"
         deferred.resolve()
 
     return deferred.promise
@@ -84,10 +89,10 @@ class S3 extends Deployer
   create_bucket = ->
     deferred = W.defer()
 
-    process.stdout.write "Creating bucket '#{@config.bucket}'..."
+    @debug.write "Creating bucket '#{@config.bucket}'..."
     @client.createBucket { Bucket: @config.bucket }, (err, data) ->
       if err then return deferred.reject(err)
-      console.log 'done!'.green
+      @debug.log 'done!'
       deferred.resolve()
 
     return deferred.promise
@@ -95,7 +100,7 @@ class S3 extends Deployer
   create_site_config = ->
     deferred = W.defer()
 
-    process.stdout.write 'No static website configuration detected. Configuring now...'.grey
+    @debug.write 'No static website configuration detected. Configuring now...'
 
     site_config =
       Bucket: @config.bucket,
@@ -103,9 +108,9 @@ class S3 extends Deployer
         IndexDocument:
           Suffix: 'index.html'
 
-    @client.putBucketWebsite site_config, (err, data) ->
+    @client.putBucketWebsite site_config, (err, data) =>
       if err then return deferred.reject(err)
-      console.log 'done!'.green
+      @debug.log 'done!'
       deferred.resolve()
 
     return deferred.promise
@@ -119,9 +124,11 @@ class S3 extends Deployer
       Body: contents
       ACL: 'public-read'
       ContentType: mime.lookup(fpath)
-    , (err, data) ->
+    , (err, data) =>
       if err then return cb(err)
-      console.log "uploaded #{fpath}".green
+      @debug.log "uploaded #{fpath}"
       cb()
 
     return deferred.promise
+
+module.exports = S3

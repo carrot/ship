@@ -30,7 +30,7 @@ class DefaultCommand
     check_deployer_config.call(@)
       .then(set_deployer_config.bind(@))
       .then(deploy_async)
-      .catch((err) -> console.error(err))
+      .catch((err) -> console.error("#{err}".red))
       .done(cb)
 
   # 
@@ -75,7 +75,7 @@ class DefaultCommand
         deferred.resolve()
 
   set_deployer_config = ->
-    @deployer.configure(@config) for deployer in @deployers
+    deployer.configure(@config) for deployer in @deployers
     return Q.fcall => @deployers
   
   deploy_async = (deployers) ->

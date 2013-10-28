@@ -10,6 +10,10 @@ class Deployer
     # - target: folder to deploy (default process.cwd())
     # - before: path to before hook script
     # - after: path to after hook script
+    
+    @debug =
+      log: (m) -> console.log("#{m}".grey)
+      write: (m) -> process.stdout.write("#{m}".grey)
 
   configure: (data) ->
     @config = data
