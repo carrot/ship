@@ -1,14 +1,13 @@
-require 'js-yaml'
-
 should = require 'should'
 path = require 'path'
+request = require 'request'
 cmd = require '../lib/commands'
 helpers = require './helpers'
 test_dir = path.join(process.cwd(), 'test/fixtures')
 
-process.env.NODE_ENV = 'test'
-
 describe 'commands', ->
+
+  before -> process.env.NODE_ENV = 'test'
 
   it 'should error when 0 args, no ship.conf', (done) ->
     process.chdir path.join(test_dir, 'commands/no_ship_conf')
@@ -81,7 +80,6 @@ describe 'commands', ->
 
 describe 'deployers', ->
 
-  # this is the real deal
   before -> process.env.NODE_ENV = ''
 
   it 'dropbox deployer'
@@ -89,10 +87,11 @@ describe 'deployers', ->
   it 'github pages deployer'
   it 'heroku deployer'
   it 'nodejitsu deployer'
+  it 'vps deployer'
 
   it 's3 deployer', (done) ->
     new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
       should.not.exist(err)
+      # request the actual page and make sure it was deployed
+      # clean up and remove the app (method on the deployer)
       done()
-
-  it 'vps deployer'

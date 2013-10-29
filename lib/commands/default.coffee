@@ -33,7 +33,13 @@ class DefaultCommand
       .then(sync(set_deployer_config.bind(@)))
       .then(deploy_async)
       .otherwise((err) -> console.error("#{err}".red))
-      .ensure(cb)
+      .then (messages) ->
+        console.log ''
+        console.log 'Deploy Successful!'.green.bold
+        console.log ''
+        console.log 'Post-Deploy Messages:'.yellow
+        console.log "#{msg}" for msg in messages
+        cb()
 
   # 
   # @api private
@@ -90,7 +96,7 @@ class DefaultCommand
 
     async.map deployers, deployfn, (err, res) ->
       if err then deferred.reject(err)
-      deferred.resolve()
+      deferred.resolve(res)
 
     return deferred.promise
 

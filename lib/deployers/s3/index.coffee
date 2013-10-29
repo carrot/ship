@@ -46,7 +46,7 @@ class S3 extends Deployer
     check_config.call(@)
     .then(upload_files.bind(@))
     .otherwise((err) -> cb(err))
-    .ensure(cb)
+    .then((res) -> cb(null, res))
 
   check_config = ->
     deferred = W.defer()
@@ -81,8 +81,8 @@ class S3 extends Deployer
 
       async.map files, put_file.bind(@), (err) =>
         if err then return deferred.reject(err)
-        @debug.log "success! your site has been deployed to: http://#{@config.bucket}.s3-website-#{@config.region}.amazonaws.com"
-        deferred.resolve()
+        post_deply_message = "S3: ".bold + "Your site is live at: http://#{@config.bucket}.s3-website-#{@config.region}.amazonaws.com"
+        deferred.resolve(post_deply_message)
 
     return deferred.promise
 
