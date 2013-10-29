@@ -93,8 +93,12 @@ describe 'deployers', ->
     new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
       re = /(http:\/\/.*)/
       should.not.exist(err)
-      res[0].should.match(re)
-      request res[0].match(re)[1], (err, res, body) ->
+      # make sure it returned a url
+      res.messages[0].should.match(re)
+      # hit the url and make sure the site is up
+      request res.messages[0].match(re)[1], (err, resp, body) ->
         should.not.exist(err)
+        # make sure the site has the content we specified
         body.should.match /look ma, it worked/
-        done()
+        # remove the testing bucket and finish
+        res.deployers[0].destroy(done)

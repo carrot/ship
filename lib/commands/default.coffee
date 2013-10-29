@@ -33,13 +33,13 @@ class DefaultCommand
       .then(sync(set_deployer_config.bind(@)))
       .then(deploy_async)
       .otherwise((err) -> console.error("#{err}".red))
-      .then (messages) ->
+      .then (messages) =>
         console.log ''
         console.log 'Deploy Successful!'.green.bold
         console.log ''
         console.log 'Post-Deploy Messages:'.yellow
         console.log "#{msg}" for msg in messages
-        cb(null, messages)
+        cb(null, { messages: messages, deployers: @deployers })
 
   # 
   # @api private

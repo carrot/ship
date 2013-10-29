@@ -48,6 +48,21 @@ class S3 extends Deployer
     .otherwise((err) -> cb(err))
     .then((res) -> cb(null, res))
 
+  destroy: (cb) ->
+    @client.listObjects { Bucket: @config.bucket }, (err, data) =>
+      if err then return console.error(err)
+      @client.deleteObjects
+        Bucket: @config.bucket
+        Delete:
+          Objects: data.Contents.map((i) -> { Key: i.Key })
+      , (err, data) =>
+        if err then return console.error(err)
+        @client.deleteBucket { Bucket: @config.bucket }, cb
+
+  # 
+  # @api private
+  # 
+  
   check_config = ->
     deferred = W.defer()
 
@@ -85,10 +100,6 @@ class S3 extends Deployer
         deferred.resolve(post_deply_message)
 
     return deferred.promise
-
-  # 
-  # @api private
-  # 
 
   create_bucket = ->
     deferred = W.defer()
