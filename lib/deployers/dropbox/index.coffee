@@ -8,6 +8,7 @@ _ = require 'underscore'
 class Dropbox extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'Dropbox'
     @config =
       target: null

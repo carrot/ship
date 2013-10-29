@@ -8,6 +8,7 @@ Deployer = require '../deployer'
 class Heroku extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'Heroku'
     @config =
       target: null

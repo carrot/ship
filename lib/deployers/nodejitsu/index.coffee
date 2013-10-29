@@ -8,6 +8,7 @@ Deployer = require '../deployer'
 class Nodejitsu extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'Nodejitsu'
     @config =
       target: null

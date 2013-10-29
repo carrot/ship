@@ -10,6 +10,7 @@ fn = require 'when/function'
 class Github extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'Github Pages'
     @config =
       target: null

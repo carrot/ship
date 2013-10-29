@@ -8,6 +8,7 @@ W = require 'when'
 class FTP extends Deployer
 
   constructor: (@path) ->
+    super
     @name = 'FTP'
     @config =
       target: null
