@@ -1,3 +1,5 @@
+require 'js-yaml'
+
 should = require 'should'
 path = require 'path'
 cmd = require '../lib/commands'
@@ -9,7 +11,7 @@ process.env.NODE_ENV = 'test'
 describe 'commands', ->
 
   it 'should error when 0 args, no ship.conf', (done) ->
-    process.chdir path.join(test_dir, 'fixtures/no_ship_conf')
+    process.chdir path.join(test_dir, 'fixtures/commands/no_ship_conf')
 
     (new cmd.default).run (err, res) ->
       err.should.match /specify a deployer/
@@ -35,6 +37,8 @@ describe 'commands', ->
     process.nextTick ->
       helpers.stdin.writeNextTick('test\n');
       helpers.stdin.writeNextTick('test2\n');
+      helpers.stdin.writeNextTick('test3\n');
+      helpers.stdin.writeNextTick('test4\n');
 
     new cmd.default(['s3']).run (err, res) ->
       should.not.exist(err)
@@ -74,3 +78,16 @@ describe 'commands', ->
     new cmd.default(['staging_env'], 'staging').run (err, res) ->
       should.not.exist(err)
       done()    
+
+describe 'deployers', ->
+
+  # this is the real deal
+  before -> process.env.NODE_ENV = ''
+
+  it 'dropbox deployer'
+  it 'ftp deployer'
+  it 'github pages deployer'
+  it 'heroku deployer'
+  it 'nodejitsu deployer'
+  it 's3 deployer'
+  it 'vps deployer'

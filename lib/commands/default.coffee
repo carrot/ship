@@ -81,7 +81,10 @@ class DefaultCommand
   deploy_async = (deployers) ->
     deferred = Q.defer()
 
-    async.map deployers, ((d,c) -> d.deploy(c)), (err, res) ->
+    deployfn = (d, cb) ->
+      if process.env.NODE_ENV == 'test' then d.mock_deploy(cb) else d.deploy(cb)
+
+    async.map deployers, deployfn, (err, res) ->
       if err then deferred.reject(err)
       deferred.resolve()
 

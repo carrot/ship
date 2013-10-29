@@ -24,4 +24,9 @@ class Deployer
     console.error('make sure you have defined a deploy method'.red)
     cb()
 
+  mock_deploy: (cb) ->
+    # this is a method used for testing to ensure commands
+    # are being parsed correctly
+    cb()
+
 module.exports = Deployer
