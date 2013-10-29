@@ -39,7 +39,7 @@ class DefaultCommand
         console.log ''
         console.log 'Post-Deploy Messages:'.yellow
         console.log "#{msg}" for msg in messages
-        cb()
+        cb(null, messages)
 
   # 
   # @api private

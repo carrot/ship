@@ -91,7 +91,10 @@ describe 'deployers', ->
 
   it 's3 deployer', (done) ->
     new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
+      re = /(http:\/\/.*)/
       should.not.exist(err)
-      # request the actual page and make sure it was deployed
-      # clean up and remove the app (method on the deployer)
-      done()
+      res[0].should.match(re)
+      request res[0].match(re)[1], (err, res, body) ->
+        should.not.exist(err)
+        body.should.match /look ma, it worked/
+        done()
