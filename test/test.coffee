@@ -4,14 +4,14 @@ should = require 'should'
 path = require 'path'
 cmd = require '../lib/commands'
 helpers = require './helpers'
-test_dir = path.join(process.cwd(), 'test')
+test_dir = path.join(process.cwd(), 'test/fixtures')
 
 process.env.NODE_ENV = 'test'
 
 describe 'commands', ->
 
   it 'should error when 0 args, no ship.conf', (done) ->
-    process.chdir path.join(test_dir, 'fixtures/commands/no_ship_conf')
+    process.chdir path.join(test_dir, 'commands/no_ship_conf')
 
     (new cmd.default).run (err, res) ->
       err.should.match /specify a deployer/
@@ -89,5 +89,10 @@ describe 'deployers', ->
   it 'github pages deployer'
   it 'heroku deployer'
   it 'nodejitsu deployer'
-  it 's3 deployer'
+
+  it 's3 deployer', (done) ->
+    new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
+      should.not.exist(err)
+      done()
+
   it 'vps deployer'

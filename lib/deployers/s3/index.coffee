@@ -24,27 +24,31 @@ class S3 extends Deployer
       access_denied: "Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name."
       permanent_redirect: "Permanent Redirect: This probably means you have set an incorrect region. Make sure you're bucket's region matches what you set in the configuration."
 
-  configure: (config) ->
-    @config = config
+  configure: (data) ->
+    @config = data.s3
 
     # defaults
     @config.bucket ||= process.cwd().split(path.sep).reverse()[0]
     @config.region ||= 'us-east-1'
-    
-    AWS.config = new AWS.Config(secretAccessKey: @config.secret_key, accessKeyId: @config.access_key)
-    AWS.config.bucket = @config.bucket
-    AWS.config.region = @config.region
+
+    AWS.config.update
+      secretAccessKey: @config.secret_key
+      accessKeyId: @config.access_key
+      bucket: @config.bucket
+      region: @config.region
+
     @client = new AWS.S3
+    @public = path.join(@path, data.target || '')
 
   deploy: (cb) ->
     @debug.log "deploying #{@path} to #{@name}"
 
-    create_bucket.call(@)
+    check_config.call(@)
     .then(upload_files.bind(@))
     .otherwise((err) -> cb(err))
     .ensure(cb)
 
-  create_bucket = ->
+  check_config = ->
     deferred = W.defer()
 
     @client.getBucketWebsite { Bucket: @config.bucket }, (err, data) =>
@@ -72,12 +76,12 @@ class S3 extends Deployer
   upload_files = ->
     deferred = W.defer()
 
-    readdirp { root: @public }, (err, res) ->
+    readdirp { root: @public }, (err, res) =>
       files = _.pluck(res.files, 'path')
 
-      async.map files, put_file, (err) =>
+      async.map files, put_file.bind(@), (err) =>
         if err then return deferred.reject(err)
-        @debug.log "success! your site has been deployed to: http://#{AWS.config.bucket}.s3-website-#{AWS.config.region}.amazonaws.com"
+        @debug.log "success! your site has been deployed to: http://#{@config.bucket}.s3-website-#{@config.region}.amazonaws.com"
         deferred.resolve()
 
     return deferred.promise
@@ -90,7 +94,7 @@ class S3 extends Deployer
     deferred = W.defer()
 
     @debug.write "Creating bucket '#{@config.bucket}'..."
-    @client.createBucket { Bucket: @config.bucket }, (err, data) ->
+    @client.createBucket { Bucket: @config.bucket }, (err, data) =>
       if err then return deferred.reject(err)
       @debug.log 'done!'
       deferred.resolve()
@@ -128,7 +132,5 @@ class S3 extends Deployer
       if err then return cb(err)
       @debug.log "uploaded #{fpath}"
       cb()
-
-    return deferred.promise
 
 module.exports = S3
