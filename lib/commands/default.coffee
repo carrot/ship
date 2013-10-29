@@ -1,7 +1,9 @@
 require 'coffee-script'
 require 'colors'
 
-Q = require 'q'
+W = require 'when'
+fn = require 'when/function'
+nodefn = require 'when/node/function'
 async = require 'async'
 prompt = require 'prompt'
 
@@ -28,17 +30,19 @@ class DefaultCommand
     @deployers = deployer_names.map((name) => new Deployers[name](@path))
 
     check_deployer_config.call(@)
-      .then(set_deployer_config.bind(@))
+      .then(sync(set_deployer_config.bind(@)))
       .then(deploy_async)
-      .catch((err) -> console.error("#{err}".red))
-      .done(cb)
+      .otherwise((err) -> console.error("#{err}".red))
+      .ensure(cb)
 
   # 
   # @api private
   # 
+  
+  sync = (func, ctx) -> fn.lift(func.bind(@))
 
   check_deployer_config = ->
-    deferred = Q.defer()
+    deferred = W.defer()
 
     if @deployer
       configure_deployer.call(@, deferred)
@@ -57,8 +61,8 @@ class DefaultCommand
     Object.keys(t.config).indexOf(t.deployer) > -1
 
   create_conf_with_deployer = (deferred) ->
-    Q.nfcall(prompt.bind(@))
-      .catch((err) -> deferred.reject(err))
+    nodefn.call(prompt.bind(@))
+      .otherwise((err) -> deferred.reject(err))
       .then (res) =>
         @config = {}
         @config[@deployer] = res
@@ -67,8 +71,8 @@ class DefaultCommand
         deferred.resolve()
 
   add_deployer_to_conf = (deferred) ->
-    Q.nfcall(prompt.bind(@))
-      .catch((err) -> deferred.reject(err))
+    nodefn.call(prompt.bind(@))
+      .otherwise((err) -> deferred.reject(err))
       .then (res) =>
         @config[@deployer] = res
         shipfile.update(@path, @config)
@@ -76,10 +80,10 @@ class DefaultCommand
 
   set_deployer_config = ->
     deployer.configure(@config) for deployer in @deployers
-    return Q.fcall => @deployers
+    return @deployers
   
   deploy_async = (deployers) ->
-    deferred = Q.defer()
+    deferred = W.defer()
 
     deployfn = (d, cb) ->
       if process.env.NODE_ENV == 'test' then d.mock_deploy(cb) else d.deploy(cb)
