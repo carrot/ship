@@ -3,6 +3,8 @@ Ship
 
 Multi-platform deployment with node.
 
+> **Note:** This library is _incomplete_, still in development, and you should not attempt to use it for anything, yet. As soon as it's ready, this note will be removed, and releases will be tagged.
+
 ### Why should you care?
 
 If you often need to deploy files to different platforms, or you have an app or library written in node and would like to give your users the ability to deploy files to a variety of platforms, ship is probably what you are looking for.

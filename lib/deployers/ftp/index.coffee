@@ -11,12 +11,13 @@ class FTP extends Deployer
     super
     @name = 'FTP'
     @config =
-      target: null
       host: null
-      port: null
+      root: null
       username: null
       password: null
-      root: null
+
+    # optional config values
+    # - port: defaults to 21
 
     @client = new FTPClient
 

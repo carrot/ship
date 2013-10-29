@@ -11,8 +11,8 @@ class VPS extends Deployer
   constructor: (@path) ->
     @name = 'VPS'
     @config =
-      user: null
       host: null
+      user: null
       target: null
       remote_target: null
 

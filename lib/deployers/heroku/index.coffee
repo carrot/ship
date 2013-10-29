@@ -12,7 +12,9 @@ class Heroku extends Deployer
     @name = 'Heroku'
     @config =
       target: null
-      name: null
+
+    # optional config:
+    # - name: name of the app on heroku
 
     @errors =
       not_installed: "Heroku toolbelt not installed -- we'll open the download page for you"

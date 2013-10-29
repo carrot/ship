@@ -5,4 +5,4 @@ As you can probably guess, tests for a library like this are immensely difficult
 
 This means two things: first, that the test suite takes a long time to run, and sedond that without publishing access keys to our own accounts, there was no way to make these tests run out of the box.
 
-If you'd like to run the tests, you need to create a `credentials.yml` file in this directory. We have left a sample here for you to follow the format. Once you have filled in your details, the tests should be able to be run successfully. And don't worry, any app that the tests create on any account, it will also delete once the test has completed.
+If you'd like to run the tests, you need to copy the `ship.conf.sample` files in the `fixtures/deployers/**` directories, rename them to just `ship.conf`, and fill in actual details for your account. Once you have filled in your details, the tests should be able to be run successfully. And don't worry, the tests will also remove any files that they deploy to any service once the test is complete.
