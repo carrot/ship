@@ -25,7 +25,7 @@ class DefaultCommand
     if @args instanceof Error then return cb(@args.toString())
 
     deployer_names = if @deployer then [@deployer] else Object.keys(@config)
-    @deployers = deployer_names.map((name) -> new Deployers[name](@path))
+    @deployers = deployer_names.map((name) => new Deployers[name](@path))
 
     check_deployer_config.call(@)
       .then(set_deployer_config.bind(@))
