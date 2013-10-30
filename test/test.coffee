@@ -85,12 +85,20 @@ describe 'deployers', ->
   it 'dropbox deployer'
   it 'ftp deployer'
   it 'github pages deployer'
-  it 'heroku deployer'
   it 'nodejitsu deployer'
   it 'vps deployer'
 
+  # also need to test each error state
+  it 'heroku deployer', (done) ->
+    test_path = path.join(test_dir, 'deployers/heroku')
+    new cmd.default([test_path]).run (err, res) =>
+      should.not.exist(err) # why in the F is this erroring out?
+      done()
+
+  # also need to test each error state
   it 's3 deployer', (done) ->
-    new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
+    test_path = path.join(test_dir, 'deployers/s3')
+    new cmd.default([test_path]).run (err, res) ->
       re = /(http:\/\/.*)/
       should.not.exist(err)
       # make sure it returned a url

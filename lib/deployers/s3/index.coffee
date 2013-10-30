@@ -24,7 +24,7 @@ class S3 extends Deployer
       access_denied: "Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name."
       permanent_redirect: "Permanent Redirect: This probably means you have set an incorrect region. Make sure you're bucket's region matches what you set in the configuration."
 
-  configure: (data) ->
+  configure: (data, cb) ->
     @config = data.s3
 
     # defaults
@@ -39,6 +39,7 @@ class S3 extends Deployer
 
     @client = new AWS.S3
     @public = path.join(@path, data.target || '')
+    cb()
 
   deploy: (cb) ->
     @debug.log "deploying #{@path} to #{@name}"

@@ -32,7 +32,6 @@ class DefaultCommand
     check_deployer_config.call(@)
       .then(set_deployer_config.bind(@))
       .then(deploy_async)
-      .otherwise((err) -> console.error("#{err}".red))
       .then (messages) =>
         console.log ''
         console.log 'Deploy Successful!'.green.bold
@@ -40,6 +39,9 @@ class DefaultCommand
         console.log 'Post-Deploy Messages:'.yellow
         console.log "#{msg}" for msg in messages
         cb(null, { messages: messages, deployers: @deployers })
+      , (err) ->
+        console.error("#{err}".red)
+        cb(err)
 
   # 
   # @api private

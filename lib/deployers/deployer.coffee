@@ -15,10 +15,10 @@ class Deployer
       log: (m) -> console.log("#{m}".grey)
       write: (m) -> process.stdout.write("#{m}".grey)
 
-  configure: (data) ->
-    @config = data
+  configure: (slug, data) ->
+    @config = data[slug]
     @config.target ||= process.cwd()
-    @public = path.join(@path, data.target)
+    @public = path.join(@path, data[slug].target)
 
   deploy: (cb) ->
     console.error('make sure you have defined a deploy method'.red)
