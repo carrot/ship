@@ -82,15 +82,29 @@ describe 'deployers', ->
 
   before -> process.env.NODE_ENV = ''
 
-  it 'dropbox deployer'
+  it 'dropbox deployer', (done) ->
+    this.timeout(50000) # set timeout to 50 secs to allow for manual browser interaction
+    test_path = path.join(test_dir, 'deployers/dropbox')
+    new cmd.default([test_path]).run (err, res) ->
+      should.not.exist(err)
+      res.deployers[0].destroy(done)
+
   it 'ftp deployer'
   it 'github pages deployer'
-  it 'heroku deployer'
   it 'nodejitsu deployer'
   it 'vps deployer'
 
+  # also need to test each error state
+  it 'heroku deployer', (done) ->
+    test_path = path.join(test_dir, 'deployers/heroku')
+    new cmd.default([test_path]).run (err, res) =>
+      should.not.exist(err) # why in the F is this erroring out?
+      done()
+
+  # also need to test each error state
   it 's3 deployer', (done) ->
-    new cmd.default([path.join(test_dir, 'deployers/s3')]).run (err, res) ->
+    test_path = path.join(test_dir, 'deployers/s3')
+    new cmd.default([test_path]).run (err, res) ->
       re = /(http:\/\/.*)/
       should.not.exist(err)
       # make sure it returned a url

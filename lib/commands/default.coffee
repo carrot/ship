@@ -30,9 +30,8 @@ class DefaultCommand
     @deployers = deployer_names.map((name) => new Deployers[name](@path))
 
     check_deployer_config.call(@)
-      .then(sync(set_deployer_config.bind(@)))
+      .then(set_deployer_config.bind(@))
       .then(deploy_async)
-      .otherwise((err) -> console.error("#{err}".red))
       .then (messages) =>
         console.log ''
         console.log 'Deploy Successful!'.green.bold
@@ -40,6 +39,9 @@ class DefaultCommand
         console.log 'Post-Deploy Messages:'.yellow
         console.log "#{msg}" for msg in messages
         cb(null, { messages: messages, deployers: @deployers })
+      , (err) ->
+        console.error("#{err}".red)
+        cb(err)
 
   # 
   # @api private
@@ -85,8 +87,15 @@ class DefaultCommand
         deferred.resolve()
 
   set_deployer_config = ->
-    deployer.configure(@config) for deployer in @deployers
-    return @deployers
+    deferred = W.defer()
+
+    config_fn = (d, cb) -> d.configure(@config, cb)
+
+    nodefn.call(async.map, @deployers, config_fn.bind(@))
+      .otherwise(deferred.reject)
+      .then => deferred.resolve(@deployers)
+
+    return deferred.promise
   
   deploy_async = (deployers) ->
     deferred = W.defer()
