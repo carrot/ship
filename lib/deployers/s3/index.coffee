@@ -15,10 +15,12 @@ class S3 extends Deployer
     super
     @name = 'Amazon S3'
     @config =
-      bucket: null
-      region: null
       secret_key: null
       access_key: null
+
+      # optional config values
+      # - region: defaults to 'us-east-1'
+      # - bucket: defaults to the current folder name. the bucket name you choose must be unique across all existing bucket names in Amazon S3
 
     @errors =
       access_denied: "Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name."
