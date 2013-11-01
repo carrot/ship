@@ -27,7 +27,7 @@ class Dropbox extends Deployer
     @config = data.dropbox
 
     # defaults
-    @config.target ||= 'public'
+    @config.target ||= process.cwd()
 
     @public = path.join(@path, @config.target)
     @app = dbox.app(app_key: @config.app_key, app_secret: @config.app_secret)
@@ -62,8 +62,7 @@ class Dropbox extends Deployer
     shipfile.update(@path, conf)
 
     @debug.log "removing test files from Dropbox..."
-    @client.rm @config.target, (status, reply) ->
-      cb()
+    @client.rm(@config.target, cb)
 
 
   # 
