@@ -82,7 +82,13 @@ describe 'deployers', ->
 
   before -> process.env.NODE_ENV = ''
 
-  it 'dropbox deployer'
+  it 'dropbox deployer', (done) ->
+    this.timeout(50000) # set timeout to 50 secs to allow for manual browser interaction
+    test_path = path.join(test_dir, 'deployers/dropbox')
+    new cmd.default([test_path]).run (err, res) ->
+      should.not.exist(err)
+      res.deployers[0].destroy(done)
+
   it 'ftp deployer'
   it 'github pages deployer'
   it 'nodejitsu deployer'
