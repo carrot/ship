@@ -41,11 +41,11 @@ class Github extends Deployer
     @original_branch = execute('git rev-parse --abbrev-ref HEAD') 
     if not @original_branch then return deferred.reject(@errors.make_commit)
 
-    console.log "starting on branch #{original_branch}"
+    @debug.log "starting on branch #{original_branch}"
     deferred.resolve()
 
   move_to_gh_pages_branch = ->
-    console.log 'switching to gh-pages branch'.grey
+    @debug.log 'switching to gh-pages branch'
 
     if not execute('git branch | grep gh-pages')
       execute('git branch -D gh-pages')
@@ -56,7 +56,7 @@ class Github extends Deployer
 
   remove_source_files = ->
     deferred = W.defer()
-    console.log 'removing source files'.grey
+    @debug.log 'removing source files'
 
     opts = { root: '', directoryFilter: ["!#{@public}", '!.git'] };
 
@@ -75,13 +75,13 @@ class Github extends Deployer
     fn.call()
 
   push_code = ->
-    console.log 'pushing to origin/gh-pages'.grey
+    @debug.log 'pushing to origin/gh-pages'
     execute "git push origin gh-pages --force"
 
-    console.log "switching back to #{@original_branch} branch".grey
+    @debug.log "switching back to #{@original_branch} branch"
     execute "git checkout #{@original_branch}"
  
-    console.log 'deployed to github pages'.grey
+    @debug.log 'deployed to github pages'
     fn.call()
 
   # 
