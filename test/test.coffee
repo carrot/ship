@@ -4,6 +4,7 @@ request = require 'request'
 cmd = require '../lib/commands'
 helpers = require './helpers'
 test_dir = path.join(process.cwd(), 'test/fixtures')
+async = require 'async'
 
 describe 'commands', ->
 
@@ -104,9 +105,21 @@ describe 'deployers', ->
       # make sure it returned a url
       res.messages[0].should.match(re)
       # hit the url and make sure the site is up
-      request res.messages[0].match(re)[1], (err, resp, body) ->
-        should.not.exist(err)
-        # make sure the site has the content we specified
-        body.should.match /look ma, it worked/
+      # and that the ignored file is not
+      root_url = res.messages[0].match(re)[1]
+
+      req_root = (cb) ->
+        request root_url, (err, resp, body) ->
+          should.not.exist(err)
+          body.should.match /look ma, it worked/
+          cb()
+
+      req_ignore = (cb) ->
+        request "#{root_url}/ignoreme.html", (err, resp, body) ->
+          should.not.exist(err)
+          body.should.not.match /i am a-scared/
+          cb()
+
+      async.parallel [req_root, req_ignore], ->
         # remove the testing bucket and finish
         res.deployers[0].destroy(done)

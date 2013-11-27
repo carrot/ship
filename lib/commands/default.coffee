@@ -6,6 +6,7 @@ fn = require 'when/function'
 nodefn = require 'when/node/function'
 async = require 'async'
 prompt = require 'prompt'
+_ = require 'underscore'
 
 arg_parser = require '../arg_parser'
 prompt = require '../prompt'
@@ -27,6 +28,8 @@ class DefaultCommand
     if @args instanceof Error then return cb(@args.toString())
 
     deployer_names = if @deployer then [@deployer] else Object.keys(@config)
+    deployer_names = _.without(deployer_names, 'ignore')
+
     @deployers = deployer_names.map((name) => new Deployers[name](@path))
 
     check_deployer_config.call(@)

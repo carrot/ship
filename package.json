@@ -34,7 +34,8 @@
     "mime": "1.x.x",
     "ssh2": "0.2.x",
     "when": "2.x.x",
-    "aws-sdk": "1.x.x"
+    "aws-sdk": "1.x.x",
+    "minimatch": "0.2.x"
   },
   "devDependencies": {
     "mocha": "*",

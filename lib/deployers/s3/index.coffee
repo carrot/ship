@@ -8,6 +8,7 @@ async = require 'async'
 mime = require 'mime'
 readdirp = require 'readdirp'
 Deployer = require '../deployer'
+minimatch = require 'minimatch'
 
 class S3 extends Deployer
 
@@ -41,6 +42,8 @@ class S3 extends Deployer
 
     @client = new AWS.S3
     @public = path.join(@path, data.target || '')
+    @ignores = ['ship*.conf'].concat(data.ignore)
+
     cb()
 
   deploy: (cb) ->
@@ -95,6 +98,15 @@ class S3 extends Deployer
     deferred = W.defer()
 
     readdirp { root: @public }, (err, res) =>
+
+      # ship ignore support
+      for file, i in res.files
+        if file
+          ignored = false
+          for ignore_path in @ignores
+            if minimatch(file.path, ignore_path) then ignored = true
+        if ignored then res.files.splice(i, 1)
+
       files = _.pluck(res.files, 'path')
 
       async.map files, put_file.bind(@), (err) =>
