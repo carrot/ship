@@ -3,7 +3,7 @@ W = require 'when'
 dbox = require 'dbox'
 open = require 'open'
 readdirp = require 'readdirp'
-_ = require 'underscore'
+_ = require 'lodash'
 
 class Dropbox extends Deployer
 

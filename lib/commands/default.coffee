@@ -6,7 +6,7 @@ fn = require 'when/function'
 nodefn = require 'when/node/function'
 async = require 'async'
 prompt = require 'prompt'
-_ = require 'underscore'
+_ = require 'lodash'
 
 arg_parser = require '../arg_parser'
 prompt = require '../prompt'

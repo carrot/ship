@@ -1,6 +1,6 @@
 W = require 'when'
 path = require 'path'
-_ = require 'underscore'
+_ = require 'lodash'
 readdirp = require 'readdirp'
 async = require 'async'
 

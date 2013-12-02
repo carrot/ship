@@ -3,7 +3,7 @@ path = require 'path'
 fs = require 'fs'
 W = require 'when'
 AWS = require 'aws-sdk'
-_ = require 'underscore'
+_ = require 'lodash'
 async = require 'async'
 mime = require 'mime'
 readdirp = require 'readdirp'
@@ -99,15 +99,8 @@ class S3 extends Deployer
 
     readdirp { root: @public }, (err, res) =>
 
-      # ship ignore support
-      for file, i in res.files
-        if file
-          ignored = false
-          for ignore_path in @ignores
-            if minimatch(file.path, ignore_path) then ignored = true
-        if ignored then res.files.splice(i, 1)
-
-      files = _.pluck(res.files, 'path')
+      # `ignores` support
+      files = _.pluck(remove_ignores(res.files, @ignores), 'path')
 
       async.map files, put_file.bind(@), (err) =>
         if err then return deferred.reject(err)
@@ -158,5 +151,10 @@ class S3 extends Deployer
       if err then return cb(err)
       @debug.log "uploaded #{fpath}"
       cb()
+
+  remove_ignores = (files, ignores) ->
+    mask = []
+    mask.push _(ignores).map((i) -> minimatch(f.path, i)).contains(true) for f in files
+    files.filter((m,i) -> not mask[i])
 
 module.exports = S3

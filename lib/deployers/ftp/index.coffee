@@ -2,7 +2,7 @@ require 'colors'
 Deployer = require '../deployer'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
-_ = require 'underscore'
+_ = require 'lodash'
 W = require 'when'
 
 class FTP extends Deployer
