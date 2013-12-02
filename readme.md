@@ -65,6 +65,8 @@ If there are other network configs, they appear namespaced under the deployer na
 
 If you want to deploy to multiple environments, you can do this. Just drop an environment name after "ship" and before ".conf" like this: `ship.staging.conf`, and provide the environment in your command, like this `ship -e staging`, and ship will look for the appropriate environment file and use that.
 
+Finally, some deployers support built in 'ignores'. If you'd like to ignore a file or folder from the deploy process, just add an `ignore` array to the `ship.conf` file and fill it with [minimatch](https://github.com/isaacs/minimatch)-compatible strings. Any deployer that supports ignores will automatically ignore `ship*.conf` because you do not want to deploy that file, ever.
+
 ### Javascript API
 
 The interface is fairly straightforward. An example is below:
