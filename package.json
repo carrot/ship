@@ -35,7 +35,8 @@
     "when": "2.x.x",
     "aws-sdk": "1.x.x",
     "minimatch": "0.2.x",
-    "lodash": "2.x.x"
+    "lodash": "2.x.x",
+    "shelljs": "0.2.6"
   },
   "devDependencies": {
     "mocha": "*",

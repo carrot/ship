@@ -17,16 +17,14 @@ class Deployer
 
   configure: (slug, data) ->
     @config = data[slug]
-    @config.target ||= process.cwd()
-    @public = path.join(@path, data[slug].target)
+    @payload = if @config.target then path.join(@path, @config.target) else process.cwd()
 
   deploy: (cb) ->
     console.error('make sure you have defined a deploy method'.red)
     cb()
 
-  mock_deploy: (cb) ->
-    # this is a method used for testing to ensure commands
-    # are being parsed correctly
-    cb()
+  # this is a method used for testing to ensure commands
+  # are being parsed correctly
+  mock_deploy: (cb) -> cb()
 
 module.exports = Deployer

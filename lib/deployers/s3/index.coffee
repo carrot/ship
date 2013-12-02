@@ -1,7 +1,9 @@
 require 'colors'
+
 path = require 'path'
 fs = require 'fs'
 W = require 'when'
+nodefn = require 'when/node/function'
 AWS = require 'aws-sdk'
 _ = require 'lodash'
 async = require 'async'
@@ -18,10 +20,8 @@ class S3 extends Deployer
     @config =
       secret_key: null
       access_key: null
-
-      # optional config values
-      # - region: defaults to 'us-east-1'
-      # - bucket: defaults to the current folder name. the bucket name you choose must be unique across all existing bucket names in Amazon S3
+      # region: defaults to 'us-east-1'
+      # bucket: defaults to the current folder name. the bucket name you choose must be unique across all existing bucket names in Amazon S3
 
     @errors =
       access_denied: "Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name."
@@ -41,7 +41,7 @@ class S3 extends Deployer
       region: @config.region
 
     @client = new AWS.S3
-    @public = path.join(@path, data.target || '')
+    @payload = if @config.target then path.join(@path, @config.target) else @path
     @ignores = ['ship*.conf'].concat(data.ignore)
 
     cb()
@@ -79,12 +79,10 @@ class S3 extends Deployer
         when 'NoSuchBucket'
           create_bucket.call(@)
             .then(create_site_config.bind(@))
-            .otherwise(deferred.reject)
-            .ensure(deferred.resolve)
+            .done(deferred.resolve, deferred.reject)
         when 'NoSuchWebsiteConfiguration'
           create_site_config.call(@)
-            .otherwise(deferred.reject)
-            .ensure(deferred.resolve)
+            .done(deferred.resolve, deferred.reject)
         when 'AccessDenied'
           deferred.reject(@errors.access_denied)
         when 'PermanentRedirect'
@@ -97,9 +95,9 @@ class S3 extends Deployer
   upload_files = ->
     deferred = W.defer()
 
-    readdirp { root: @public }, (err, res) =>
+    readdirp { root: @payload }, (err, res) =>
 
-      # `ignores` support
+      # `ignore` support
       files = _.pluck(remove_ignores(res.files, @ignores), 'path')
 
       async.map files, put_file.bind(@), (err) =>
@@ -110,19 +108,13 @@ class S3 extends Deployer
     return deferred.promise
 
   create_bucket = ->
-    deferred = W.defer()
-
     @debug.write "Creating bucket '#{@config.bucket}'..."
-    @client.createBucket { Bucket: @config.bucket }, (err, data) =>
-      if err then return deferred.reject(err)
-      @debug.log 'done!'
-      deferred.resolve()
 
-    return deferred.promise
+    nodefn
+      .call(@client.createBucket.bind(@client), { Bucket: @config.bucket })
+      .tap(=> @debug.log 'done!')
 
   create_site_config = ->
-    deferred = W.defer()
-
     @debug.write 'No static website configuration detected. Configuring now...'
 
     site_config =
@@ -131,15 +123,11 @@ class S3 extends Deployer
         IndexDocument:
           Suffix: 'index.html'
 
-    @client.putBucketWebsite site_config, (err, data) =>
-      if err then return deferred.reject(err)
-      @debug.log 'done!'
-      deferred.resolve()
-
-    return deferred.promise
+    nodefn.call(@client.putBucketWebsite.bind(@client), site_config)
+      .tap(=> @debug.log 'done!')
 
   put_file = (fpath, cb) ->
-    contents = fs.readFileSync(path.join(@public, fpath))
+    contents = fs.readFileSync(path.join(@payload, fpath))
 
     @client.putObject
       Bucket: @config.bucket

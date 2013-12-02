@@ -29,13 +29,12 @@ class DefaultCommand
 
     deployer_names = if @deployer then [@deployer] else Object.keys(@config)
     deployer_names = _.without(deployer_names, 'ignore')
-
     @deployers = deployer_names.map((name) => new Deployers[name](@path))
 
     check_deployer_config.call(@)
       .then(set_deployer_config.bind(@))
       .then(deploy_async)
-      .then (messages) =>
+      .done (messages) =>
         console.log ''
         console.log 'Deploy Successful!'.green.bold
         console.log ''
@@ -43,23 +42,17 @@ class DefaultCommand
         console.log "#{msg}" for msg in messages
         cb(null, { messages: messages, deployers: @deployers })
       , (err) ->
-        console.error("#{err}".red)
+        error = new Error(err)
+        console.error(error.stack.red)
         cb(err)
 
   # 
   # @api private
   # 
   
-  sync = (func, ctx) -> fn.lift(func.bind(@))
-
   check_deployer_config = ->
     deferred = W.defer()
-
-    if @deployer
-      configure_deployer.call(@, deferred)
-    else
-      deferred.resolve()
-
+    if @deployer then configure_deployer.call(@, deferred) else deferred.resolve()
     return deferred.promise
 
   configure_deployer = (deferred) ->
@@ -72,44 +65,28 @@ class DefaultCommand
     Object.keys(t.config).indexOf(t.deployer) > -1
 
   create_conf_with_deployer = (deferred) ->
-    nodefn.call(prompt.bind(@))
-      .otherwise((err) -> deferred.reject(err))
-      .then (res) =>
-        @config = {}
-        @config[@deployer] = res
-        shipfile.create(@path)
-        shipfile.update(@path, @config)
-        deferred.resolve()
+    nodefn.call(prompt.bind(@)).done (res) =>
+      @config = {}
+      @config[@deployer] = res
+      shipfile.create(@path)
+      shipfile.update(@path, @config)
+      deferred.resolve()
+    , deferred.reject
 
   add_deployer_to_conf = (deferred) ->
-    nodefn.call(prompt.bind(@))
-      .otherwise((err) -> deferred.reject(err))
-      .then (res) =>
-        @config[@deployer] = res
-        shipfile.update(@path, @config)
-        deferred.resolve()
+    nodefn.call(prompt.bind(@)).done (res) =>
+      @config[@deployer] = res
+      shipfile.update(@path, @config)
+      deferred.resolve()
+    , deferred.reject
 
   set_deployer_config = ->
-    deferred = W.defer()
-
-    config_fn = (d, cb) -> d.configure(@config, cb)
-
-    nodefn.call(async.map, @deployers, config_fn.bind(@))
-      .otherwise(deferred.reject)
-      .then => deferred.resolve(@deployers)
-
-    return deferred.promise
+    nodefn
+      .call(async.map, @deployers, (d, cb) => d.configure(@config, cb))
+      .yield(@deployers)
   
   deploy_async = (deployers) ->
-    deferred = W.defer()
-
-    deployfn = (d, cb) ->
+    nodefn.call async.map, deployers, (d, cb) ->
       if process.env.NODE_ENV == 'test' then d.mock_deploy(cb) else d.deploy(cb)
-
-    async.map deployers, deployfn, (err, res) ->
-      if err then deferred.reject(err)
-      deferred.resolve(res)
-
-    return deferred.promise
 
 module.exports = DefaultCommand

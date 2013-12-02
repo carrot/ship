@@ -19,12 +19,11 @@ class Dropbox extends Deployer
     console.log "deploying #{@path} to Dropbox"
 
     upload_files.call(@)
-    .otherwise((err) -> console.error(err))
-    .ensure(cb)
+      .done(cb, (err) -> console.error(err))
 
-  configure: (data) ->
+  configure: (data, cb) ->
     @config = data
-    @public = path.join(@path, @config.target)
+    @payload = if @config.target then path.join(@path, @config.target) else process.cwd()
     @app = dbox.app(app_key: @config.app_key, app_secret: @config.app_secret)
 
     # possibly use configstore to know when user has already authed so this
@@ -38,13 +37,15 @@ class Dropbox extends Deployer
         @access_token = access_token
         @client = @app.client(@access_token)
 
+    cb()
+
   # this is an exact copy of the way it's done in FTP, which
   # might warrant abstracting this out to a helper
   upload_files: ->
     deferred = W.defer()
     console.log 'uploading files...'
 
-    readdirp { root: @public }, (err, res) ->
+    readdirp { root: @payload }, (err, res) ->
       if err then return deferred.reject(err)
 
       folders = _.pluck(res.directories, 'path')
@@ -58,10 +59,10 @@ class Dropbox extends Deployer
           deferred.resolve()
 
   mkdir = (p, cb) ->
-    @client.mkdir(path.join(@public, p), p, cb)
+    @client.mkdir(path.join(@payload, p), p, cb)
 
   put_file = (f, cb) ->
     console.log "uploading #{f}".green
-    @client.put(path.join(@public, f), f, cb)
+    @client.put(path.join(@payload, f), f, cb)
 
 module.exports = Dropbox

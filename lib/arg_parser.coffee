@@ -14,6 +14,7 @@ class ArgsParser
       deployer_not_found: "I don't think we have that deployer in stock :("
       path_nonexistant: "It doesn't look like you have specified a path to a folder"
 
+    # ship
     if args.length < 1
 
       # no args, deploy all from conf file if present
@@ -21,6 +22,8 @@ class ArgsParser
       if not config then return new Error(@errors.missing_deployer)
       return { path: @path, config: config, deployer: false }
 
+    # ship s3
+    # ship public/
     if args.length == 1
 
       # if the arg passed is a deployer, assume path is cwd
@@ -32,6 +35,7 @@ class ArgsParser
       if not config then return new Error(@errors.missing_deployer)
       return { path: args[0], config: config, deployer: false }
 
+    # ship public/ s3
     if args.length > 1
 
       # two args, both path and deployer must exist
