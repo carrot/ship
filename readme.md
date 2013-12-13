@@ -1,6 +1,10 @@
 Ship
 ----
 
+[![npm](https://badge.fury.io/js/ship.png)](http://badge.fury.io/js/ship)
+[![tests](https://travis-ci.org/carrot/ship.png?branch=master)](https://travis-ci.org/carrot/ship)
+[![dependencies](https://david-dm.org/carrot/ship.png)](https://david-dm.org/carrot/ship)
+
 Multi-platform deployment with node.
 
 > **Note:** This library is _incomplete_, still in development, and you should not attempt to use it for anything, yet. As soon as it's ready, this note will be removed, and releases will be tagged.
