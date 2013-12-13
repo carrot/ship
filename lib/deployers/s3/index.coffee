@@ -42,7 +42,8 @@ class S3 extends Deployer
 
     @client = new AWS.S3
     @payload = if @config.target then path.join(@path, @config.target) else @path
-    @ignores = ['ship*.conf'].concat(data.ignore)
+    @ignores = ['ship*.conf']
+    if data.ignore then @ignores = @ignores.concat(data.ignore)
 
     cb()
 
