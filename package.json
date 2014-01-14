@@ -36,7 +36,10 @@
     "aws-sdk": "1.x.x",
     "minimatch": "0.2.x",
     "lodash": "2.x.x",
-    "shelljs": "0.2.6"
+    "shelljs": "0.2.6",
+    "nodemailer": "0.6.x",
+    "node-zip": "1.x.x",
+    "tar.gz": "0.1.x"
   },
   "devDependencies": {
     "mocha": "*",
