@@ -137,7 +137,7 @@ class S3 extends Deployer
       ACL: 'public-read'
       ContentType: mime.lookup(fpath)
     , (err, data) =>
-      if err then return cb(err)
+      if err then console.error('error putting ' + fpath); return cb(err)
       @debug.log "uploaded #{fpath}"
       cb()
 
