@@ -22,10 +22,11 @@ class md5sum
       yaml.safeDump
         file: create_hash(content).call
 
-
     # update cargo to hold only updated cargo(update includes new files)
     @cargo = compare_hashes @config
     return @cargo
+
+
 
   ###*
    * @access private
@@ -45,6 +46,11 @@ class md5sum
       return data
     )
 
+  complete_hash: (cargo) ->
+    cargoStuc(cargo, ->
+      console.log 'complete_hash: cargoStuc complete'
+      )
+
   compare_hashes: (config) ->
     # compare new hashes to previous
     # return updated(new) files
@@ -58,7 +64,7 @@ class md5sum
       @ignores.push ignore
 
 
-  serialLoop = (dir, done) ->
+  cargoStuc = (dir, done) ->
     results = []
     fs.readdir dir, (err, list) ->
       return done(err) if err
@@ -70,7 +76,7 @@ class md5sum
         file = dir + "/" + file
         fs.stat file, (err, stat) ->
           if stat and stat.isDirectory()
-            serialLoop file, (err, res) ->
+            cargoStuc file, (err, res) ->
               results = results.concat(res)
               next()
 
