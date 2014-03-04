@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('coffee-script');
+require('coffee-script/register');
 require('colors');
 
 var argv = require('optimist').alias('e', 'environment').argv,
