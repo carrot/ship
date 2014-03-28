@@ -10,7 +10,7 @@ exports.create = (filepath) ->
 
 exports.update = (filepath, contents) ->
   file = path.join(filepath, 'ship.conf')
-  
+
   if process.env.NODE_ENV == 'test'
     console.log 'updating shipfile'
     console.log yaml.safeDump(contents)

@@ -43,10 +43,10 @@ class ArgsParser
       if not is_deployer(args[1]) then return new Error(@errors.deployer_not_found)
       return { path: args[0], config: find_conf_file(@path, env), deployer: args[1] }
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   find_conf_file = (p, env) ->
     env = if env? and env != '' then ".#{env}" else ''
     p = path.join(p, "ship#{env}.conf")

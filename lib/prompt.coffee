@@ -14,6 +14,6 @@ module.exports = (cb) ->
     prompt.start(stdin: helpers.stdin)
   else
     prompt.start()
-  
+
   async.mapSeries(Object.keys(@deployers[0].config), ((k,c)-> prompt.get([k],c)), cb)
 
