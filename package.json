@@ -38,6 +38,10 @@
     "lodash": "2.x.x",
     "shelljs": "0.2.6"
   },
+  "preferGlobal": true,
+  "scripts": {
+    "test": "mocha"
+  },
   "devDependencies": {
     "mocha": "*",
     "should": "*",
