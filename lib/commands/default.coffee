@@ -15,10 +15,9 @@ Deployers = require '../deployers'
 
 # TODO: better error handling
 class DefaultCommand
-
   constructor: (args, @env) ->
     @args = arg_parser(args, env)
-    if @args instanceof Error then return @
+    if @args instanceof Error then return this
 
     @path = @args.path
     @config = @args.config
@@ -40,25 +39,30 @@ class DefaultCommand
         console.log ''
         console.log 'Post-Deploy Messages:'.yellow
         console.log "#{msg}" for msg in messages
-        cb(null, { messages: messages, deployers: @deployers })
+        cb(null, messages: messages, deployers: @deployers)
       , (err) ->
         error = new Error(err)
         console.error(error.stack.red)
         cb(err)
 
-  #
-  # @api private
-  #
-
+  ###*
+   * @private
+  ###
   check_deployer_config = ->
     deferred = W.defer()
-    if @deployer then configure_deployer.call(@, deferred) else deferred.resolve()
+    if @deployer
+      configure_deployer.call(@, deferred)
+    else
+      deferred.resolve()
     return deferred.promise
 
   configure_deployer = (deferred) ->
-    if not @deployer then return deferred.resolve()
-    if not @config then return create_conf_with_deployer.call(@, deferred)
-    if not contains_deployer(@) then return add_deployer_to_conf.call(@, deferred)
+    if not @deployer
+      return deferred.resolve()
+    if not @config
+      return create_conf_with_deployer.call(@, deferred)
+    if not contains_deployer(@)
+      return add_deployer_to_conf.call(@, deferred)
     deferred.resolve()
 
   contains_deployer = (t) ->
@@ -87,6 +91,9 @@ class DefaultCommand
 
   deploy_async = (deployers) ->
     nodefn.call async.map, deployers, (d, cb) ->
-      if process.env.NODE_ENV == 'test' then d.mock_deploy(cb) else d.deploy(cb)
+      if process.env.NODE_ENV is 'test'
+        d.mock_deploy(cb)
+      else
+        d.deploy(cb)
 
 module.exports = DefaultCommand

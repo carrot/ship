@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 require('coffee-script/register');
 require('colors');
 
@@ -8,7 +7,7 @@ var argv = require('optimist').alias('e', 'environment').argv,
     ship = require('../lib'),
     Commands = require('../lib/commands');
 
-default_cmd = new Commands['default'](argv._, argv.environment)
+default_cmd = new Commands['default'](argv._, argv.environment);
 
 default_cmd.run(function(err, res){
   if (err) return console.error(err.red);

@@ -15,5 +15,9 @@ module.exports = (cb) ->
   else
     prompt.start()
 
-  async.mapSeries(Object.keys(@deployers[0].config), ((k,c)-> prompt.get([k],c)), cb)
+  async.mapSeries(
+    Object.keys(@deployers[0].config)
+    (k,c) -> prompt.get([k],c)
+    cb
+  )
 
