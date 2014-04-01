@@ -2,18 +2,20 @@ require 'colors'
 path = require 'path'
 
 class Deployer
+  name: 'deployer'
 
-  constructor: ->
-    @name = 'deployer'
+  ###*
+   * [config description]
+   * @attribute [target=process.cwd()] Folder to deploy
+   * @attribute [before] Path to before hook script
+   * @attribute [after] Path to to after hook script
+   * @type {Object.<string, string>}
+  ###
+  config: {}
 
-    # optional global config
-    # - target: folder to deploy (default process.cwd())
-    # - before: path to before hook script
-    # - after: path to after hook script
-    
-    @debug =
-      log: (m) -> console.log("#{m}".grey)
-      write: (m) -> process.stdout.write("#{m}".grey)
+  @debug =
+    log: (m) -> console.log("#{m}".grey)
+    write: (m) -> process.stdout.write("#{m}".grey)
 
   configure: (slug, data) ->
     @config = data[slug]

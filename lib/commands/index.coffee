@@ -1,1 +1,1 @@
-module.exports = require('indx')(__dirname )
+module.exports = require('indx')(__dirname)

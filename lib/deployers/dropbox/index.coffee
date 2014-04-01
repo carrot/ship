@@ -6,14 +6,14 @@ readdirp = require 'readdirp'
 _ = require 'lodash'
 
 class Dropbox extends Deployer
+  name: 'Dropbox'
+
+  config:
+    target: null
+    app_key: null
+    app_secret: null
 
   constructor: (@path) ->
-    super
-    @name = 'Dropbox'
-    @config =
-      target: null
-      app_key: null
-      app_secret: null
 
   deploy: (cb) ->
     console.log "deploying #{@path} to Dropbox"

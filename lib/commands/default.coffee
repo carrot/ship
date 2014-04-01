@@ -5,34 +5,29 @@ W = require 'when'
 fn = require 'when/function'
 nodefn = require 'when/node/function'
 async = require 'async'
-prompt = require 'prompt'
+prompt = require('sync-prompt').prompt
 _ = require 'lodash'
 
-arg_parser = require '../arg_parser'
-prompt = require '../prompt'
+ArgsParser = require '../arg_parser'
 shipfile = require '../shipfile'
 Deployers = require '../deployers'
 
-# TODO: better error handling
 class DefaultCommand
   constructor: (args, @env) ->
-    @args = arg_parser(args, env)
-    if @args instanceof Error then return this
+    args = new ArgsParser(args, env)
+    @path = args.path
+    @config = args.config
+    @deployerName = args.deployer
 
-    @path = @args.path
-    @config = @args.config
-    @deployer = @args.deployer
+    # default to the first deployer in the config file if the name isn't
+    # provided as an arg
+    @deployerName ?= Object.keys(@config)[0]
+    @deployer = new Deployers[@deployerName](@path)
 
-  run: (cb) ->
-    if @args instanceof Error then return cb(@args.toString())
-
-    deployer_names = if @deployer then [@deployer] else Object.keys(@config)
-    deployer_names = _.without(deployer_names, 'ignore')
-    @deployers = deployer_names.map((name) => new Deployers[name](@path))
-
-    check_deployer_config.call(@)
-      .then(set_deployer_config.bind(@))
-      .then(deploy_async)
+  run: ->
+    @_checkDeployerConfig()
+      .then(@_setDeployerConfig)
+      .then(@_deployAsync)
       .done (messages) =>
         console.log ''
         console.log 'Deploy Successful!'.green.bold
@@ -48,52 +43,82 @@ class DefaultCommand
   ###*
    * @private
   ###
-  check_deployer_config = ->
-    deferred = W.defer()
+  _checkDeployerConfig: ->
     if @deployer
-      configure_deployer.call(@, deferred)
-    else
-      deferred.resolve()
-    return deferred.promise
+      @_configureDeployer()
 
-  configure_deployer = (deferred) ->
+  ###*
+   * @private
+  ###
+  _configureDeployer: ->
     if not @deployer
-      return deferred.resolve()
+      return
     if not @config
-      return create_conf_with_deployer.call(@, deferred)
-    if not contains_deployer(@)
-      return add_deployer_to_conf.call(@, deferred)
-    deferred.resolve()
+      return @_createConfWithDeployer()
+    if not @_containsDeployer(@)
+      return @_addDeployerToConf()
 
-  contains_deployer = (t) ->
+  ###*
+   * @private
+  ###
+  _containsDeployer: (t) ->
     Object.keys(t.config).indexOf(t.deployer) > -1
 
-  create_conf_with_deployer = (deferred) ->
-    nodefn.call(prompt.bind(@)).done (res) =>
-      @config = {}
-      @config[@deployer] = res
-      shipfile.create(@path)
-      shipfile.update(@path, @config)
-      deferred.resolve()
-    , deferred.reject
+  ###*
+   * @private
+  ###
+  _createConfWithDeployer: (deferred) ->
+    nodefn
+      .call(_prompt)
+      .done(
+        (res) =>
+          @config = {}
+          @config[@deployer] = res
+          shipfile.create(@path)
+          shipfile.update(@path, @config)
+          deferred.resolve()
+        deferred.reject
+      )
 
-  add_deployer_to_conf = (deferred) ->
-    nodefn.call(prompt.bind(@)).done (res) =>
-      @config[@deployer] = res
-      shipfile.update(@path, @config)
-      deferred.resolve()
-    , deferred.reject
+  ###*
+   * @private
+  ###
+  _addDeployerToConf: (deferred) ->
+    nodefn
+      .call(_prompt)
+      .done(
+        (res) =>
+          @config[@deployer] = res
+          shipfile.update(@path, @config)
+          deferred.resolve()
+        deferred.reject
+      )
 
-  set_deployer_config = ->
+  ###*
+   * @private
+  ###
+  _setDeployerConfig: ->
     nodefn
       .call(async.map, @deployers, (d, cb) => d.configure(@config, cb))
       .yield(@deployers)
 
-  deploy_async = (deployers) ->
+  ###*
+   * @private
+  ###
+  _deployAsync: (deployers) ->
     nodefn.call async.map, deployers, (d, cb) ->
       if process.env.NODE_ENV is 'test'
         d.mock_deploy(cb)
       else
         d.deploy(cb)
+
+  ###*
+   * Ask for an array of config options.
+   * @private
+   * @return {Array<string>} The array of answers.
+  ###
+  _prompt: (options) ->
+    console.log "please enter the following config details for #{@deployerName.bold}".green
+    prompt("#{option}:") for option in options
 
 module.exports = DefaultCommand

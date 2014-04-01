@@ -24,7 +24,6 @@
     "colors": "0.6.x",
     "indx": "0.0.x",
     "async": "0.2.x",
-    "prompt": "0.2.x",
     "ftp": "0.3.x",
     "readdirp": "0.x.x",
     "dbox": "0.6.x",
@@ -36,7 +35,8 @@
     "aws-sdk": "1.x.x",
     "minimatch": "0.2.x",
     "lodash": "2.x.x",
-    "shelljs": "0.2.6"
+    "shelljs": "0.2.6",
+    "sync-prompt": "^0.2.2"
   },
   "devDependencies": {
     "mocha": "*",

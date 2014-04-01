@@ -77,7 +77,7 @@ describe 'commands', ->
   it 'should be able to find ship.conf files for different environments', (done) ->
     new cmd.default(['staging_env'], 'staging').run (err, res) ->
       should.not.exist(err)
-      done()    
+      done()
 
 describe 'deployers', ->
 
