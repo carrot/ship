@@ -1,6 +1,4 @@
-Ship
-----
-
+# Ship
 [![npm](https://badge.fury.io/js/ship.png)](http://badge.fury.io/js/ship)
 [![tests](https://travis-ci.org/carrot/ship.png?branch=master)](https://travis-ci.org/carrot/ship)
 [![dependencies](https://david-dm.org/carrot/ship.png)](https://david-dm.org/carrot/ship)
@@ -9,12 +7,10 @@ Multi-platform deployment with node.
 
 > **Note:** This library is _incomplete_, still in development, and you should not attempt to use it for anything, yet. As soon as it's ready, this note will be removed, and releases will be tagged.
 
-### Why should you care?
-
+## Why should you care?
 If you often need to deploy files to different platforms, or you have an app or library written in node and would like to give your users the ability to deploy files to a variety of platforms, ship is probably what you are looking for.
 
 Ship is small library that deploys files smoothly to the platforms listed below:
-
 - [Amazon S3](lib/deployers/s3)
 - [Github Pages](lib/deployers/gh-pages)
 - [Heroku](lib/deployers/heroku)
@@ -25,12 +21,10 @@ Ship is small library that deploys files smoothly to the platforms listed below:
 
 Ship is also built on the adapter pattern, so if there's another platforms you'd like to deploy to, the project structure is easy to understand, and you can write a deployer, send a pull request, and we'd be happy to include it.
 
-### Installation
-
+## Installation
 `npm install ship -g`
 
-### Usage
-
+## Usage
 If you are using ship directly for your own deployments, its primary interface is through the command line. If you'd like to integrate it into your node app, skip to the section below on the javascript API.
 
 The command line interface is simple -- just follow the format below
@@ -55,8 +49,7 @@ Available deployers are as such:
 - Dropbox - `dropbox`
 - Linux VPS - `vps`
 
-### ship.conf
-
+## ship.conf
 This is a simple file used by ship to hold on to config values for various platforms. It's a yaml file and is quite straightforward. An example might look like this, if it was configured for amazon s3.
 
 ```
@@ -71,8 +64,7 @@ If you want to deploy to multiple environments, you can do this. Just drop an en
 
 Finally, some deployers support built in 'ignores'. If you'd like to ignore a file or folder from the deploy process, just add an `ignore` array to the `ship.conf` file and fill it with [minimatch](https://github.com/isaacs/minimatch)-compatible strings. Any deployer that supports ignores will automatically ignore `ship*.conf` because you do not want to deploy that file, ever.
 
-### Javascript API
-
+## Javascript API
 The interface is fairly straightforward. An example is below:
 
 ```js
