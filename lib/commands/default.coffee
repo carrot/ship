@@ -112,13 +112,4 @@ class DefaultCommand
       else
         d.deploy(cb)
 
-  ###*
-   * Ask for an array of config options.
-   * @private
-   * @return {Array<string>} The array of answers.
-  ###
-  _prompt: (options) ->
-    console.log "please enter the following config details for #{@deployerName.bold}".green
-    prompt("#{option}:") for option in options
-
 module.exports = DefaultCommand

@@ -36,7 +36,8 @@
     "minimatch": "0.2.x",
     "lodash": "2.x.x",
     "shelljs": "0.2.6",
-    "sync-prompt": "^0.2.2"
+    "sync-prompt": "^0.2.2",
+    "argparse": "^0.1.15"
   },
   "devDependencies": {
     "mocha": "*",
