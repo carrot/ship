@@ -4,6 +4,21 @@ packageInfo = require(path.join(__dirname, '../package.json'))
 ArgumentParser = require('argparse').ArgumentParser
 
 deployers = require './deployers'
+ShipFile = require './shipfile'
+Ship = require './'
+
+###*
+ * Ask for an array of config options.
+ * @param {[type]} deployer [description]
+ * @param {String[]} questions [description]
+ * @return {Object<string>} The config object of answers.
+###
+prompt = (deployer, questions) ->
+  console.log "please enter the following config details for #{deployer.bold}".green
+  answers = {}
+  for question in questions
+    answers[question] = prompt("#{question}:")
+  answers
 
 argparser = new ArgumentParser(
   version: packageInfo.version
@@ -30,10 +45,18 @@ argparser.addArgument(
 )
 args = argparser.parseArgs()
 
-###*
- * Ask for an array of config options.
- * @return {Array<string>} The array of answers.
-###
-_prompt = (options) ->
-  console.log "please enter the following config details for #{@deployerName.bold}".green
-  prompt("#{option}:") for option in options
+shipFile = new ShipFile(args.config)
+shipfile.setConfig(
+  args.deployer
+  prompt(args.deployer, shipFile.getMissingConfigValues(args.deployer))
+)
+
+ship = new Ship(shipFile, args.path)
+ship
+  .deploy(args.deployer)
+  .then(
+    ->
+      console.log('deploy done!')
+    (err) ->
+      console.error('oh no!: #{err}')
+  )

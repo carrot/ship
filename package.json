@@ -38,6 +38,7 @@
     "shelljs": "0.2.6",
     "sync-prompt": "^0.2.2",
     "argparse": "^0.1.15"
+    "fobject": "0.0.0"
   },
   "devDependencies": {
     "mocha": "*",

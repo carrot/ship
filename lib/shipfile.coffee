@@ -1,18 +1,75 @@
-fs = require 'fs'
-path = require 'path'
-yaml = require 'js-yaml'
+File = require 'fobject'
 
-exports.create = (filepath) ->
-  if process.env.NODE_ENV == 'test'
-    console.log 'creating shipfile'
-  else
-    fs.openSync(path.join(filepath, 'ship.conf'), 'w')
+class ShipFile
+  ###*
+   * The file object that represents the raw shipfile.
+   * @type {File}
+  ###
+  file: undefined
 
-exports.update = (filepath, contents) ->
-  file = path.join(filepath, 'ship.conf')
+  ###*
+   * The parsed configuration.
+   * @attribute target Folder to deploy, always relative to the project root.
+     It isn't relative to the shipfile because the shipfile isn't necessarily
+     in the project (even though that's the normal place to keep it)
+   * @attribute deployers={} A hash of deployer configurations. Each key is
+     the deployer name, and the value is the _config object.
+   * @attribute [before] Path to before hook script
+   * @attribute [after] Path to to after hook script
+   * @type {Object.<string>}
+   * @private
+  ###
+  _config: {}
 
-  if process.env.NODE_ENV == 'test'
-    console.log 'updating shipfile'
-    console.log yaml.safeDump(contents)
-  else
-    fs.writeFileSync(file, yaml.safeDump(contents))
+  constructor: (path) ->
+    @file = new File(path)
+
+  ###*
+   * Get the data from the raw config file & put it in ShipFile._config.
+   * @return {Promise}
+  ###
+  loadFile: ->
+    @file.read(encoding: 'utf8').then((data) => @config = JSON.parse(data))
+
+  ###*
+   * Update the config file with all the data from ShipFile._config. This
+     method needs to be called before the program ends or config changes will
+     be lost.
+   * @return {Promise}
+  ###
+  updateFile: ->
+    @file.write(JSON.stringify(@_config, null, 2))
+
+  ###*
+   * Get the path to the folder to deploy.
+   * @param {String} projectRoot
+  ###
+  getTarget: (projectRoot) ->
+    #TODO: normalize path by getting root to project
+    @_config['target']
+
+  ###*
+   * Change the folder to deploy.
+   * @param {String} path
+  ###
+  setTarget: (path) ->
+    @_config['target'] = path
+
+  getDeployerConfig: (deployer) ->
+    @_config['deployers'][deployer]
+
+  ###*
+   * Set the config for a deployer. Will merge in values if only a partial object is supplied.
+   * @param {String} deployer
+   * @param {Object} config
+  ###
+  setDeployerConfig: (deployer, config) ->
+    @_config['deployers'][deployer] = config
+
+  ###*
+   * Get all the config values that need to be filled in.
+   * @param  {String} deployer
+   * @return {Array<String>}
+  ###
+  getMissingConfigValues: (deployer) ->
+    # fill in
