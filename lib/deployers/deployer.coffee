@@ -1,8 +1,15 @@
+validate = require('jsonschema').validate
+
 ###*
  * The base class for all deployers to inherit from.
 ###
 class Deployer
-  name: 'deployer'
+  ###*
+   * JSON-Schema representation of the config. Just the properties object -
+     the type & wrapper isn't needed because we assume the config is an object.
+   * @type {Object}
+  ###
+  configPropertiesSchema: {}
 
   ###*
    * Run the deployment
@@ -11,5 +18,12 @@ class Deployer
    * @return {Promise}
   ###
   deploy: (path, config) ->
+    validate(
+      config,
+      {
+        type: "object"
+        properties: @configPropertiesSchema
+      }
+    )
 
 module.exports = Deployer
