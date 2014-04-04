@@ -46,17 +46,21 @@ argparser.addArgument(
 args = argparser.parseArgs()
 
 shipFile = new ShipFile(args.config)
-shipfile.setConfig(
-  args.deployer
-  prompt(args.deployer, shipFile.getMissingConfigValues(args.deployer))
-)
-
-ship = new Ship(shipFile, args.path)
-ship
-  .deploy(args.deployer)
-  .then(
-    ->
+shipFile
+  .loadFile()
+  .then( ->
+    shipFile.setDeployerConfig(
+      args.deployer
+      prompt(args.deployer, shipFile.getMissingConfigValues(args.deployer))
+    )
+  ).then( ->
+    shipFile.updateFile()
+  ).then( ->
+    ship = new Ship(shipFile, args.path)
+    ship.deploy(args.deployer)
+  ).then(
+    () ->
       console.log('deploy done!')
     (err) ->
-      console.error('oh no!: #{err}')
+      console.error("oh no!: #{err}")
   )

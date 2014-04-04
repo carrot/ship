@@ -81,3 +81,5 @@ class ShipFile
       _.keys(@_config['deployers'][deployer])
       _.keys(deployers[deployer].configPropertiesSchema)...
     )
+
+module.exports = ShipFile
