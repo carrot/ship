@@ -1,4 +1,6 @@
 File = require 'fobject'
+deployers = require './deployers'
+_ = require 'lodash'
 
 class ShipFile
   ###*
@@ -59,12 +61,15 @@ class ShipFile
     @_config['deployers'][deployer]
 
   ###*
-   * Set the config for a deployer. Will merge in values if only a partial object is supplied.
+   * Set the config for a deployer. Will merge in values if only a partial
+     object is supplied.
    * @param {String} deployer
    * @param {Object} config
   ###
   setDeployerConfig: (deployer, config) ->
-    @_config['deployers'][deployer] = config
+    # simple flat merge
+    for key, value of config
+      @_config['deployers'][deployer][key] = value
 
   ###*
    * Get all the config values that need to be filled in.
@@ -72,4 +77,7 @@ class ShipFile
    * @return {Array<String>}
   ###
   getMissingConfigValues: (deployer) ->
-    # fill in
+    _.without(
+      _.keys(@_config['deployers'][deployer])
+      _.keys(deployers[deployer].configPropertiesSchema)...
+    )
