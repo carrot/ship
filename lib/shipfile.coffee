@@ -23,6 +23,9 @@ class ShipFile
   ###
   _config: {}
 
+  ###*
+   * @param {String} path The path to the ShipFile
+  ###
   constructor: (path) ->
     @file = new File(path)
 
@@ -57,6 +60,10 @@ class ShipFile
   setTarget: (path) ->
     @_config['target'] = path
 
+  ###*
+   * @param  {String} deployer
+   * @return {Object} Deployer config.
+  ###
   getDeployerConfig: (deployer) ->
     @_config['deployers'][deployer]
 
