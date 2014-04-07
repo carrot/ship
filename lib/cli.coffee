@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+promptSync = require 'sync-prompt'
 packageInfo = require(path.join(__dirname, '../package.json'))
 ArgumentParser = require('argparse').ArgumentParser
 
@@ -17,7 +18,7 @@ prompt = (deployer, questions) ->
   console.log "please enter the following config details for #{deployer.bold}".green
   answers = {}
   for question in questions
-    answers[question] = prompt("#{question}:")
+    answers[question] = promptSync("#{question}:")
   answers
 
 argparser = new ArgumentParser(
@@ -28,6 +29,7 @@ argparser = new ArgumentParser(
 argparser.addArgument(
   ['--deployer', '-d']
   choices: Object.keys(deployers)
+  required: true # remove when https://github.com/carrot/ship/issues/25 closes
   type: 'string'
   help: 'The deployer to use. Selects the first deployer in the config file by default.'
 )
