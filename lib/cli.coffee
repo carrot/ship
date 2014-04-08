@@ -20,7 +20,7 @@ prompt = (deployer, questions) ->
   for question in questions
     loop
       answer = promptSync("#{question}:")
-      check = shipFile.validateOption(args.deployer, question, answer)
+      check = deployers[deployer].config.validateOption(question, answer)
       if check.valid
         answers[question] = answer
         break

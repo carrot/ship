@@ -1,7 +1,6 @@
 File = require 'fobject'
 deployers = require './deployers'
 _ = require 'lodash'
-validate = require('jsonschema').validate
 
 class ShipFile
   ###*
@@ -78,21 +77,6 @@ class ShipFile
     # simple flat merge
     for key, value of config
       @_config.deployers[deployer][key] = value
-
-  ###*
-   * Make sure that the value is valid for a given config option.
-   * @param {String} [deployer = @getDefaultDeployer()]
-   * @param {String} option The option from the deployer config to validate.
-   * @param {String} value The value to check
-   * @return {Object} The "errors" key is an array of errors, and the "valid"
-     key is a Boolean if it is valid.
-  ###
-  validateOption: (deployer = @getDefaultDeployer(), option, value) ->
-    validate(
-      value
-      deployers[deployer].configPropertiesSchema[option]
-      throwError: false
-    )
 
   ###*
    * Get the default deployer. If `defaultDeployer` isn't in the config, and
