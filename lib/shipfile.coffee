@@ -1,6 +1,7 @@
 File = require 'fobject'
 deployers = require './deployers'
 _ = require 'lodash'
+validate = require('jsonschema').validate
 
 class ShipFile
   ###*
@@ -51,42 +52,86 @@ class ShipFile
   ###
   getTarget: (projectRoot) ->
     #TODO: normalize path by getting root to project
-    @_config['target']
+    @_config.target
 
   ###*
    * Change the folder to deploy.
    * @param {String} path
   ###
   setTarget: (path) ->
-    @_config['target'] = path
+    @_config.target = path
 
   ###*
-   * @param  {String} deployer
+   * @param {String} [deployer = @getDefaultDeployer()]
    * @return {Object} Deployer config.
   ###
-  getDeployerConfig: (deployer) ->
-    @_config['deployers'][deployer]
+  getDeployerConfig: (deployer = @getDefaultDeployer()) ->
+    @_config.deployers[deployer]
 
   ###*
    * Set the config for a deployer. Will merge in values if only a partial
      object is supplied.
-   * @param {String} deployer
+   * @param {String} [deployer = @getDefaultDeployer()]
    * @param {Object} config
   ###
-  setDeployerConfig: (deployer, config) ->
+  setDeployerConfig: (deployer = @getDefaultDeployer(), config) ->
     # simple flat merge
     for key, value of config
-      @_config['deployers'][deployer][key] = value
+      @_config.deployers[deployer][key] = value
+
+  ###*
+   * Make sure that the value is valid for a given config option.
+   * @param {String} [deployer = @getDefaultDeployer()]
+   * @param {String} option The option from the deployer config to validate.
+   * @param {String} value The value to check
+   * @return {Object} The "errors" key is an array of errors, and the "valid"
+     key is a Boolean if it is valid.
+  ###
+  validateOption: (deployer = @getDefaultDeployer(), option, value) ->
+    validate(
+      value
+      deployers[deployer].configPropertiesSchema[option]
+      throwError: false
+    )
+
+  ###*
+   * Get the default deployer. If `defaultDeployer` isn't in the config, and
+     there's only 1 deployer in the config we can assume that is what we want
+     to depoy with.
+   * @return {String} deployer
+  ###
+  getDefaultDeployer: ->
+    if @_config.defaultDeployer?
+      return @_config.defaultDeployer
+    else if (keys = Object.keys(@_config.deployers)).length is 1
+      @setDefaultDeployer keys[0] # make it explicit
+      return keys[0]
+    else
+      throw new NoDefaultDeployerException()
+
+  ###*
+   * Change the default deployer.
+   * @param {String} deployer
+  ###
+  setDefaultDeployer: (deployer) ->
+    @_config.defaultDeployer = deployer
 
   ###*
    * Get all the config values that need to be filled in.
-   * @param  {String} deployer
+   * @param {String} [deployer = @getDefaultDeployer()]
    * @return {Array<String>}
   ###
-  getMissingConfigValues: (deployer) ->
+  getMissingConfigValues: (deployer = @getDefaultDeployer()) ->
     _.without(
-      _.keys(@_config['deployers'][deployer])
+      _.keys(@_config.deployers[deployer])
       _.keys(deployers[deployer].configPropertiesSchema)...
     )
+
+
+class NoDefaultDeployerException extends Error
+  message: 'Can\'t find a default deployer. Specify one in the ShipFile or use the --deployer arg.'
+
+  constructor: (@message=@message) ->
+    super @message
 
 module.exports = ShipFile

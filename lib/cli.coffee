@@ -18,7 +18,14 @@ prompt = (deployer, questions) ->
   console.log "please enter the following config details for #{deployer.bold}".green
   answers = {}
   for question in questions
-    answers[question] = promptSync("#{question}:")
+    loop
+      answer = promptSync("#{question}:")
+      check = shipFile.validateOption(args.deployer, question, answer)
+      if check.valid
+        answers[question] = answer
+        break
+      else
+        console.log error for error in check.errors
   answers
 
 argparser = new ArgumentParser(
@@ -29,21 +36,20 @@ argparser = new ArgumentParser(
 argparser.addArgument(
   ['--deployer', '-d']
   choices: Object.keys(deployers)
-  required: true # remove when https://github.com/carrot/ship/issues/25 closes
   type: 'string'
-  help: 'The deployer to use. Selects the first deployer in the config file by default.'
+  help: 'The deployer to use. If this isn\'t specified then `defaultDeployer` from the config will be used.'
 )
 argparser.addArgument(
   ['--path', '-p']
   type: 'string'
   defaultValue: './'
-  help: 'The path to the root of the project to be shipped. Set to ./ if no path is specified'
+  help: 'The path to the root of the project to be shipped. Defaults to ./ if no path is specified'
 )
 argparser.addArgument(
   ['--config', '-c']
   type: 'string'
   defaultValue: './ship.json'
-  help: 'The path to the config file. Set to ./ship.json if no path is specified'
+  help: 'The path to the config file. Defaults to ./ship.json if no path is specified'
 )
 args = argparser.parseArgs()
 
