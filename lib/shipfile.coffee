@@ -1,13 +1,16 @@
 File = require 'fobject'
-deployers = require './deployers'
 _ = require 'lodash'
+path = require 'path'
+
+deployers = require './deployers'
 
 class ShipFile
   ###*
    * The file object that represents the raw shipfile.
    * @type {File}
+   * @private
   ###
-  file: undefined
+  _file: undefined
 
   ###*
    * The parsed configuration.
@@ -27,14 +30,14 @@ class ShipFile
    * @param {String} path The path to the ShipFile
   ###
   constructor: (path) ->
-    @file = new File(path)
+    @_file = new File(path)
 
   ###*
-   * Get the data from the raw config file & put it in ShipFile._config.
+   * Get the data from ShipFile._file & put it in ShipFile._config.
    * @return {Promise}
   ###
   loadFile: ->
-    @file.read(encoding: 'utf8').then((data) => @config = JSON.parse(data))
+    @_file.read(encoding: 'utf8').then((data) => @_config = JSON.parse(data))
 
   ###*
    * Update the config file with all the data from ShipFile._config. This
@@ -43,15 +46,15 @@ class ShipFile
    * @return {Promise}
   ###
   updateFile: ->
-    @file.write(JSON.stringify(@_config, null, 2))
+    @_file.write(JSON.stringify(@_config, null, 2))
 
   ###*
    * Get the path to the folder to deploy.
    * @param {String} projectRoot
   ###
   getTarget: (projectRoot) ->
-    #TODO: normalize path by getting root to project
-    @_config.target
+    #normalize path because it's relative to the project root
+    path.join(path.dirname(@_file.path), @_config.target)
 
   ###*
    * Change the folder to deploy.
