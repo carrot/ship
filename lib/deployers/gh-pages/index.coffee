@@ -5,60 +5,66 @@ fs = require 'fs'
 shell = require 'shelljs/global'
 readdirp = require 'readdirp'
 W = require 'when'
-fn = require 'when/function'
 
 class Github extends Deployer
+  ###*
+   * Error strings
+   * @type {Object<string, string>}
+   * @todo Refactor into real exception types
+   * @const
+  ###
+  _errors:
+    NOT_INSTALLED: 'You must install git - see http://git-scm.com'
+    REMOTE_ORIGIN: 'Make sure you have a remote origin branch for github'
+    MAKE_COMMIT: 'You need to make a commit before deploying'
 
-  constructor: (@path) ->
-    super
-    @name = 'Github Pages'
-    @config =
-      target: null
+  constructor: ->
+    @config.schema =
+      branch:
+        type: 'string'
+        default: 'gh-pages'
 
-    @errors = 
-      not_installed: 'You must install git - see http://git-scm.com'
-      remote_origin: 'Make sure you have a remote origin branch for github'
-      make_commit: 'You need to make a commit before deploying'
+  deploy: (path, config) ->
+    super(path, config)
+    checkInstallStatus()
+    checkForUncommittedChanges()
+    switchToDeployBranch()
+    removeSourceFiles()
+      .then(-> dumpPublicToRoot())
+      .then(-> pushCode())
 
-  deploy: (cb) ->
-    check_install_status.call(@)
-    .then(move_to_gh_pages_branch.bind(@))
-    .then(remove_source_files.bind(@))
-    .then(dump_public_to_root.bind(@))
-    .then(push_code.bind(@))
-    .otherwise((err) -> console.error(err))
-    .ensure(cb)
-
-  check_install_status = ->
-    deferred = W.defer()
-
+  checkInstallStatus: ->
     if not which('git')
-      return deferred.reject(@error.not_installed)
+      throw new Error(@_errors.NOT_INSTALLED)
 
+    #TODO: make remote name configurable
     if not execute('git remote | grep origin')
-      return deferred.reject(@errors.remote_origin)
+      throw new Error(@_errors.REMOTE_ORIGIN)
 
-    @original_branch = execute('git rev-parse --abbrev-ref HEAD') 
-    if not @original_branch then return deferred.reject(@errors.make_commit)
+    @originalBranch = execute('git rev-parse --abbrev-ref HEAD')
+    if not @originalBranch then throw new Error(@_errors.MAKE_COMMIT)
 
-    @debug.log "starting on branch #{original_branch}"
-    deferred.resolve()
+    console.log "starting on branch #{originalBranch}"
 
-  move_to_gh_pages_branch = ->
-    @debug.log 'switching to gh-pages branch'
+  checkForUncommittedChanges: ->
+    if not execute('git diff --quiet && git diff --cached --quiet')
+      throw new Error('you have uncommitted changes - you need to commit those before you can deploy')
 
-    if not execute('git branch | grep gh-pages')
-      execute('git branch -D gh-pages')
+  switchToDeployBranch: ->
+    console.log "switching to #{@config.data.branch} branch"
 
-    execute('git branch gh-pages')
-    execute('git checkout gh-pages')
-    fn.call()
+    if not execute("git branch | grep #{@config.data.branch}")
+      execute("git branch -D #{@config.data.branch}")
 
-  remove_source_files = ->
+    execute("git branch #{@config.data.branch}")
+    execute("git checkout #{@config.data.branch}")
+
+  removeSourceFiles: ->
     deferred = W.defer()
-    @debug.log 'removing source files'
-
-    opts = { root: '', directoryFilter: ["!#{@public}", '!.git'] };
+    console.log 'removing source files'
+    opts =
+      root: ''
+      directoryFilter: ["!#{@public}", '!.git']
 
     readdirp opts, (err, res) ->
       if err then return deferred.reject(err)
@@ -66,30 +72,28 @@ class Github extends Deployer
       rm('-rf', d.path) for d in res.directories
       deferred.resolve()
 
-  dump_public_to_root = ->
-    if @public == @path then return fn.call()
+    return deferred.promise
+
+  dumpPublicToRoot: ->
+    if @public is @path then return
 
     target = path.join(@public, '*')
-    execute("mv -f #{path.resolve(target)} #{@path}");
+    execute("mv -f #{path.resolve(target)} #{@path}")
     rm '-rf', @public
-    fn.call()
 
-  push_code = ->
-    @debug.log 'pushing to origin/gh-pages'
-    execute "git push origin gh-pages --force"
+  pushCode: ->
+    console.log 'pushing to origin/#{@config.data.branch}'
+    execute "git push origin #{@config.data.branch} --force"
+    console.log "switching back to #{@originalBranch} branch"
+    execute "git checkout #{@originalBranch}"
+    console.log 'deployed to github pages'
 
-    @debug.log "switching back to #{@original_branch} branch"
-    execute "git checkout #{@original_branch}"
- 
-    @debug.log 'deployed to github pages'
-    fn.call()
-
-  # 
-  # @api private
-  # 
-
-  execute = (input) ->
-    cmd = exec(input, { silent: true });
-    if cmd.code > 0 or cmd.output == '' then false else cmd.output.trim()
+###*
+ * @param  {[type]} input [description]
+ * @return {[type]}       [description]
+###
+execute = (input) ->
+  cmd = exec(input, silent: true)
+  if cmd.code > 0 or cmd.output is '' then false else cmd.output.trim()
 
 module.exports = Github
