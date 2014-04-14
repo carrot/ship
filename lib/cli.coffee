@@ -16,11 +16,12 @@ Ship = require './'
 ###
 prompt = (deployer, questions) ->
   console.log "please enter the following config details for #{deployer.bold}".green
+  configObject = (new deployers[deployer]).config
   answers = {}
   for question in questions
     loop
       answer = promptSync("#{question}:")
-      check = deployers[deployer].config.validateOption(question, answer)
+      check = configObject.validateOption(question, answer)
       if check.valid
         answers[question] = answer
         break
@@ -63,7 +64,6 @@ argparser.addArgument(
 )
 args = argparser.parseArgs()
 
-
 shipFile = new ShipFile(args.config)
 shipFile
   .loadFile()
@@ -84,10 +84,9 @@ shipFile
   ).then( ->
     ship = new Ship(shipFile, args.path)
     ship.deploy(args.deployer)
-  ).then(
-    () ->
-      console.log('done!')
-    (err) ->
-      console.error("oh no!: #{err}")
+  ).then( ->
+    console.log('done!')
+  ).catch((e) ->
+    console.error "oh no!: #{e}"
+    console.error e.stack
   )
-
