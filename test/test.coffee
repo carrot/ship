@@ -55,14 +55,24 @@ describe 'DeployerConfig', ->
     @deployerConfig.data.should.eql({})
 
 describe 'ShipFile', ->
-  it 'load a config file', (done) ->
+  it 'should load a config file', (done) ->
     shipFile = new ShipFile('./test/fixtures/ship.json')
     shipFile
       .loadFile()
-      .then(
-        () ->
-          shipFile._config.should.eql(foo: 'bar')
-          done()
-        (err) ->
-          done(err)
+      .then( ->
+        shipFile._config.should.eql(foo: 'bar')
+        done()
+      ).catch((e) ->
+        done(e)
+      )
+
+  it 'getMissingConfigValues() should work', (done) ->
+    shipFile = new ShipFile('./test/fixtures/ship.json')
+    shipFile
+      .loadFile()
+      .then( ->
+        shipFile.getMissingConfigValues('gh-pages').should.eql(['branch'])
+        done()
+      ).catch((e) ->
+        done(e)
       )
