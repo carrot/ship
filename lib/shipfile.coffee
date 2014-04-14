@@ -93,7 +93,7 @@ class ShipFile
   getDefaultDeployer: ->
     if @_config.defaultDeployer?
       return @_config.defaultDeployer
-    else if (keys = Object.keys(@_config.deployers)).length is 1
+    else if (keys = Object.keys(@_config.deployers or {})).length is 1
       @setDefaultDeployer keys[0] # make it explicit
       return keys[0]
     else
@@ -112,10 +112,9 @@ class ShipFile
    * @return {Array<String>}
   ###
   getMissingConfigValues: (deployer = @getDefaultDeployer()) ->
-    _.without(
-      _.keys((new deployers[deployer]()).config.schema)
-      _.keys(@getDeployerConfig(deployer))...
-    )
+    configObject = (new deployers[deployer]()).config
+    configObject.data = @getDeployerConfig(deployer)
+    return configObject.getMissingValues()
 
 
 class NoDefaultDeployerException extends Error
