@@ -68,7 +68,10 @@ class ShipFile
    * @return {Object} Deployer config.
   ###
   getDeployerConfig: (deployer = @getDefaultDeployer()) ->
-    @_config.deployers[deployer]
+    try
+      return @_config.deployers[deployer]
+    catch e
+      return {}
 
   ###*
    * Set the config for a deployer. Will merge in values if only a partial
@@ -110,8 +113,8 @@ class ShipFile
   ###
   getMissingConfigValues: (deployer = @getDefaultDeployer()) ->
     _.without(
-      _.keys(@_config.deployers[deployer])
-      _.keys(deployers[deployer].configPropertiesSchema)...
+      _.keys((new deployers[deployer]()).config.schema)
+      _.keys(@getDeployerConfig(deployer))...
     )
 
 
