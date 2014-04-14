@@ -13,7 +13,7 @@ class Ship
   ###
   shipFile: undefined
 
-  constructor: (@shipFilePath, @projectRoot) ->
+  constructor: (@shipFile, @projectRoot) ->
 
   ###*
    * Run the deployment for a given deployer.
@@ -22,8 +22,8 @@ class Ship
   ###
   deploy: (deployer) ->
     @deployers[deployer].deploy(
-      shipFile.getTarget(@projectRoot)
-      shipFile.getDeployerConfig(deployer)
+      @shipFile.getTarget(@projectRoot)
+      @shipFile.getDeployerConfig(deployer)
     )
 
 module.exports = Ship
