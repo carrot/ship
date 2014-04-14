@@ -1,6 +1,6 @@
 fs = require 'fs'
 path = require 'path'
-promptSync = require 'sync-prompt'
+promptSync = require('sync-prompt').prompt
 packageInfo = require(path.join(__dirname, '../package.json'))
 ArgumentParser = require('argparse').ArgumentParser
 
@@ -28,6 +28,16 @@ prompt = (deployer, questions) ->
         console.log error for error in check.errors
   answers
 
+promptBoolean = ->
+  loop
+    answer = promptSync('y/n:')
+    if answer is 'y'
+      return true
+    else if answer is 'n'
+      return false
+    else
+      console.error 'please enter "y" (for "yes") or "n" (for "no")'
+
 argparser = new ArgumentParser(
   version: packageInfo.version
   addHelp: true
@@ -53,10 +63,18 @@ argparser.addArgument(
 )
 args = argparser.parseArgs()
 
+
 shipFile = new ShipFile(args.config)
 shipFile
   .loadFile()
-  .then( ->
+  .catch((e) ->
+    if e.code isnt 'ENOENT' then throw e
+    console.error "#{args.config} was not found, would you like to create it?"
+    if promptBoolean()
+      return shipFile.updateFile()
+    else
+      throw new Error('aborted')
+  ).then( ->
     shipFile.setDeployerConfig(
       args.deployer
       prompt(args.deployer, shipFile.getMissingConfigValues(args.deployer))
@@ -68,7 +86,8 @@ shipFile
     ship.deploy(args.deployer)
   ).then(
     () ->
-      console.log('deploy done!')
+      console.log('done!')
     (err) ->
       console.error("oh no!: #{err}")
   )
+
