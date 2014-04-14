@@ -15,7 +15,7 @@ class Deployer
    * @param {Object} config The configuration object for the deployer.
    * @return {Promise}
   ###
-  deploy: (path, config) ->
+  deploy: (@path, config) ->
     @config.data = config
 
 
