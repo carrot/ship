@@ -1,13 +1,15 @@
-DeployerConfig = require '../deployer-config'
+DeployerConfigSchema = require './config-schema'
 
 ###*
- * The base class for all deployers to inherit from.
+ * The base class for all deployers to inherit from. Pretty much stateless
+   (the configuration and runtime-specific stuff gets passed to the function,
+   not stored).
 ###
 class Deployer
   ###*
-   * @type {DeployerConfig}
+   * @type {DeployerConfigSchema}
   ###
-  config: new DeployerConfig()
+  config: new DeployerConfigSchema()
 
   ###*
    * Run the deployment
@@ -15,8 +17,15 @@ class Deployer
    * @param {Object} config The configuration object for the deployer.
    * @return {Promise}
   ###
-  deploy: (@path, config) ->
-    @config.data = config
+  deploy: (config) ->
+    @runDeploy @config.validate(config)
 
+  ###*
+   * Do the deployment
+   * @param {[type]} config [description]
+   * @return {[type]} [description]
+   * @extend
+  ###
+  runDeploy: (config) ->
 
 module.exports = Deployer

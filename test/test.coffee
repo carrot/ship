@@ -1,5 +1,5 @@
 should = require 'should'
-DeployerConfig = require '../lib/deployer-config'
+DeployerConfig = require '../lib/deployers/config-schema'
 ShipFile = require '../lib/shipfile'
 
 describe 'DeployerConfig', ->
@@ -8,25 +8,23 @@ describe 'DeployerConfig', ->
 
   it 'should have all the right attributes', ->
     @deployerConfig.schema.should.eql({})
-    @deployerConfig.data.should.eql({})
+    @deployerConfig.validate({}).should.eql({})
 
   it 'should validate', ->
     @deployerConfig.schema =
       someOption:
         type: 'boolean'
 
-    @deployerConfig.data =
-      someOption: true
+    @deployerConfig
+      .validate(someOption: true)
+      .should.eql(someOption: true)
 
   it 'should throw validate errors', ->
     @deployerConfig.schema =
       someOption:
         type: 'boolean'
 
-    @deployerConfig.data =
-      someOption: 42
-
-    (=> @deployerConfig.validate()).should.throw(
+    (=> @deployerConfig.validate(someOption: 42)).should.throw(
       'number value found, but a boolean is required'
     )
 
@@ -51,8 +49,9 @@ describe 'DeployerConfig', ->
         type: 'boolean'
         default: true
 
-    @deployerConfig.validate().should.eql({someOption: true})
-    @deployerConfig.data.should.eql({})
+    data = {}
+    @deployerConfig.validate(data).should.eql({someOption: true})
+    data.should.eql({})
 
 describe 'ShipFile', ->
   it 'should load a config file', (done) ->
@@ -67,11 +66,14 @@ describe 'ShipFile', ->
       )
 
   it 'getMissingConfigValues() should work', (done) ->
-    shipFile = new ShipFile('./test/fixtures/ship.json')
+    projectRoot = './test/fixtures/ship.json'
+    shipFile = new ShipFile(projectRoot)
     shipFile
       .loadFile()
       .then( ->
-        shipFile.getMissingConfigValues('gh-pages').should.eql(['branch'])
+        shipFile
+          .getMissingConfigValues('gh-pages', projectRoot)
+          .should.eql(['branch'])
         done()
       ).catch((e) ->
         done(e)

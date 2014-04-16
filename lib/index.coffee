@@ -21,9 +21,7 @@ class Ship
    * @return {Promise}
   ###
   deploy: (deployer) ->
-    @deployers[deployer].deploy(
-      @shipFile.getTarget(@projectRoot)
-      @shipFile.getDeployerConfig(deployer)
-    )
+    config = @shipFile.getDeployerConfig(deployer, @projectRoot)
+    (new @deployers[deployer]).deploy(config)
 
 module.exports = Ship

@@ -15,6 +15,7 @@ Ship = require './'
  * @return {Object<string>} The config object of answers.
 ###
 prompt = (deployer, questions) ->
+  unless questions.length > 0 then return {}
   console.log "please enter the following config details for #{deployer.bold}".green
   configObject = (new deployers[deployer]).config
   answers = {}
@@ -77,7 +78,10 @@ shipFile
   ).then( ->
     shipFile.setDeployerConfig(
       args.deployer
-      prompt(args.deployer, shipFile.getMissingConfigValues(args.deployer))
+      prompt(
+        args.deployer
+        shipFile.getMissingConfigValues(args.deployer, args.path)
+      )
     )
   ).then( ->
     shipFile.updateFile()

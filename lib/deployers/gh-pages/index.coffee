@@ -1,10 +1,10 @@
-require 'colors'
-Deployer = require '../deployer'
 path = require 'path'
 fs = require 'fs'
 shell = require 'shelljs/global'
 readdirp = require 'readdirp'
 W = require 'when'
+
+Deployer = require '../deployer'
 
 class Github extends Deployer
   ###*
@@ -22,16 +22,18 @@ class Github extends Deployer
     @config.schema =
       branch:
         type: 'string'
+        required: true
         default: 'gh-pages'
 
-  deploy: (path, config) ->
-    super(path, config)
-    checkInstallStatus()
-    checkForUncommittedChanges()
-    switchToDeployBranch()
-    removeSourceFiles()
-      .then(-> dumpPublicToRoot())
-      .then(-> pushCode())
+  runDeploy: (config) ->
+    @checkInstallStatus()
+    originalBranch = @getOrigionalBranch()
+    @checkForUncommittedChanges()
+    @switchToDeployBranch(config.branch)
+    @removeSourceFiles(config.target)
+      .then( => @dumpTargetToRoot(config.target, config.projectRoot))
+      .then( => @makeCommit())
+      .then( => @pushCode(config.branch, originalBranch))
 
   checkInstallStatus: ->
     if not which('git')
@@ -41,30 +43,33 @@ class Github extends Deployer
     if not execute('git remote | grep origin')
       throw new Error(@_errors.REMOTE_ORIGIN)
 
-    @originalBranch = execute('git rev-parse --abbrev-ref HEAD')
-    if not @originalBranch then throw new Error(@_errors.MAKE_COMMIT)
+  getOrigionalBranch: ->
+    originalBranch = execute('git rev-parse --abbrev-ref HEAD')
+    if not originalBranch then throw new Error(@_errors.MAKE_COMMIT)
 
     console.log "starting on branch #{originalBranch}"
+    return originalBranch
 
   checkForUncommittedChanges: ->
-    if not execute('git diff --quiet && git diff --cached --quiet')
+    unless exec('git diff --quiet').code is 0 and exec('git diff --cached --quiet').code is 0
       throw new Error('you have uncommitted changes - you need to commit those before you can deploy')
 
-  switchToDeployBranch: ->
-    console.log "switching to #{@config.data.branch} branch"
+  switchToDeployBranch: (branch) ->
+    console.log "switching to #{branch} branch"
 
-    if not execute("git branch | grep #{@config.data.branch}")
-      execute("git branch -D #{@config.data.branch}")
+    # remove & recreate branch if it already exists
+    if not execute("git branch | grep #{branch}")
+      execute("git branch -D #{branch}")
+    execute("git branch #{branch}")
 
-    execute("git branch #{@config.data.branch}")
-    execute("git checkout #{@config.data.branch}")
+    execute("git checkout #{branch}")
 
-  removeSourceFiles: ->
+  removeSourceFiles: (target) ->
     deferred = W.defer()
     console.log 'removing source files'
     opts =
       root: ''
-      directoryFilter: ["!#{@public}", '!.git']
+      directoryFilter: ["!#{target}", '!.git']
 
     readdirp opts, (err, res) ->
       if err then return deferred.reject(err)
@@ -74,23 +79,28 @@ class Github extends Deployer
 
     return deferred.promise
 
-  dumpPublicToRoot: ->
-    if @public is @path then return
+  dumpTargetToRoot: (target, root) ->
+    if target is @path then return
+    target = path.join(target, '*')
+    mv '-f', path.resolve(target), root
+    rm '-rf', target
 
-    target = path.join(@public, '*')
-    execute("mv -f #{path.resolve(target)} #{@path}")
-    rm '-rf', @public
+  makeCommit: ->
+    console.log 'committing to git'
+    execute 'git add .'
+    execute 'git commit -am "deploy to github pages"'
 
-  pushCode: ->
-    console.log 'pushing to origin/#{@config.data.branch}'
-    execute "git push origin #{@config.data.branch} --force"
-    console.log "switching back to #{@originalBranch} branch"
-    execute "git checkout #{@originalBranch}"
+  pushCode: (branch, originalBranch) ->
+    console.log "pushing to origin/#{branch}"
+    execute "git push origin #{branch} --force"
+    console.log "switching back to #{originalBranch} branch"
+    execute "git checkout #{originalBranch}"
     console.log 'deployed to github pages'
 
 ###*
- * @param  {[type]} input [description]
- * @return {[type]}       [description]
+ * @param {String} input The command to execute
+ * @return {String|Boolean} `false` if there was a non-zero exit code, or the
+   output of the command in a string if it succeeded
 ###
 execute = (input) ->
   cmd = exec(input, silent: true)

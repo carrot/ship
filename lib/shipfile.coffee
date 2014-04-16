@@ -53,8 +53,10 @@ class ShipFile
    * @param {String} projectRoot
   ###
   getTarget: (projectRoot) ->
+    if not @_config.target?
+      @setTarget('./public')
     #normalize path because it's relative to the project root
-    path.join(path.dirname(@_file.path), @_config.target)
+    path.join(projectRoot, @_config.target)
 
   ###*
    * Change the folder to deploy.
@@ -67,11 +69,15 @@ class ShipFile
    * @param {String} [deployer = @getDefaultDeployer()]
    * @return {Object} Deployer config.
   ###
-  getDeployerConfig: (deployer = @getDefaultDeployer()) ->
+  getDeployerConfig: (deployer = @getDefaultDeployer(), projectRoot) ->
     try
-      return @_config.deployers[deployer]
+      config = @_config.deployers[deployer]
     catch e
-      return {}
+      config = {}
+
+    config.target = @getTarget(projectRoot)
+    config.projectRoot = projectRoot
+    return config
 
   ###*
    * Set the config for a deployer. Will merge in values if only a partial
@@ -111,10 +117,11 @@ class ShipFile
    * @param {String} [deployer = @getDefaultDeployer()]
    * @return {Array<String>}
   ###
-  getMissingConfigValues: (deployer = @getDefaultDeployer()) ->
+  getMissingConfigValues: (deployer = @getDefaultDeployer(), projectRoot) ->
     configObject = (new deployers[deployer]()).config
-    configObject.data = @getDeployerConfig(deployer)
-    return configObject.getMissingValues()
+    return configObject.getMissingValues(
+      @getDeployerConfig(deployer, projectRoot)
+    )
 
 
 class NoDefaultDeployerException extends Error
