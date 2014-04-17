@@ -30,10 +30,11 @@ class Github extends Deployer
     originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()
     @switchToDeployBranch(config.branch)
-    @removeSourceFiles(config.target)
-      .then( => @dumpTargetToRoot(config.target, config.projectRoot))
-      .then( => @makeCommit())
-      .then( => @pushCode(config.branch, originalBranch))
+    @removeSourceFiles(config.target).then( =>
+      @dumpTargetToRoot(config.target, config.projectRoot)
+      @makeCommit()
+      @pushCode(config.branch, originalBranch)
+    )
 
   checkInstallStatus: ->
     if not which('git')
