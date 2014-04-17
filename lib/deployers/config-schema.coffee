@@ -19,7 +19,7 @@ class DeployerConfigSchema
       required: true
       default: './'
       type: 'string'
-    target:
+    sourceDir:
       required: true
       default: './public'
       type: 'string'

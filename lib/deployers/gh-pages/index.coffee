@@ -30,8 +30,8 @@ class Github extends Deployer
     originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()
     @switchToDeployBranch(config.branch)
-    @removeSourceFiles(config.target).then( =>
-      @dumpTargetToRoot(config.target, config.projectRoot)
+    @removeExtraneousFiles(config.sourceDir).then( =>
+      @dumpSourceDirToRoot(config.sourceDir, config.projectRoot)
       @makeCommit()
       @pushCode(config.branch, originalBranch)
     )
@@ -65,12 +65,12 @@ class Github extends Deployer
 
     execute("git checkout #{branch}")
 
-  removeSourceFiles: (target) ->
+  removeExtraneousFiles: (sourceDir) ->
     deferred = W.defer()
-    console.log 'removing source files'
+    console.log 'removing extraneous files'
     opts =
       root: ''
-      directoryFilter: ["!#{target}", '!.git']
+      directoryFilter: ["!#{sourceDir}", '!.git']
 
     readdirp opts, (err, res) ->
       if err then return deferred.reject(err)
@@ -80,11 +80,11 @@ class Github extends Deployer
 
     return deferred.promise
 
-  dumpTargetToRoot: (target, root) ->
-    if target is @path then return
-    target = path.join(target, '*')
-    mv '-f', path.resolve(target), root
-    rm '-rf', target
+  dumpSourceDirToRoot: (sourceDir, root) ->
+    if sourceDir is @path then return
+    sourceDir = path.join(sourceDir, '*')
+    mv '-f', path.resolve(sourceDir), root
+    rm '-rf', sourceDir
 
   makeCommit: ->
     console.log 'committing to git'

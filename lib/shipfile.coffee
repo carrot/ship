@@ -14,7 +14,7 @@ class ShipFile
 
   ###*
    * The parsed configuration.
-   * @attribute target Folder to deploy, always relative to the project root.
+   * @attribute sourceDir Folder to deploy, always relative to the project root.
      It isn't relative to the shipfile because the shipfile isn't necessarily
      in the project (even though that's the normal place to keep it)
    * @attribute deployers={} A hash of deployer configurations. Each key is
@@ -49,24 +49,24 @@ class ShipFile
    * @return {Promise}
   ###
   updateFile: ->
-    @_file.write(JSON.stringify(@_config, null, 2))
+    @_file.write(JSON.stringify(@_config, null, 2) + '\n')
 
   ###*
    * Get the path to the folder to deploy.
    * @param {String} projectRoot
   ###
-  getTarget: (projectRoot) ->
-    if not @_config.target?
-      @setTarget('./public')
+  getSourceDir: (projectRoot) ->
+    if not @_config.sourceDir?
+      @setSourceDir('./public')
     #normalize path because it's relative to the project root
-    path.join(projectRoot, @_config.target)
+    path.join(projectRoot, @_config.sourceDir)
 
   ###*
    * Change the folder to deploy.
    * @param {String} path
   ###
-  setTarget: (path) ->
-    @_config.target = path
+  setSourceDir: (path) ->
+    @_config.sourceDir = path
 
   ###*
    * @param {String} [deployer = @getDefaultDeployer()]
@@ -74,7 +74,7 @@ class ShipFile
   ###
   getDeployerConfig: (deployer = @getDefaultDeployer(), projectRoot) ->
     config = @_config.deployers[deployer] ? {}
-    config.target = @getTarget(projectRoot)
+    config.sourceDir = @getSourceDir(projectRoot)
     config.projectRoot = projectRoot
     return config
 
