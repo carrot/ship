@@ -49,9 +49,9 @@ class FTP extends Deployer
         if err then return deferred.reject(err)
         deferred.resolve()
 
-    @client.on 'error', (err) =>
-        console.log err
-        deferred.reject(err)
+    @client.on 'error', (err) ->
+      console.log err
+      deferred.reject(err)
 
     return deferred.promise
 
