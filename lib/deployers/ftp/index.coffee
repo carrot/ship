@@ -1,93 +1,104 @@
-require 'colors'
 Deployer = require '../deployer'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'lodash'
 W = require 'when'
+nodefn = require 'when/node'
+path = require 'path'
 
 class FTP extends Deployer
+  client: new FTPClient()
 
-  constructor: (@path) ->
-    super
-    @name = 'FTP'
-    @config =
-      host: null
-      root: null
-      username: null
-      password: null
+  constructor: ->
+    @config.schema =
+      host:
+        type: 'string'
+        required: true
+      target:
+        type: 'string'
+        required: true
+      username:
+        type: 'string'
+        required: true
+      password:
+        type: 'string'
+        required: true
+      port:
+        type: 'integer'
+        required: true
+        default: 21
 
-    # optional config values
-    # - port: defaults to 21
+  runDeploy: (config) ->
+    @checkCredentials(config)
+      .then( => @clearFilesFromTarget())
+      .then( => @uploadFiles(config.sourceDir))
 
-    @client = new FTPClient
-
-  deploy: (cb) ->
-    check_credentials.call(@)
-    .then(upload_files.bind(@))
-    .otherwise((err) -> console.error(err))
-    .ensure(cb)
-
-  check_credentials = ->
-    console.log 'checking credentials...'.grey
+  checkCredentials: (config) ->
     deferred = W.defer()
+    console.log 'checking credentials'
 
     @client.connect
-      host: @config.host,
-      port: @config.port || '21'
-      user: @config.username,
-      password: @config.password
+      host: config.host
+      port: config.port
+      user: config.username
+      password: config.password
 
-    @client.on 'ready', ->
-      console.log 'authenticated!'.grey
-      @client.cwd @config.root, (err) ->
+    @client.on 'ready', =>
+      console.log 'authenticated!'
+      @client.cwd config.root, (err) ->
         if err then return deferred.reject(err)
         deferred.resolve()
 
-  upload_files = ->
-    console.log 'uploading files via ftp'.grey
-    deferred = W.defer()
+    @client.on 'error', (err) =>
+        console.log err
+        deferred.reject(err)
 
-    clean_files.call(@).then ->
+    return deferred.promise
 
-      readdirp { root: @public }, (err, res) ->
-        if (err) then return deferred.reject(err)
+  clearFilesFromTarget: ->
+    console.log 'removing existing files from target dir'
+    @removeRecursive()
 
-        folders = _.pluck(res.directories, 'path')
-        files = _.pluck(res.files, 'path')
-
-        async.map folders, mkdir, (err) ->
-          if err then return deferred.reject(err)
-
-          async.map files, put_file, (err) ->
-            if err then return deferred.reject(err)
-            @client.end()
-            deferred.resolve()
-
-  clean_files = ->
-    console.log 'clearing previous files'.grey
-    deferred = W.defer()
-
-    @client.list '.', (err, list) ->
-      if err then return deferred.reject(err)
-
-      async.map list, (entry, cb) ->
-        if entry.name == '.' or entry.name == '..' then return cb()
-
-        if entry.type == 'd'
-          clean_files entry.name, ->
-            if entry.name != '.' then return @client.rmdir(entry.name, cb)
-            cb()
+  ###*
+   * Recursively remove everything inside of a given dir.
+   * @param {String} dir
+   * @return {Promise} [description]
+  ###
+  removeRecursive: (dir = '.') ->
+    nodefn.call(@client.list.bind(@client), dir).then((list) =>
+      W.map list, (entry) =>
+        if entry.name in ['.', '..'] then return
+        name = path.join(dir, entry.name)
+        console.log "removing #{name}"
+        if entry.type is 'd'
+          return @removeRecursive(name).then( =>
+            nodefn.call(@client.rmdir.bind(@client), name)
+          )
         else
-          console.log "removing #{dir}/#{entry.name}"
-          @client.delete("#{dir}/#{entry.name}", cb)
+          return nodefn.call(@client.delete.bind(@client), name)
+    )
 
-      , deferred.resolve
+  ###*
+   * @todo Make a way to do "nearly atomic uploads" by uploading to a tmp dir
+     and then renaming to the target dir
+  ###
+  uploadFiles: (sourceDir) ->
+    console.log 'uploading files'
+    nodefn.call(readdirp, root: sourceDir).then((res) =>
+      folders = _.pluck(res.directories, 'path')
+      files = _.pluck(res.files, 'path')
+      W.map(folders, @mkdir).then( =>
+        W.map files, (file) => @putFile(file, sourceDir)
+      ).then( =>
+        @client.end()
+      )
+    )
 
-  mkdir = (p, cb) ->
-    @client.mkdir(p, true, cb)
+  mkdir: (path) =>
+    nodefn.call(@client.mkdir.bind(@client), path, true)
 
-  put_file = (f, cb) ->
-    console.log "uploading #{f}".green
-    @client.put(path.join(@public, f), f, cb)
+  putFile: (file, sourceDir) ->
+    console.log "uploading #{file}"
+    nodefn.call(@client.put.bind(@client), path.join(sourceDir, file), file)
 
 module.exports = FTP

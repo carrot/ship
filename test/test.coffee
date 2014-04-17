@@ -59,7 +59,10 @@ describe 'ShipFile', ->
     shipFile
       .loadFile()
       .then( ->
-        shipFile._config.should.eql(foo: 'bar')
+        shipFile._config.should.eql(
+          foo: 'bar'
+          deployers: {}
+        )
         done()
       ).catch((e) ->
         done(e)
@@ -72,8 +75,8 @@ describe 'ShipFile', ->
       .loadFile()
       .then( ->
         shipFile
-          .getMissingConfigValues('gh-pages', projectRoot)
-          .should.eql(['branch'])
+          .getMissingConfigValues('ftp', projectRoot)
+          .should.eql(['host', 'target', 'username', 'password'])
         done()
       ).catch((e) ->
         done(e)
