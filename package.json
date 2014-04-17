@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "optimist": "0.6.x",
-    "coffee-script": "1.7.x",
     "js-yaml": "2.x.x",
     "colors": "0.6.x",
     "indx": "0.0.x",
@@ -42,6 +41,7 @@
     "json-schema": "^0.2.2"
   },
   "devDependencies": {
+    "coffee-script": "1.7.x",
     "mocha": "*",
     "should": "*",
     "request": "*"

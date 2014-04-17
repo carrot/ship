@@ -1,4 +1,3 @@
-require 'coffee-script'
 Deployer = require '../deployer'
 W = require 'when'
 fs = require 'fs'
@@ -63,16 +62,16 @@ class VPS extends Deployer
           deferred.resolve()
 
     return deferred.promise
-  
+
   run_after_script = ->
     deferred = W.defer()
     if not @config.after then return deferred.resolve()
     run_script.call(@, 'after', deferred)
     return deferred.promise
 
-  # 
+  #
   # @api private
-  # 
+  #
 
   run_script = (type, deferred) ->
     # make correct variables available here
