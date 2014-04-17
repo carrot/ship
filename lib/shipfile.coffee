@@ -37,7 +37,10 @@ class ShipFile
    * @return {Promise}
   ###
   loadFile: ->
-    @_file.read(encoding: 'utf8').then((data) => @_config = JSON.parse(data))
+    @_file.read(encoding: 'utf8').then((data) =>
+      @_config = JSON.parse(data)
+      @_config.deployers ?= {}
+    )
 
   ###*
    * Update the config file with all the data from ShipFile._config. This
@@ -70,11 +73,7 @@ class ShipFile
    * @return {Object} Deployer config.
   ###
   getDeployerConfig: (deployer = @getDefaultDeployer(), projectRoot) ->
-    try
-      config = @_config.deployers[deployer]
-    catch e
-      config = {}
-
+    config = @_config.deployers[deployer] ? {}
     config.target = @getTarget(projectRoot)
     config.projectRoot = projectRoot
     return config
@@ -86,6 +85,7 @@ class ShipFile
    * @param {Object} config
   ###
   setDeployerConfig: (deployer = @getDefaultDeployer(), config) ->
+    @_config.deployers[deployer] ?= {}
     # simple flat merge
     for key, value of config
       @_config.deployers[deployer][key] = value
