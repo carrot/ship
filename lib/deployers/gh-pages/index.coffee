@@ -25,7 +25,8 @@ class Github extends Deployer
         required: true
         default: 'gh-pages'
 
-  runDeploy: (config) ->
+  deploy: (config) ->
+    super(config)
     @checkInstallStatus()
     originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()

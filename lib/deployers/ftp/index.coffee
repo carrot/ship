@@ -28,7 +28,8 @@ class FTP extends Deployer
         required: true
         default: 21
 
-  runDeploy: (config) ->
+  deploy: (config) ->
+    super(config)
     @checkCredentials(config)
       .then( => @clearFilesFromTarget())
       .then( => @uploadFiles(config.sourceDir))
