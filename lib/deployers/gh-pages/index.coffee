@@ -1,7 +1,7 @@
 path = require 'path'
 fs = require 'fs'
 shell = require 'shelljs/global'
-touch = require('touch').sync
+touch = require('touch').sync #TODO: github.com/arturadib/shelljs/issues/122
 readdirp = require 'readdirp'
 W = require 'when'
 
