@@ -1,7 +1,7 @@
 validateSchema = require('json-schema').validate
 _ = require 'lodash'
 
-class DeployerConfigSchema
+class ConfigSchema
   ###*
    * JSON-Schema representation of the config. Just the properties object -
      the type & wrapper isn't needed because we assume the config is an
@@ -46,7 +46,7 @@ class DeployerConfigSchema
 
   ###*
    * Make sure that the value is valid for a given config option.
-   * @param {String} option The option from the deployer config to validate.
+   * @param {String} option The option from the config to validate.
    * @param {String} value The value to check
    * @return {Object} The "errors" key is an array of error objects, and the
      "valid" key is a Boolean if it is valid.
@@ -73,4 +73,4 @@ class DeployerConfigSchema
     if check.valid then return []
     return _.pluck(check.errors, 'property')
 
-module.exports = DeployerConfigSchema
+module.exports = ConfigSchema

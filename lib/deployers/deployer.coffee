@@ -1,4 +1,4 @@
-DeployerConfigSchema = require './config-schema'
+ConfigSchema = require './config-schema'
 
 ###*
  * The base class for all deployers to inherit from. Pretty much stateless
@@ -7,19 +7,21 @@ DeployerConfigSchema = require './config-schema'
 ###
 class Deployer
   ###*
-   * @type {DeployerConfigSchema}
+   * Holds the schema that manages the configuration.
+   * @type {ConfigSchema}
   ###
-  config: new DeployerConfigSchema()
+  configSchema: new ConfigSchema()
 
   ###*
    * Set schema properties that all deployers use.
+   * @extend
   ###
   constructor: ->
-    @config.schema.projectRoot =
+    @configSchema.schema.projectRoot =
       required: true
       default: './'
       type: 'string'
-    @config.schema.sourceDir =
+    @configSchema.schema.sourceDir =
       required: true
       default: './public'
       type: 'string'
@@ -31,6 +33,6 @@ class Deployer
    * @extend
   ###
   deploy: (config) ->
-    @config.validate(config)
+    @configSchema.validate(config)
 
 module.exports = Deployer

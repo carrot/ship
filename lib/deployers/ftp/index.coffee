@@ -11,19 +11,19 @@ class FTP extends Deployer
 
   constructor: ->
     super()
-    @config.schema.host =
+    @configSchema.schema.host =
       type: 'string'
       required: true
-    @config.schema.target =
+    @configSchema.schema.target =
       type: 'string'
       required: true
-    @config.schema.username =
+    @configSchema.schema.username =
       type: 'string'
       required: true
-    @config.schema.password =
+    @configSchema.schema.password =
       type: 'string'
       required: true
-    @config.schema.port =
+    @configSchema.schema.port =
       type: 'integer'
       required: true
       default: 21
