@@ -12,6 +12,19 @@ class Deployer
   config: new DeployerConfigSchema()
 
   ###*
+   * Set schema properties that all deployers use.
+  ###
+  constructor: ->
+    @config.schema.projectRoot =
+      required: true
+      default: './'
+      type: 'string'
+    @config.schema.sourceDir =
+      required: true
+      default: './public'
+      type: 'string'
+
+  ###*
    * Run the deployment
    * @param {Object} config The configuration object for the deployer.
    * @return {Promise}

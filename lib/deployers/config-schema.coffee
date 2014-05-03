@@ -11,20 +11,6 @@ class DeployerConfigSchema
   schema: {}
 
   ###*
-   * Properties that all deployers use.
-   * @type {Object}
-  ###
-  _baseSchema:
-    projectRoot:
-      required: true
-      default: './'
-      type: 'string'
-    sourceDir:
-      required: true
-      default: './public'
-      type: 'string'
-
-  ###*
    * Validate the given data and throw an exception of it's invalid
    * @param {Object} data
    * @return {Object} The config data with defaults added
@@ -36,10 +22,7 @@ class DeployerConfigSchema
     return check.data
 
   _getSchema: ->
-    schema = _.clone @schema # don't modify the origional
-    for key, value in @_baseSchema
-      schema[key] = value
-    return schema
+    return _.clone @schema # don't modify the origional
 
   ###*
    * A helper method that does the validation for a couple methods.

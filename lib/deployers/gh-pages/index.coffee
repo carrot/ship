@@ -17,13 +17,14 @@ class Github extends Deployer
     NOT_INSTALLED: 'You must install git - see http://git-scm.com'
     REMOTE_ORIGIN: 'Make sure you have a remote origin branch for github'
     MAKE_COMMIT: 'You need to make a commit before deploying'
+    UNCOMMITTED_CHANGES: 'you have uncommitted changes - you need to commit those before you can deploy'
 
   constructor: ->
-    @config.schema =
-      branch:
-        type: 'string'
-        required: true
-        default: 'gh-pages'
+    super()
+    @config.schema.branch =
+      type: 'string'
+      required: true
+      default: 'gh-pages'
 
   deploy: (config) ->
     super(config)
@@ -54,7 +55,7 @@ class Github extends Deployer
 
   checkForUncommittedChanges: ->
     unless exec('git diff --quiet').code is 0 and exec('git diff --cached --quiet').code is 0
-      throw new Error('you have uncommitted changes - you need to commit those before you can deploy')
+      throw new Error(@_errors.UNCOMMITTED_CHANGES)
 
   switchToDeployBranch: (branch) ->
     console.log "switching to #{branch} branch"

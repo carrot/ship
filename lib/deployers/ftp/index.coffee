@@ -10,23 +10,23 @@ class FTP extends Deployer
   client: new FTPClient()
 
   constructor: ->
-    @config.schema =
-      host:
-        type: 'string'
-        required: true
-      target:
-        type: 'string'
-        required: true
-      username:
-        type: 'string'
-        required: true
-      password:
-        type: 'string'
-        required: true
-      port:
-        type: 'integer'
-        required: true
-        default: 21
+    super()
+    @config.schema.host =
+      type: 'string'
+      required: true
+    @config.schema.target =
+      type: 'string'
+      required: true
+    @config.schema.username =
+      type: 'string'
+      required: true
+    @config.schema.password =
+      type: 'string'
+      required: true
+    @config.schema.port =
+      type: 'integer'
+      required: true
+      default: 21
 
   deploy: (config) ->
     super(config)
