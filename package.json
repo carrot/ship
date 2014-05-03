@@ -38,7 +38,8 @@
     "sync-prompt": "^0.2.2",
     "argparse": "^0.1.15",
     "fobject": "0.0.0",
-    "json-schema": "^0.2.2"
+    "json-schema": "^0.2.2",
+    "touch": "0.0.3"
   },
   "devDependencies": {
     "coffee-script": "1.7.x",

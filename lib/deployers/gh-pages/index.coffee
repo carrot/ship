@@ -1,6 +1,7 @@
 path = require 'path'
 fs = require 'fs'
 shell = require 'shelljs/global'
+touch = require('touch').sync
 readdirp = require 'readdirp'
 W = require 'when'
 
@@ -25,6 +26,11 @@ class Github extends Deployer
       type: 'string'
       required: true
       default: 'gh-pages'
+    @config.schema.nojekyll =
+      type: 'boolean'
+      required: true
+      default: false
+      description: 'add a `.nojekyll` file to bypass Jekyll processing'
 
   deploy: (config) ->
     super(config)
@@ -34,6 +40,7 @@ class Github extends Deployer
     @switchToDeployBranch(config.branch)
     @removeExtraneousFiles(config.sourceDir).then( =>
       @dumpSourceDirToRoot(config.sourceDir, config.projectRoot)
+      @nojekyllOption(config.nojekyll, config.projectRoot)
       @makeCommit()
       @pushCode(config.branch, originalBranch)
     )
@@ -87,6 +94,9 @@ class Github extends Deployer
     sourceDir = path.join(sourceDir, '*')
     mv '-f', path.resolve(sourceDir), root
     rm '-rf', sourceDir
+
+  nojekyllOption: (makeNojekyllFile, root) ->
+    if makeNojekyllFile then touch path.join(root, '.nojekyll')
 
   makeCommit: ->
     console.log 'committing to git'
