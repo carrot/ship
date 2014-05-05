@@ -1,10 +1,11 @@
-Deployer = require '../deployer'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'lodash'
 W = require 'when'
 nodefn = require 'when/node'
 path = require 'path'
+
+Deployer = require '../../deployer'
 
 class FTP extends Deployer
   client: new FTPClient()
@@ -63,7 +64,7 @@ class FTP extends Deployer
   ###*
    * Recursively remove everything inside of a given dir.
    * @param {String} dir
-   * @return {Promise} [description]
+   * @return {Promise}
   ###
   removeRecursive: (dir = '.') ->
     nodefn.call(@client.list.bind(@client), dir).then((list) =>

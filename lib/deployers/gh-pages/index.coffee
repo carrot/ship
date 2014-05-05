@@ -5,7 +5,7 @@ touch = require('touch').sync #TODO: github.com/arturadib/shelljs/issues/122
 readdirp = require 'readdirp'
 W = require 'when'
 
-Deployer = require '../deployer'
+Deployer = require '../../deployer'
 
 class Github extends Deployer
   ###*
