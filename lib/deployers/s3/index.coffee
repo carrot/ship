@@ -9,8 +9,9 @@ _ = require 'lodash'
 async = require 'async'
 mime = require 'mime'
 readdirp = require 'readdirp'
-Deployer = require '../deployer'
 minimatch = require 'minimatch'
+
+Deployer = require '../../deployer'
 
 class S3 extends Deployer
 
@@ -66,10 +67,10 @@ class S3 extends Deployer
         if err then return console.error(err)
         @client.deleteBucket { Bucket: @config.bucket }, cb
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   check_config = ->
     deferred = W.defer()
 

@@ -22,11 +22,11 @@ class Github extends Deployer
 
   constructor: ->
     super()
-    @config.schema.branch =
+    @configSchema.schema.branch =
       type: 'string'
       required: true
       default: 'gh-pages'
-    @config.schema.nojekyll =
+    @configSchema.schema.nojekyll =
       type: 'boolean'
       required: true
       default: false

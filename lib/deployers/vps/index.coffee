@@ -1,9 +1,10 @@
-Deployer = require '../deployer'
 W = require 'when'
 fs = require 'fs'
 path = require 'path'
 SSH = require 'ssh2'
 SFTPUploader = require './uploader'
+
+Deployer = require '../../deployer'
 
 class VPS extends Deployer
 
