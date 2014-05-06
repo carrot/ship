@@ -1,3 +1,5 @@
+path = require 'path'
+
 ConfigSchema = require './config-schema'
 
 ###*
@@ -38,6 +40,8 @@ class Deployer
    * @extend
   ###
   deploy: (config) ->
+    config.sourceDir = path.normalize(config.sourceDir)
+    config.projectRoot = path.normalize(config.projectRoot)
     @configSchema.validate(config)
 
 module.exports = Deployer
