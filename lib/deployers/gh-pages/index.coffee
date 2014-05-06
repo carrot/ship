@@ -101,7 +101,7 @@ class Github extends Deployer
     deferred = W.defer()
     console.log 'removing extraneous files'
     ignored = gitignored = @parseGitignore(@_config.projectRoot)
-    ignored.push @_config.sourceDir, '.git', '.gitignore'
+    ignored.push @_config.sourceDir, '.git'
     ignored = ignored.map (v) -> "!#{v}"
     opts =
       root: @_config.projectRoot
