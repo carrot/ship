@@ -1,4 +1,7 @@
 path = require 'path'
+readdirp = require 'readdirp'
+W = require 'when'
+_ = require 'lodash'
 
 ConfigSchema = require './config-schema'
 
@@ -40,6 +43,11 @@ class Deployer
       default: './public'
       type: 'string'
       description: ''
+    @configSchema.schema.ignore =
+      required: true
+      default: ['ship*.opts']
+      type: 'array'
+      description: 'Minimatch-style strings for what files to ignore. This can be repeated to add multiple ignored patterns.'
 
   ###*
    * Run the deployment
@@ -52,5 +60,32 @@ class Deployer
     @_config = @configSchema.validate(config)
     @_config.sourceDir = path.normalize(@_config.sourceDir)
     @_config.projectRoot = path.normalize(@_config.projectRoot)
+
+  ###*
+   * Get the list of files to be deployed, taking into account the ignored
+     files.
+   * @param {Boolean} [invert=false] If true, return all the files that are
+     not in supposed to be shipped.
+   * @return {Promise} A promise for the array of filepaths to ship.
+  ###
+  getFileList: (invert = false) ->
+    deferred = W.defer()
+    ignored = @_config.ignore.map (v) -> "!#{v}"
+    readdirp
+      root: @_config.sourceDir
+      fileFilter: ignored
+      directoryFilter: ignored
+      (err, res) =>
+        if err then return deferred.reject err
+        fileList = _.pluck(res.files, 'fullPath')
+        unless invert
+          deferred.resolve fileList
+        else
+          readdirp root: @_config.projectRoot, (err, res) ->
+            if err then return deferred.reject err
+            allProjectFiles = _.pluck(res.files, 'fullPath')
+            deferred.resolve _.without(allProjectFiles, fileList...)
+
+    return deferred.promise
 
 module.exports = Deployer
