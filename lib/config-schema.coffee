@@ -8,7 +8,10 @@ class ConfigSchema
      object.
    * @type {Object}
   ###
-  schema: {}
+  schema: undefined
+
+  constructor: ->
+    @schema = {} # make sure this doesn't get shared between instances
 
   ###*
    * Validate the given data and throw an exception of it's invalid

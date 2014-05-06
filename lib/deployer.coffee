@@ -10,21 +10,26 @@ class Deployer
    * Holds the schema that manages the configuration.
    * @type {ConfigSchema}
   ###
-  configSchema: new ConfigSchema()
+  configSchema: undefined
 
   ###*
    * Set schema properties that all deployers use.
    * @extend
   ###
   constructor: ->
+    # make sure this doesn't get shared between instances
+    @configSchema = new ConfigSchema()
+
     @configSchema.schema.projectRoot =
       required: true
       default: './'
       type: 'string'
+      description: 'The path to the root of the project to be shipped.'
     @configSchema.schema.sourceDir =
       required: true
       default: './public'
       type: 'string'
+      description: ''
 
   ###*
    * Run the deployment
