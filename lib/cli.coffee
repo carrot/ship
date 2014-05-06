@@ -28,6 +28,9 @@ jsonSchema2Argparse = (name, opt) ->
       argObject.action = 'storeFalse'
     else
       argObject.action = 'storeTrue'
+  else if argObject.type is 'array'
+    delete argObject.type
+    argObject.action = 'append'
 
   return argObject
 
