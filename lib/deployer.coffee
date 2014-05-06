@@ -77,13 +77,15 @@ class Deployer
       directoryFilter: ignored
       (err, res) =>
         if err then return deferred.reject err
-        fileList = _.pluck(res.files, 'fullPath')
+        fileList = res.files.map (file) =>
+          path.join @_config.sourceDir, file.path
+
         unless invert
           deferred.resolve fileList
         else
           readdirp root: @_config.projectRoot, (err, res) ->
             if err then return deferred.reject err
-            allProjectFiles = _.pluck(res.files, 'fullPath')
+            allProjectFiles = _.pluck(res.files, 'path')
             deferred.resolve _.without(allProjectFiles, fileList...)
 
     return deferred.promise
