@@ -36,13 +36,15 @@ class Github extends Deployer
   deploy: (config) ->
     super(config)
     @checkInstallStatus()
-    originalBranch = @getOrigionalBranch()
+    @_config.originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()
-    @switchToDeployBranch(config.branch, originalBranch)
-    @dumpSourceDirToRoot(config.sourceDir, config.projectRoot).then( =>
-      @nojekyllOption(config.nojekyll, config.projectRoot)
+    @switchToDeployBranch()
+    @dumpSourceDirToRoot().then( =>
+      if @_config.nojekyll
+        @makeNojekyllFile()
       @makeCommit()
-      @pushCode(config.branch, originalBranch)
+      @pushCode()
+      console.log 'deployed to github pages'
     )
 
   checkInstallStatus: ->
@@ -64,18 +66,18 @@ class Github extends Deployer
     unless exec('git diff --quiet').code is 0 and exec('git diff --cached --quiet').code is 0
       throw new Error(@_errors.UNCOMMITTED_CHANGES)
 
-  switchToDeployBranch: (deployBranch, originalBranch) ->
-    if originalBranch is deployBranch
+  switchToDeployBranch: ->
+    if @_config.originalBranch is @_config.branch
       throw new Error(@_errors.STARTING_ON_WRONG_BRANCH)
-    console.log "switching to #{deployBranch} branch"
+    console.log "switching to #{@_config.branch} branch"
 
     # remove & recreate branch if it already exists
-    if execute("git branch | grep #{deployBranch}")
-      console.log "removing #{deployBranch} branch"
-      execute("git branch -D #{deployBranch}")
-    execute("git branch #{deployBranch}")
+    if execute("git branch | grep #{@_config.branch}")
+      console.log "removing #{@_config.branch} branch"
+      execute("git branch -D #{@_config.branch}")
+    execute("git branch #{@_config.branch}")
 
-    execute("git checkout #{deployBranch}")
+    execute("git checkout #{@_config.branch}")
 
   ###*
    * Check for and parse the .gitignore file. This is needed because we can't
@@ -83,10 +85,10 @@ class Github extends Deployer
    * @param {String} root
    * @return {Array} Array of strings to be ignored
   ###
-  parseGitignore: (root) ->
+  parseGitignore: ->
     gitignoreFile = ''
     try
-      gitignoreFile = fs.readFileSync(path.join(root, '.gitignore'), 'utf8')
+      gitignoreFile = fs.readFileSync(path.join(@_config.projectRoot, '.gitignore'), 'utf8')
     ignore = []
     gitignoreFile
       .split('\n')
@@ -94,42 +96,44 @@ class Github extends Deployer
       .forEach((v) -> ignore.push v)
     return ignore
 
-  dumpSourceDirToRoot: (sourceDir, root) ->
+  dumpSourceDirToRoot: ->
     # remove extraneous files
     deferred = W.defer()
     console.log 'removing extraneous files'
-    ignored = gitignored = @parseGitignore(root)
-    ignored.push sourceDir, '.git', '.gitignore'
+    ignored = gitignored = @parseGitignore(@_config.projectRoot)
+    ignored.push @_config.sourceDir, '.git', '.gitignore'
     ignored = ignored.map (v) -> "!#{v}"
-    opts = root: root, fileFilter: ignored, directoryFilter: ignored
-    readdirp opts, (err, res) ->
+    opts =
+      root: @_config.projectRoot
+      fileFilter: ignored
+      directoryFilter: ignored
+    readdirp opts, (err, res) =>
       if err then return deferred.reject(err)
       rm(f.path) for f in res.files
       rm('-rf', d.path) for d in res.directories
       # dump source dir to root
-      if sourceDir is root then return deferred.resolve()
-      cp '-rf', path.resolve(path.join(sourceDir, '*')), root
-      if sourceDir not in gitignored
+      if @_config.sourceDir is @_config.projectRoot then return deferred.resolve()
+      cp '-rf', path.resolve(path.join(@_config.sourceDir, '*')), @_config.projectRoot
+      if @_config.sourceDir not in gitignored
         # we don't need to remove it if it's going to be ignored when we
         # commit
-        rm '-rf', sourceDir
+        rm '-rf', @_config.sourceDir
       deferred.resolve()
     return deferred.promise
 
-  nojekyllOption: (makeNojekyllFile, root) ->
-    if makeNojekyllFile then touch path.join(root, '.nojekyll')
+  makeNojekyllFile: ->
+    touch path.join(@_config.projectRoot, '.nojekyll')
 
   makeCommit: ->
     console.log 'committing to git'
     execute 'git add .'
     execute 'git commit -am "deploy to github pages"'
 
-  pushCode: (branch, originalBranch) ->
-    console.log "pushing to origin/#{branch}"
-    execute "git push origin #{branch} --force"
-    console.log "switching back to #{originalBranch} branch"
-    execute "git checkout #{originalBranch}"
-    console.log 'deployed to github pages'
+  pushCode: ->
+    console.log "pushing to origin/#{@_config.branch}"
+    execute "git push origin #{@_config.branch} --force"
+    console.log "switching back to #{@_config.originalBranch} branch"
+    execute "git checkout #{@_config.originalBranch}"
 
 ###*
  * @param {String} input The command to execute

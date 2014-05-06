@@ -3,9 +3,7 @@ path = require 'path'
 ConfigSchema = require './config-schema'
 
 ###*
- * The base class for all deployers to inherit from. Pretty much stateless
-   (the configuration and runtime-specific stuff gets passed to the function,
-   not stored).
+ * The base class for all deployers to inherit from.
 ###
 class Deployer
   ###*
@@ -15,12 +13,22 @@ class Deployer
   configSchema: undefined
 
   ###*
+   * The current configuration object for the deployer (prevents us from
+     needing to pass configuration items around). This object may be mutated
+     from what the configSchema defines after deployment starts.
+   * @private
+   * @type {Object}
+  ###
+  _config: undefined
+
+  ###*
    * Set schema properties that all deployers use.
    * @extend
   ###
   constructor: ->
-    # make sure this doesn't get shared between instances
+    # make sure these don't get shared between instances
     @configSchema = new ConfigSchema()
+    @_config = {}
 
     @configSchema.schema.projectRoot =
       required: true
@@ -36,12 +44,13 @@ class Deployer
   ###*
    * Run the deployment
    * @param {Object} config The configuration object for the deployer.
-   * @return {Promise}
+   * @return {Promise} Actually, only the extended functions return a promise.
+     The base one doesn't because we need to call it with super
    * @extend
   ###
   deploy: (config) ->
-    config.sourceDir = path.normalize(config.sourceDir)
-    config.projectRoot = path.normalize(config.projectRoot)
-    @configSchema.validate(config)
+    @_config = @configSchema.validate(config)
+    @_config.sourceDir = path.normalize(@_config.sourceDir)
+    @_config.projectRoot = path.normalize(@_config.projectRoot)
 
 module.exports = Deployer
