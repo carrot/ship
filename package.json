@@ -24,7 +24,7 @@
     "indx": "0.0.x",
     "async": "0.2.x",
     "ftp": "0.3.x",
-    "readdirp": "0.x.x",
+    "readdirp": "1.x.x",
     "dbox": "0.6.x",
     "semver": "2.x.x",
     "open": "0.0.x",
