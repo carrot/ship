@@ -18,7 +18,8 @@ class Github extends Deployer
     NOT_INSTALLED: 'You must install git - see http://git-scm.com'
     REMOTE_ORIGIN: 'Make sure you have a remote origin branch for github'
     MAKE_COMMIT: 'You need to make a commit before deploying'
-    UNCOMMITTED_CHANGES: 'you have uncommitted changes - you need to commit those before you can deploy'
+    UNCOMMITTED_CHANGES: 'You have uncommitted changes - you need to commit those before you can deploy'
+    STARTING_ON_WRONG_BRANCH: 'You have the branch that you\'re trying to deploy to checked out right now. Switch branches.'
 
   constructor: ->
     super()
@@ -37,9 +38,8 @@ class Github extends Deployer
     @checkInstallStatus()
     originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()
-    @switchToDeployBranch(config.branch)
-    @removeExtraneousFiles(config.sourceDir).then( =>
-      @dumpSourceDirToRoot(config.sourceDir, config.projectRoot)
+    @switchToDeployBranch(config.branch, originalBranch)
+    @dumpSourceDirToRoot(config.sourceDir, config.projectRoot).then( =>
       @nojekyllOption(config.nojekyll, config.projectRoot)
       @makeCommit()
       @pushCode(config.branch, originalBranch)
@@ -64,36 +64,57 @@ class Github extends Deployer
     unless exec('git diff --quiet').code is 0 and exec('git diff --cached --quiet').code is 0
       throw new Error(@_errors.UNCOMMITTED_CHANGES)
 
-  switchToDeployBranch: (branch) ->
-    console.log "switching to #{branch} branch"
+  switchToDeployBranch: (deployBranch, originalBranch) ->
+    if originalBranch is deployBranch
+      throw new Error(@_errors.STARTING_ON_WRONG_BRANCH)
+    console.log "switching to #{deployBranch} branch"
 
     # remove & recreate branch if it already exists
-    if not execute("git branch | grep #{branch}")
-      execute("git branch -D #{branch}")
-    execute("git branch #{branch}")
+    if execute("git branch | grep #{deployBranch}")
+      console.log "removing #{deployBranch} branch"
+      execute("git branch -D #{deployBranch}")
+    execute("git branch #{deployBranch}")
 
-    execute("git checkout #{branch}")
+    execute("git checkout #{deployBranch}")
 
-  removeExtraneousFiles: (sourceDir) ->
+  ###*
+   * Check for and parse the .gitignore file. This is needed because we can't
+     get git-ignored files back when we switch to the origional branch.
+   * @param {String} root
+   * @return {Array} Array of strings to be ignored
+  ###
+  parseGitignore: (root) ->
+    gitignoreFile = ''
+    try
+      gitignoreFile = fs.readFileSync(path.join(root, '.gitignore'), 'utf8')
+    ignore = []
+    gitignoreFile
+      .split('\n')
+      .filter((v) -> v.length)
+      .forEach((v) -> ignore.push v)
+    return ignore
+
+  dumpSourceDirToRoot: (sourceDir, root) ->
+    # remove extraneous files
     deferred = W.defer()
     console.log 'removing extraneous files'
-    opts =
-      root: ''
-      directoryFilter: ["!#{sourceDir}", '!.git']
-
+    ignored = gitignored = @parseGitignore(root)
+    ignored.push sourceDir, '.git', '.gitignore'
+    ignored = ignored.map (v) -> "!#{v}"
+    opts = root: root, fileFilter: ignored, directoryFilter: ignored
     readdirp opts, (err, res) ->
       if err then return deferred.reject(err)
       rm(f.path) for f in res.files
       rm('-rf', d.path) for d in res.directories
+      # dump source dir to root
+      if sourceDir is root then return deferred.resolve()
+      cp '-rf', path.resolve(path.join(sourceDir, '*')), root
+      if sourceDir not in gitignored
+        # we don't need to remove it if it's going to be ignored when we
+        # commit
+        rm '-rf', sourceDir
       deferred.resolve()
-
     return deferred.promise
-
-  dumpSourceDirToRoot: (sourceDir, root) ->
-    if sourceDir is @path then return
-    sourceDir = path.join(sourceDir, '*')
-    mv '-f', path.resolve(sourceDir), root
-    rm '-rf', sourceDir
 
   nojekyllOption: (makeNojekyllFile, root) ->
     if makeNojekyllFile then touch path.join(root, '.nojekyll')
