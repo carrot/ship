@@ -3,7 +3,7 @@ readdirp = require 'readdirp'
 W = require 'when'
 _ = require 'lodash'
 
-ConfigSchema = require './config-schema'
+ConfigSchema = require 'config-schema'
 
 ###*
  * The base class for all deployers to inherit from.
