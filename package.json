@@ -11,7 +11,7 @@
     "async": "0.2.x",
     "aws-sdk": "1.x.x",
     "colors": "0.6.x",
-    "config-schema": "0.0.0",
+    "config-schema": "0.0.2",
     "dbox": "0.6.x",
     "fobject": "0.0.0",
     "ftp": "0.3.x",
