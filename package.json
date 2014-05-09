@@ -21,7 +21,6 @@
     "lodash": "^2.4.1",
     "mime": "1.x.x",
     "minimatch": "0.2.x",
-    "nsync": "git://github.com/carrot/nsync.git",
     "open": "0.0.x",
     "optimist": "0.6.x",
     "readdirp": "1.x.x",
