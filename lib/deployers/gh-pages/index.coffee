@@ -38,9 +38,7 @@ class Github extends Deployer
     @_config.originalBranch = @getOrigionalBranch()
     @checkForUncommittedChanges()
     @switchToDeployBranch()
-    @getFileList().then((fileList) =>
-      @_config.fileList = fileList
-      @dumpSourceDirToRoot()
+    @dumpSourceDirToRoot().then( =>
       if @_config.nojekyll
         @makeNojekyllFile()
       @makeCommit()
@@ -84,29 +82,36 @@ class Github extends Deployer
     execute "git checkout #{branch}", false
 
   dumpSourceDirToRoot: ->
-    files = fs.readdirSync(@_config.projectRoot)
-    @_config.tmpDir = path.join @_config.projectRoot, 'ship-tmp'
-    console.log "moving everything into #{@_config.tmpDir}"
-    mkdir @_config.tmpDir
-    for file in files
-      if file in ['.git', @_config.tmpDir] then continue
-      file = path.join @_config.projectRoot, file
-      console.log "#{file} -> #{@_config.tmpDir}"
-      mv '-f', file, @_config.tmpDir
+    deferred = W.defer()
+    @getFileList((err, res) =>
+      if err then return deferred.reject err
+      files = fs.readdirSync(@_config.projectRoot)
+      @_config.tmpDir = path.join @_config.projectRoot, 'ship-tmp'
+      console.log "moving everything into #{@_config.tmpDir}"
+      mkdir @_config.tmpDir
+      for file in files
+        if file in ['.git', @_config.tmpDir] then continue
+        file = path.join @_config.projectRoot, file
+        console.log "#{file} -> #{@_config.tmpDir}"
+        mv '-f', file, @_config.tmpDir
 
-    console.log 'copying files to be deployed into the project root'
-    for file in @_config.fileList
-      from = path.join(@_config.tmpDir, file)
-      to = path.relative(@_config.sourceDir, file)
-      console.log "#{from} -> #{to}"
-      mkdir '-p', path.dirname(to) # make sure the dest exists
-      cp '-f', from, to
+      console.log 'copying files to be deployed into the project root'
+      for file in res.files
+        file = path.join @_config.sourceDir, file.path
+        from = path.join @_config.tmpDir, file
+        to = path.relative(@_config.sourceDir, file)
+        console.log "#{from} -> #{to}"
+        mkdir '-p', path.dirname(to) # make sure the dest exists
+        cp '-f', from, to
 
-    # append/make a .gitignore to prevent the tmp files from being committed
-    fs.appendFileSync(
-      path.join(@_config.projectRoot, '.gitignore')
-      @_config.tmpDir
+      # append/make a .gitignore to prevent the tmp files from being committed
+      fs.appendFileSync(
+        path.join(@_config.projectRoot, '.gitignore')
+        @_config.tmpDir
+      )
+      deferred.resolve()
     )
+    return deferred.promise
 
   makeNojekyllFile: ->
     touch path.join(@_config.projectRoot, '.nojekyll')

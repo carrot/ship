@@ -2,7 +2,6 @@ path = require 'path'
 readdirp = require 'readdirp'
 W = require 'when'
 _ = require 'lodash'
-
 ConfigSchema = require 'config-schema'
 
 ###*
@@ -64,30 +63,15 @@ class Deployer
   ###*
    * Get the list of files to be deployed, taking into account the ignored
      files.
-   * @param {Boolean} [invert=false] If true, return all the files that are
-     not in supposed to be shipped.
-   * @return {Promise} A promise for the array of filepaths to ship.
+   * @param {Function} [cb] An optional callback.
+   * @return {Stream} A readdirp Stream (if `cb` isn't passed)
   ###
-  getFileList: (invert = false) ->
-    deferred = W.defer()
+  getFileList: (cb) ->
     ignored = @_config.ignore.map (v) -> "!#{v}"
     readdirp
       root: @_config.sourceDir
       fileFilter: ignored
       directoryFilter: ignored
-      (err, res) =>
-        if err then return deferred.reject err
-        fileList = res.files.map (file) =>
-          path.join @_config.sourceDir, file.path
-
-        unless invert
-          deferred.resolve fileList
-        else
-          readdirp root: @_config.projectRoot, (err, res) ->
-            if err then return deferred.reject err
-            allProjectFiles = _.pluck(res.files, 'path')
-            deferred.resolve _.without(allProjectFiles, fileList...)
-
-    return deferred.promise
+      cb
 
 module.exports = Deployer
