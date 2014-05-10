@@ -24,6 +24,7 @@
     "open": "0.0.x",
     "optimist": "0.6.x",
     "readdirp": "1.x.x",
+    "s3-sync": "^0.5.1",
     "semver": "2.x.x",
     "shelljs": "0.2.6",
     "ssh2": "0.2.x",
