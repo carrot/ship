@@ -2,6 +2,7 @@ s3sync = require 's3-sync'
 AWS = require 'aws-sdk'
 W = require 'when'
 nodefn = require 'when/node/function'
+_ = require 'lodash'
 
 Deployer = require '../../deployer'
 
@@ -37,18 +38,58 @@ class S3 extends Deployer
       secretAccessKey: @_config.secretKey
     )
     @checkConfig().then( =>
-      deferred = W.defer()
-      uploader = s3sync(
-        key: @_config.accessKey
-        secret: @_config.secretKey
-        bucket: @_config.bucket
-      ).on('data', (file) ->
-        console.log "#{file.fullPath} -> #{file.url}"
-      ).on('error', (err) ->
-        deferred.reject(err)
+      W.promise((resolve, reject) =>
+        @client.listObjects Bucket: @_config.bucket, (err, data) =>
+          if err
+            reject err
+          else
+            # pull the objects out into an array of `{ Key: 'filepath' }`
+            # formatted elements (the format that is consumed by
+            # `@client.deleteObjects`)
+            resolve data.Contents.map((i) -> { Key: i.Key })
       )
-      @getFileList().pipe uploader
-      return deferred.promise
+    ).then((objects) =>
+      # filter out the files that we want to deploy/keep
+      W.promise((resolve, reject) =>
+        @getFileList((err, res) =>
+          if err
+            reject err
+          else
+            filteredObjects = []
+            filesToDeploy = _.pluck res.files, 'path'
+            for object in objects
+              if object.Key not in filesToDeploy
+                filteredObjects.push object
+            resolve filteredObjects
+        )
+      )
+    ).then((objects) =>
+      W.promise((resolve, reject) =>
+        @client.deleteObjects
+          Bucket: @_config.bucket
+          Delete:
+            Objects: objects
+          (err, data) ->
+            if err
+              reject err
+            else
+              resolve()
+      )
+    ).then( =>
+      W.promise((resolve, reject) =>
+        uploader = s3sync(
+          key: @_config.accessKey
+          secret: @_config.secretKey
+          bucket: @_config.bucket
+        ).on('data', (file) ->
+          console.log "#{file.fullPath} -> #{file.url}"
+        ).on('error', (err) ->
+          reject(err)
+        ).on('done', ->
+          resolve()
+        )
+        @getFileList().pipe uploader
+      )
     )
 
   checkConfig: ->
