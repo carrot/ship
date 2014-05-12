@@ -13,10 +13,10 @@ If you often need to deploy files to different platforms, or you have an app or 
 ## deployers
 
 ### working
+- [Amazon S3](lib/deployers/s3) - `s3`
 - [Github Pages](lib/deployers/gh-pages) - `gh-pages`
 
 ### in-progress
-- [Amazon S3](lib/deployers/s3) - `s3`
 - [Heroku](lib/deployers/heroku) - `heroku`
 - [Nodejitsu](lib/deployers/nodejitsu) - `nodejitsu`
 - [FTP](lib/deployers/ftp) - `ftp`
