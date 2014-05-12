@@ -13,8 +13,9 @@ class S3 extends Deployer
    * @const
   ###
   _errors:
-      ACCESS_DENIED: 'Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name.'
-      PERMANENT_REDIRECT: 'Permanent Redirect: This probably means you have set an incorrect region. Make sure your bucket\'s region matches what you set in the configuration.'
+    NO_BUCKET: 'The specified bucket doesn\'t exist'
+    NO_WEBSITE: 'The specified bucket isn\'t setup for website hosting'
+    ACCESS_DENIED: 'Access Denied: Your credentials are probably incorrect'
 
   constructor: ->
     super()
@@ -27,16 +28,16 @@ class S3 extends Deployer
     @configSchema.schema.bucket =
       type: 'string'
       required: true
-      description: 'Must be unique across all existing buckets in S3. Will be created if it doesn\'t exist.'
+      description: 'Must be unique across all existing buckets in S3.'
 
   deploy: (config) ->
     super(config)
-    deferred = W.defer()
     @client = new AWS.S3(
       accessKeyId: @_config.accessKey
       secretAccessKey: @_config.secretKey
     )
     @checkConfig().then( =>
+      deferred = W.defer()
       uploader = s3sync(
         key: @_config.accessKey
         secret: @_config.secretKey
@@ -47,8 +48,8 @@ class S3 extends Deployer
         deferred.reject(err)
       )
       @getFileList().pipe uploader
+      return deferred.promise
     )
-    return deferred.promise
 
   checkConfig: ->
     deferred = W.defer()
@@ -56,32 +57,13 @@ class S3 extends Deployer
       if not err then return deferred.resolve()
       switch err.code
         when 'NoSuchBucket'
-          @createBucket()
-            .then(@createSiteConfig())
-            .done(deferred.resolve, deferred.reject)
+          deferred.reject(@_errors.NO_BUCKET)
         when 'NoSuchWebsiteConfiguration'
-          @createSiteConfig
-            .done(deferred.resolve, deferred.reject)
+          deferred.reject(@_errors.NO_WEBSITE)
         when 'AccessDenied'
           deferred.reject(@_errors.ACCESS_DENIED)
-        when 'PermanentRedirect'
-          deferred.reject(@_errors.PERMANENT_REDIRECT)
         else
           deferred.reject(err)
     return deferred.promise
-
-  createBucket: ->
-    console.log "Creating bucket '#{@_config.bucket}'"
-    nodefn.call(@client.createBucket, Bucket: @_config.bucket)
-
-  createSiteConfig: ->
-    console.log 'No static website configuration detected. Configuring now...'
-    nodefn.call(
-      @client.putBucketWebsite
-      Bucket: @_config.bucket,
-      WebsiteConfiguration:
-        IndexDocument:
-          Suffix: 'index.html'
-    )
 
 module.exports = S3
