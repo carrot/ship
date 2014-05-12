@@ -23,7 +23,7 @@ If you often need to deploy files to different platforms, or you have an app or 
 - [Dropbox](lib/deployers/dropbox) - `dropbox`
 - [Linux VPS](lib/deployers/vps) - `vps`
 
-Ship is also extendable, so if there's another platforms you'd like to deploy to, the project structure is easy to understand, and you can write a deployer, send a pull request, and we'd be happy to include it.
+Ship is also extensible, so if there's another platforms you'd like to deploy to, the project structure is easy to understand, and you can write a deployer, send a pull request, and we'd be happy to include it.
 
 ## installation
 `npm install ship -g`
@@ -53,11 +53,11 @@ s3
 --secret-key xxxx
 ```
 
-If you use `ship` without specifying a deployer, `./ship.opts` will be loaded automatically. So running `ship` with the example file above would be the equilivant of running `ship s3 --access-key xxxx --secret-key xxxx`.
+If you use `ship` without specifying a deployer, `./ship.opts` will be loaded automatically. So running `ship` with the example file above would be the equivalent of running `ship s3 --access-key xxxx --secret-key xxxx`.
 
 If you have a separate deployment for production and staging, you can specify them in separate files and call them with `ship ship.produciton.opts` and `ship ship.staging.opts`.
 
-You can even mix and match config files with args. For example, if you wanted to deploy a different folder than you normally would, during one particular deploy, you could do `ship --source-dir=./public2 ship.staging.opts` and the `--source-dir` arg will take precidence over the default one.
+You can even mix and match config files with args. For example, if you wanted to deploy a different folder than you normally would, during one particular deploy, you could do `ship --source-dir=./public2 ship.staging.opts` and the `--source-dir` arg will take precedence over the default one.
 
 ## JavaScript API
 The interface is very straightforward:
