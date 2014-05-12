@@ -46,7 +46,7 @@ class S3 extends Deployer
             # pull the objects out into an array of `{ Key: 'filepath' }`
             # formatted elements (the format that is consumed by
             # `@client.deleteObjects`)
-            resolve data.Contents.map((i) -> { Key: i.Key })
+            resolve _.pluck data.Contents, 'Key'
       )
     ).then((objects) =>
       # filter out the files that we want to deploy/keep
@@ -55,27 +55,11 @@ class S3 extends Deployer
           if err
             reject err
           else
-            filteredObjects = []
             filesToDeploy = _.pluck res.files, 'path'
-            for object in objects
-              if object.Key not in filesToDeploy
-                filteredObjects.push object
-            resolve filteredObjects
+            resolve _.without objects, filesToDeploy...
         )
       )
-    ).then((objects) =>
-      W.promise((resolve, reject) =>
-        @client.deleteObjects
-          Bucket: @_config.bucket
-          Delete:
-            Objects: objects
-          (err, data) ->
-            if err
-              reject err
-            else
-              resolve()
-      )
-    ).then( =>
+    ).then(@deleteObjects).then( =>
       W.promise((resolve, reject) =>
         uploader = s3sync(
           key: @_config.accessKey
@@ -90,6 +74,24 @@ class S3 extends Deployer
         )
         @getFileList().pipe uploader
       )
+    )
+
+  ###*
+   * Delete a list of objects from the bucket
+   * @param {Array} objects An array of filepaths to remove
+  ###
+  deleteObjects: (objects) =>
+    W.promise((resolve, reject) =>
+      if objects.length is 0 then resolve()
+      @client.deleteObjects
+        Bucket: @_config.bucket
+        Delete:
+          Objects: objects.map((i) -> { Key: i })
+        (err, data) ->
+          if err
+            reject err
+          else
+            resolve()
     )
 
   checkConfig: ->
