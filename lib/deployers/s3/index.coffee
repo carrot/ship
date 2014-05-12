@@ -14,8 +14,6 @@ class S3 extends Deployer
    * @const
   ###
   _errors:
-    NO_BUCKET: 'The specified bucket doesn\'t exist'
-    NO_WEBSITE: 'The specified bucket isn\'t setup for website hosting'
     ACCESS_DENIED: 'Access Denied: Your credentials are probably incorrect'
 
   constructor: ->
@@ -29,7 +27,7 @@ class S3 extends Deployer
     @configSchema.schema.bucket =
       type: 'string'
       required: true
-      description: 'Must be unique across all existing buckets in S3.'
+      description: 'Must be unique across all existing buckets in S3. Will be created if it doesn\'t exist.'
 
   deploy: (config) ->
     super(config)
@@ -100,13 +98,39 @@ class S3 extends Deployer
       if not err then return deferred.resolve()
       switch err.code
         when 'NoSuchBucket'
-          deferred.reject(@_errors.NO_BUCKET)
+          @createBucket()
+            .then(@createSiteConfig)
+            .done(deferred.resolve, deferred.reject)
         when 'NoSuchWebsiteConfiguration'
-          deferred.reject(@_errors.NO_WEBSITE)
+          @createSiteConfig()
+            .done(deferred.resolve, deferred.reject)
         when 'AccessDenied'
           deferred.reject(@_errors.ACCESS_DENIED)
         else
-          deferred.reject(err)
+          deferred.reject err
     return deferred.promise
+
+  createBucket: ->
+    console.log "Creating bucket '#{@_config.bucket}'"
+    W.promise((resolve, reject) =>
+      @client.createBucket(
+        Bucket: @_config.bucket
+        (err, data) ->
+          if err then reject err else resolve()
+      )
+    )
+
+  createSiteConfig: =>
+    console.log 'No static website configuration detected. Configuring now...'
+    W.promise((resolve, reject) =>
+      @client.putBucketWebsite(
+        Bucket: @_config.bucket
+        WebsiteConfiguration:
+          IndexDocument:
+            Suffix: 'index.html'
+        (err, data) ->
+          if err then reject err else resolve()
+      )
+    )
 
 module.exports = S3
