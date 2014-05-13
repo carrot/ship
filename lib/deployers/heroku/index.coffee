@@ -4,7 +4,8 @@ run = require('child_process').exec
 shell = require 'shelljs'
 fs = require 'fs'
 path = require 'path'
-Deployer = require '../deployer'
+
+Deployer = require '../../deployer'
 
 class Heroku extends Deployer
 
@@ -75,10 +76,10 @@ class Heroku extends Deployer
     url = out.match(/(http:\/\/.*\.herokuapp\.com)/)[1]
     "Heroku: ".bold + "your site is live at #{url}"
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   sync = (func) -> fn.lift(func)
 
   execute_in_dir = (dir, cmd) ->

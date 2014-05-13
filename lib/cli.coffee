@@ -1,96 +1,99 @@
 fs = require 'fs'
 path = require 'path'
-promptSync = require('sync-prompt').prompt
-packageInfo = require(path.join(__dirname, '../package.json'))
 ArgumentParser = require('argparse').ArgumentParser
 
+packageInfo = require(path.join(__dirname, '../package.json'))
+Deployer = require './deployer'
 deployers = require './deployers'
-ShipFile = require './shipfile'
-Ship = require './'
+ship = require './'
 
-###*
- * Ask for an array of config options.
- * @param {[type]} deployer [description]
- * @param {String[]} questions [description]
- * @return {Object<string>} The config object of answers.
-###
-prompt = (deployer, questions) ->
-  unless questions.length > 0 then return {}
-  console.log "please enter the following config details for #{deployer.bold}".green
-  configObject = (new deployers[deployer]).config
-  answers = {}
-  for question in questions
-    loop
-      answer = promptSync("#{question}:")
-      check = configObject.validateOption(question, answer)
-      if check.valid
-        answers[question] = answer
-        break
-      else
-        console.log error for error in check.errors
-  answers
+camel2dash = (string) ->
+  string.replace /([A-Z])/g, (m) ->
+    "-#{ m.toLowerCase() }"
 
-promptBoolean = ->
-  loop
-    answer = promptSync('y/n:')
-    if answer is 'y'
-      return true
-    else if answer is 'n'
-      return false
+jsonSchema2Argparse = (name, opt) ->
+  argObject =
+    dest: name
+    type: opt.type
+    required: not opt.default?
+    help: opt.description ? ''
+
+  if opt.default? then argObject.defaultValue = opt.default
+
+  if argObject.type is 'integer'
+    argObject.type = 'int'
+  else if argObject.type is 'boolean'
+    delete argObject.type
+    if argObject.default is true
+      argObject.action = 'storeFalse'
     else
-      console.error 'please enter "y" (for "yes") or "n" (for "no")'
+      argObject.action = 'storeTrue'
+  else if argObject.type is 'array'
+    delete argObject.type
+    argObject.action = 'append'
+
+  return argObject
 
 argparser = new ArgumentParser(
   version: packageInfo.version
   addHelp: true
   description: packageInfo.description
 )
-argparser.addArgument(
-  ['--deployer', '-d']
-  choices: Object.keys(deployers)
-  type: 'string'
-  help: 'The deployer to use. If this isn\'t specified then `defaultDeployer` from the config will be used.'
-)
-argparser.addArgument(
-  ['--path', '-p']
-  type: 'string'
-  defaultValue: './'
-  help: 'The path to the root of the project to be shipped. Defaults to ./ if no path is specified'
-)
+
 argparser.addArgument(
   ['--config', '-c']
   type: 'string'
-  defaultValue: './ship.json'
-  help: 'The path to the config file. Defaults to ./ship.json if no path is specified'
+  defaultValue: './ship.opts'
+  help: 'The path to the config file. Defaults to ./ship.opts if no path is specified'
 )
-args = argparser.parseArgs()
 
-shipFile = new ShipFile(args.config)
-shipFile
-  .loadFile()
-  .catch((e) ->
-    if e.code isnt 'ENOENT' then throw e
-    console.error "#{args.config} was not found, would you like to create it?"
-    if promptBoolean()
-      return shipFile.updateFile()
-    else
-      throw new Error('aborted')
-  ).then( ->
-    shipFile.setDeployerConfig(
-      args.deployer
-      prompt(
-        args.deployer
-        shipFile.getMissingConfigValues(args.deployer, args.path)
-      )
-    )
-  ).then( ->
-    shipFile.updateFile()
-  ).then( ->
-    ship = new Ship(shipFile, args.path)
-    ship.deploy(args.deployer)
-  ).then( ->
-    console.log('done!')
-  ).catch((e) ->
-    console.error "oh no!: #{e}"
-    console.error e.stack
+globalDeployerOpts = []
+for name, opt of (new Deployer()).configSchema.schema
+  argparser.addArgument(
+    ["--#{camel2dash name}"]
+    jsonSchema2Argparse name, opt
   )
+  globalDeployerOpts.push name
+
+deployerSubparsers = argparser.addSubparsers(
+  title: 'deployer'
+  dest: 'deployer'
+)
+
+for name, Deployer of deployers
+  deployerParser = deployerSubparsers.addParser(
+    name
+    addHelp: true
+  )
+  for name, opt of (new Deployer()).configSchema.schema
+    if name in globalDeployerOpts then continue
+    deployerParser.addArgument(
+      ["--#{camel2dash name}"]
+      jsonSchema2Argparse name, opt
+    )
+
+argparser.addArgument(
+  []
+  dest: 'optsFile'
+  type: 'string'
+  defaultValue: './ship.opts'
+  metavar: 'OPTS_FILE'
+  nargs: '?'
+  help: 'attempt to load extra args from a file'
+)
+
+args = argparser.parseArgs()
+try
+  opts = fs.readFileSync(args.optsFile, 'utf8').trim().split(/\s+/)
+  process.argv = process.argv
+    .slice(0, 2)
+    .concat(opts.concat(process.argv.slice(2)))
+  console.log process.argv
+  args = argparser.parseArgs()
+
+ship.deploy(args).then( ->
+  console.log('done!')
+).catch((e) ->
+  console.error "oh no!: #{e}"
+  console.error e.stack
+)

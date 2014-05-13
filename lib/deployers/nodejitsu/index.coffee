@@ -3,7 +3,8 @@ fn = require 'when/function'
 run = require('child_process').exec
 fs = require 'fs'
 semver = require 'semver'
-Deployer = require '../deployer'
+
+Deployer = require '../../deployer'
 
 class Nodejitsu extends Deployer
 
@@ -14,7 +15,7 @@ class Nodejitsu extends Deployer
       target: null
       name: null
 
-    @errors = 
+    @errors =
       not_installed: "You need to install nodejitsu first, try `npm install jitsu -g`"
       not_logged_in: "You are not logged in to nodejitsu, try `jitsu login`"
 
@@ -62,10 +63,10 @@ class Nodejitsu extends Deployer
     cmd = exec 'jitsu deploy'
     if cmd.code > 0 then throw cmd.output
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   sync = (func, ctx) ->
     fn.lift(func.bind(@))
 

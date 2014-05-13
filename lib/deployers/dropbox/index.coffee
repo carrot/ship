@@ -1,9 +1,10 @@
-Deployer = require '../deployer'
 W = require 'when'
 dbox = require 'dbox'
 open = require 'open'
 readdirp = require 'readdirp'
 _ = require 'lodash'
+
+Deployer = require '../../deployer'
 
 class Dropbox extends Deployer
   name: 'Dropbox'

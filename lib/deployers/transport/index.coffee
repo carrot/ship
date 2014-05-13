@@ -1,4 +1,3 @@
-Deployer = require '../deployer'
 FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'lodash'
@@ -6,27 +5,29 @@ W = require 'when'
 nodefn = require 'when/node'
 path = require 'path'
 
+Deployer = require '../../deployer'
+
 class FTP extends Deployer
   client: new FTPClient()
 
   constructor: ->
-    @config.schema =
-      host:
-        type: 'string'
-        required: true
-      target:
-        type: 'string'
-        required: true
-      username:
-        type: 'string'
-        required: true
-      password:
-        type: 'string'
-        required: true
-      port:
-        type: 'integer'
-        required: true
-        default: 21
+    super()
+    @configSchema.schema.host =
+      type: 'string'
+      required: true
+    @configSchema.schema.target =
+      type: 'string'
+      required: true
+    @configSchema.schema.username =
+      type: 'string'
+      required: true
+    @configSchema.schema.password =
+      type: 'string'
+      required: true
+    @configSchema.schema.port =
+      type: 'integer'
+      required: true
+      default: 21
 
   deploy: (config) ->
     super(config)
@@ -63,7 +64,7 @@ class FTP extends Deployer
   ###*
    * Recursively remove everything inside of a given dir.
    * @param {String} dir
-   * @return {Promise} [description]
+   * @return {Promise}
   ###
   removeRecursive: (dir = '.') ->
     nodefn.call(@client.list.bind(@client), dir).then((list) =>
