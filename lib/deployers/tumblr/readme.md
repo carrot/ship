@@ -1,4 +1,4 @@
-Amazon S3
+Tumblr
 ---------
 
 Pushes target to Tumblr's Customize API.
