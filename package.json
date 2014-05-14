@@ -14,9 +14,9 @@
     "config-schema": "0.0.2",
     "dbox": "0.6.x",
     "fobject": "0.0.0",
-    "ftp": "0.3.x",
     "indx": "0.0.x",
     "js-yaml": "2.x.x",
+    "jsftp": "^1.3.0",
     "json-schema": "^0.2.2",
     "lodash": "^2.4.1",
     "mime": "1.x.x",
@@ -33,6 +33,8 @@
   },
   "devDependencies": {
     "coffee-script": "1.7.x",
+    "ftp-server": "^0.1.0",
+    "ftpd": "^0.2.10",
     "mocha": "*",
     "request": "*",
     "should": "*"
