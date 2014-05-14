@@ -28,25 +28,21 @@ class S3 extends Deployer
       type: 'string'
       required: true
       description: 'Must be unique across all existing buckets in S3. Will be created if it doesn\'t exist.'
+    @configSchema.schema.delete =
+      type: 'boolean'
+      required: true
+      default: false
+      description: 'Rather than deploying, delete the bucket.'
 
-  deploy: (config) ->
+  deploy: (config) =>
     super(config)
     @client = new AWS.S3(
       accessKeyId: @_config.accessKey
       secretAccessKey: @_config.secretKey
     )
-    @checkConfig().then( =>
-      W.promise((resolve, reject) =>
-        @client.listObjects Bucket: @_config.bucket, (err, data) =>
-          if err
-            reject err
-          else
-            # pull the objects out into an array of `{ Key: 'filepath' }`
-            # formatted elements (the format that is consumed by
-            # `@client.deleteObjects`)
-            resolve _.pluck data.Contents, 'Key'
-      )
-    ).then((objects) =>
+    if @_config.delete
+      return @destroy()
+    @checkConfig().then(@listObjects).then((objects) =>
       # filter out the files that we want to deploy/keep
       W.promise((resolve, reject) =>
         @getFileList((err, res) =>
@@ -67,10 +63,12 @@ class S3 extends Deployer
           console.log "#{file.fullPath} -> #{file.url}"
         ).on('error', (err) ->
           reject(err)
-        ).on('done', ->
-          resolve()
+        ).on('close', =>
+            resolve()
         )
         @getFileList().pipe uploader
+      ).then(@getBucketURL).then((url) ->
+        console.log "Your site is live at: #{url}"
       )
     )
 
@@ -90,6 +88,44 @@ class S3 extends Deployer
             reject err
           else
             resolve()
+    )
+
+  ###*
+   * Delete the bucket
+   * @param {Array} objects An array of filepaths to remove
+  ###
+  destroy: =>
+    @listObjects().then(@deleteObjects).then( =>
+      W.promise (resolve, reject) =>
+        @client.deleteBucket Bucket: @_config.bucket, resolve
+    )
+
+  ###*
+   * get the URL of the website on the bucket
+  ###
+  getBucketURL: =>
+    W.promise((resolve, reject) =>
+      @client.getBucketLocation(Bucket: @_config.bucket, (err, data) =>
+        if err then reject err
+        # workaround for github.com/aws/aws-sdk-js/issues/276
+        data.LocationConstraint ?= 'us-east-1'
+        resolve(
+          "http://#{@_config.bucket}.s3-website-#{data.LocationConstraint}.amazonaws.com"
+        )
+      )
+    )
+
+  ###*
+   * List all the objects in the bucket
+  ###
+  listObjects: =>
+    W.promise((resolve, reject) =>
+      @client.listObjects Bucket: @_config.bucket, (err, data) =>
+        if err
+          reject err
+        else
+          # pull the objects out into an array of filepaths
+          resolve _.pluck data.Contents, 'Key'
     )
 
   checkConfig: ->
