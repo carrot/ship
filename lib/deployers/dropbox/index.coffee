@@ -46,7 +46,7 @@ class Dropbox extends Deployer
     deferred = W.defer()
     console.log 'uploading files...'
 
-    readdirp { root: @payload }, (err, res) ->
+    readdirp root: @payload, (err, res) ->
       if err then return deferred.reject(err)
 
       folders = _.pluck(res.directories, 'path')

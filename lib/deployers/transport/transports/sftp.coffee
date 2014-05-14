@@ -2,6 +2,7 @@ Connection = require 'ssh2'
 constants = process.binding 'constants'
 fs = require 'fs'
 path = require 'path'
+
 Transport = require '../transport'
 
 isDirectory = (attrs) ->
