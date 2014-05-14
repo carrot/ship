@@ -1,6 +1,7 @@
 should = require 'should'
 request = require 'request'
 require 'shelljs/global'
+fs = require 'fs'
 
 ship = require '../lib'
 BaseDeployer = require '../lib/deployer'
@@ -32,7 +33,14 @@ describe 'base deployer', ->
 describe 's3', ->
   re = /Your site is live at: (http:\/\/.*)/
 
-  it 'should deploy via CLI', (done) ->
+  maybeIt = (
+    if fs.existsSync('test/ship.s3.opts')
+      it
+    else
+      it.skip
+  )
+
+  maybeIt 'should deploy via CLI', (done) ->
     cmd = exec 'bin/ship test/ship.s3.opts', silent: true
     # make sure it returned a url
     cmd.output.should.match(re)
