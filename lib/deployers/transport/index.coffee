@@ -1,4 +1,3 @@
-FTPClient = require 'ftp'
 readdirp = require 'readdirp'
 _ = require 'lodash'
 W = require 'when'
@@ -8,54 +7,12 @@ path = require 'path'
 Deployer = require '../../deployer'
 
 class FTP extends Deployer
-  client: new FTPClient()
-
-  constructor: ->
-    super()
-    @configSchema.schema.host =
-      type: 'string'
-      required: true
-    @configSchema.schema.target =
-      type: 'string'
-      required: true
-    @configSchema.schema.username =
-      type: 'string'
-      required: true
-    @configSchema.schema.password =
-      type: 'string'
-      required: true
-    @configSchema.schema.port =
-      type: 'integer'
-      required: true
-      default: 21
 
   deploy: (config) ->
     super(config)
     @checkCredentials(config)
       .then( => @clearFilesFromTarget())
       .then( => @uploadFiles(config.sourceDir))
-
-  checkCredentials: (config) ->
-    deferred = W.defer()
-    console.log 'checking credentials'
-
-    @client.connect
-      host: config.host
-      port: config.port
-      user: config.username
-      password: config.password
-
-    @client.on 'ready', =>
-      console.log 'authenticated!'
-      @client.cwd config.root, (err) ->
-        if err then return deferred.reject(err)
-        deferred.resolve()
-
-    @client.on 'error', (err) ->
-      console.log err
-      deferred.reject(err)
-
-    return deferred.promise
 
   clearFilesFromTarget: ->
     console.log 'removing existing files from target dir'
@@ -80,10 +37,6 @@ class FTP extends Deployer
           return nodefn.call(@client.delete.bind(@client), name)
     )
 
-  ###*
-   * @todo Make a way to do "nearly atomic uploads" by uploading to a tmp dir
-     and then renaming to the target dir
-  ###
   uploadFiles: (sourceDir) ->
     console.log 'uploading files'
     nodefn.call(readdirp, root: sourceDir).then((res) =>
