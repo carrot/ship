@@ -1,6 +1,7 @@
 fs = require 'fs'
 path = require 'path'
 ArgumentParser = require('argparse').ArgumentParser
+_ = require 'lodash'
 
 packageInfo = require(path.join(__dirname, '../package.json'))
 Deployer = require './deployer'
@@ -40,13 +41,6 @@ argparser = new ArgumentParser(
   description: packageInfo.description
 )
 
-argparser.addArgument(
-  ['--config', '-c']
-  type: 'string'
-  defaultValue: './ship.opts'
-  help: 'The path to the config file. Defaults to ./ship.opts if no path is specified'
-)
-
 globalDeployerOpts = []
 for name, opt of (new Deployer()).configSchema.schema
   argparser.addArgument(
@@ -82,18 +76,25 @@ argparser.addArgument(
   help: 'attempt to load extra args from a file'
 )
 
-args = argparser.parseArgs()
-try
-  opts = fs.readFileSync(args.optsFile, 'utf8').trim().split(/\s+/)
-  process.argv = process.argv
-    .slice(0, 2)
-    .concat(opts.concat(process.argv.slice(2)))
-  console.log process.argv
-  args = argparser.parseArgs()
+###*
+ * load opts from a file & return the array of opts
+###
+getOptsFile = (filename) ->
+  return fs.readFileSync(filename, 'utf8').trim().split(/\s+/)
 
-ship.deploy(args).then( ->
+if process.argv.length is 2
+  # ship was called with no args at all - add default shipfile
+  process.argv.concat('./ship.opts')
+
+# process optsfiles manually & inject into list of args where the optsfile is
+for arg, i in process.argv
+  if /^(?!--).*ship.*\.opts$/.test arg
+    # it's an opts file
+    process.argv[i] = getOptsFile(arg)
+process.argv = _.flatten process.argv
+
+args = argparser.parseArgs()
+
+ship.deploy(args).done( ->
   console.log('done!')
-).catch((e) ->
-  console.error "oh no!: #{e}"
-  console.error e.stack
 )
