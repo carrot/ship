@@ -1,6 +1,0 @@
-ignore: ['ignoreme.html']
-
-s3:
-  bucket: 'xxx'
-  access_key: 'xxx'
-  secret_key: 'xxx'
