@@ -1,8 +1,18 @@
 ConfigSchema = require 'config-schema'
 W = require 'when'
+path = require 'path'
+
+###*
+ * @typedef Stat
+ * @type {Object}
+ * @property {String} type A single character denoting the entry type: 'd' for
+   directory, 'f' for file, and 'l' for symlink.
+###
 
 ###*
  * Base class for transports
+ * @todo Make a way to do "nearly atomic uploads" by uploading to a tmp dir
+   and then renaming to the target dir
 ###
 class Transport
   ###*
@@ -32,68 +42,60 @@ class Transport
     @configSchema.schema.path =
       required: true
       type: 'string'
+      default: '/'
       description: 'Path to write to on destination'
 
   ###*
    * Validate the config & put it in `_config`
    * @param {Object} config
+   * @return {Promise}
   ###
-  configure: (config) ->
+  config: (config) ->
     @_config = @configSchema.validate(config)
-    @_config.path = path.normalize(@_config.target)
+    @_config.path = path.normalize(@_config.path)
+    W.resolve()
 
   ###*
    * Resolve a local file path, relative to `_config.path`
    * @param {String} filename
   ###
-  resolvePath: (filename) ->
-    path.join @_config.path, filename
+  #resolvePath: (filename) ->
+  #  path.join @_config.path, filename
 
   ###*
    * Called after sync completes, do any cleanup needed here. close sockets etc.
    * @return {Promise}
   ###
   cleanup: ->
-    return when.resolve()
 
   ###*
    * Callback with a array of filenames and directories in *dirname*.
-     Directories should be indicated with a trailing slash (e.g. foo/).
    * @param {String} dirname
    * @return {Promise} Promise for an array of filenames
   ###
-  listDirectory: (dirname) ->
-    return when.resolve()
+  ls: (dirname) ->
 
   ###*
-   * Create *dirname*, ** when done.
+   * Get info about a path.
+   * @todo Implement some sort of optional caching.
+   * @param {String} path [description]
+   * @return {Promise} A Promise for a Stat Object.
+  ###
+  stat: (path) ->
+
+  ###*
+   * Create `dirname`. Will create parent directories by default.
    * @param {String} dirname
    * @return {Promise}
   ###
-  makeDirectory: (dirname) ->
-    return when.resolve()
-
-  ###*
-   * Delete directory *dirname*,  when done. Only needs to handle
-     empty directories.
-   * @param {String} dirname
-   * @return {Promise}
-  ###
-  deleteDirectory: (dirname) ->
-    return when.resolve()
-
-  ###*
-   * Fetching files: you can choose to implement either of the following
-     methods. createReadStream is prefered and will be used first if
-     implemented.
-  ###
+  mkdir: (dirname) ->
 
   ###*
    * Return a readable stream for `filename`.
    * @param  {String} filename
    * @return {Promise}
   ###
-  getReadStream: (filename) ->
+  createReadStream: (filename) ->
 
   ###*
    * Read a file.
@@ -107,22 +109,27 @@ class Transport
    * @param  {String} filename
    * @return {Promise}
   ###
-  getWriteStream: (filename) ->
+  createWriteStream: (filename) ->
 
   ###*
-   * Write *stream* of *size* bytes to `filename`
-   * @param {[type]} filename
-   * @param {[type]} size
-   * @param {[type]} stream
+   * Write `filename` to `path`
+   * @param {String} filename
+   * @param {String} path The path to write to.
    * @return {Promise}
   ###
-  writeFile: (filename) ->
+  writeFile: (filename, path) ->
 
   ###*
-   * Delete `filename`
+   * Delete/remove `path`.
    * @param  {[type]}   filename [description]
    * @return {Promise}
   ###
-  deleteFile: (filename) ->
+  rm: (path) ->
+
+  ###*
+   * Rename/move `oldPath` to `newPath`.
+   * @return {Promise}
+  ###
+  mv: (oldPath, newPath) ->
 
 module.exports = Transport
