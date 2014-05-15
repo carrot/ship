@@ -35,7 +35,7 @@ class Heroku extends Deployer
     if @_config.delete
       @destroy()
       return
-    console.log "deploying #{@payload} to Heroku"
+    console.log "deploying #{@_config.name} to Heroku"
     @checkInstall()
     @checkAuth().then( =>
       @addConfigFiles()
@@ -61,9 +61,10 @@ class Heroku extends Deployer
 
   addConfigFiles: ->
     if not fs.existsSync('Procfile')
+      console.log 'No Procfile was found. Adding default configuration.'
       defaultConfig = path.join(__dirname, 'config/*')
       cp(defaultConfig, './')
-      # TODO: make a commit here
+      throw new Error('Please review the added configuration files, commit them, and rerun ship')
 
   createProject: ->
     if helper.execute 'git remote | grep heroku' then return
@@ -73,7 +74,7 @@ class Heroku extends Deployer
   pushCode: ->
     console.log 'pushing to heroku (this may take a minute)...'
     out = helper.execute 'git push heroku master'
-    if out.test(/up-to-date/) then return 'Heroku: '.bold + "#{out}"
+    if /up-to-date/.test out then return 'Heroku: '.bold + "#{out}"
     url = out.match(/(http:\/\/.*\.herokuapp\.com)/)[1]
     console.log 'Heroku: '.bold + "your site is live at #{url}"
 
