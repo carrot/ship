@@ -27,7 +27,8 @@ class SFTP extends Transport
     @port = options.port or 22
     @username = options.username or process.env['USER']
     @agent = options.agent or process.env['SSH_AUTH_SOCK']
-    @privateKey = fs.readFileSync(options.privateKey).toString()  if options.privateKey
+    if options.privateKey
+      @privateKey = fs.readFileSync(options.privateKey).toString()
     return
 
   setup: (cb) ->

@@ -46,7 +46,8 @@ class Deployer
       required: true
       default: ['ship*.opts']
       type: 'array'
-      description: 'Minimatch-style strings for what files to ignore. This can be repeated to add multiple ignored patterns.'
+      description: 'Minimatch-style strings for what files to ignore.
+      This can be repeated to add multiple ignored patterns.'
 
   ###*
    * Run the deployment

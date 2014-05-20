@@ -36,7 +36,8 @@ class VPS extends Deployer
     deferred = W.defer()
 
     ssh = new SSH
-    ssh.connect(host: @config.host, port: @config.port || 22, username: @config.username)
+    port = @config.port || 22
+    ssh.connect(host: @config.host, port: port, username: @config.username)
     ssh.on('error', deferred.reject)
     ssh.on('ready', deferred.resolve)
 

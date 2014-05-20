@@ -16,7 +16,8 @@ class Github extends Deployer
   ###
   _errors:
     REMOTE_ORIGIN: 'Make sure you have a remote origin branch for github'
-    STARTING_ON_WRONG_BRANCH: 'You have the branch that you\'re trying to deploy to checked out right now. Switch branches.'
+    STARTING_ON_WRONG_BRANCH: 'You have the branch that you\'re trying to
+    deploy to checked out right now. Switch branches.'
 
   constructor: ->
     super()

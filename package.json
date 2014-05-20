@@ -37,7 +37,8 @@
     "ftpd": "^0.2.10",
     "mocha": "*",
     "request": "*",
-    "should": "*"
+    "should": "*",
+    "coffeelint": "*"
   },
   "keywords": [
     "deploy",
@@ -51,6 +52,7 @@
     "url": "https://github.com/carrot/ship.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "npm run lint && mocha",
+    "lint": "find lib/ -name '*.coffee' | xargs coffeelint"
   }
 }

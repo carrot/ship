@@ -9,12 +9,13 @@ checkGitRepo = ->
   if not which('git')
     throw new Error('You must install git - see http://git-scm.com')
   if not fs.existsSync('.git')
-    throw new Error('Git must be initialized in order to deploy. Try `git init`.')
+    throw new Error('Git must be initialized. Try `git init`.')
   if /fatal/.test(execute('git rev-list HEAD --count'))
     throw new Error('You need to make at least 1 commit before deploying')
 
-  unless exec('git diff --quiet').code is 0 and exec('git diff --cached --quiet').code is 0
-    throw new Error('You have uncommitted changes - you need to commit those before you can deploy')
+  cmd = "git diff --quiet"
+  unless exec(cmd).code is 0 and exec(cmd + ' --cached').code is 0
+    throw new Error('You have uncommitted changes - please commit')
 
 ###*
  * @param {String} input The command to execute

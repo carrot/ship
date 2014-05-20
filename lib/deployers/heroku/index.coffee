@@ -16,7 +16,8 @@ class Heroku extends Deployer
    * @const
   ###
   _errors =
-    TOOLBELT_NOT_INSTALLED: 'Heroku toolbelt not installed - check out https://toolbelt.heroku.com to install'
+    TOOLBELT_NOT_INSTALLED: 'Heroku toolbelt not installed -
+    check out https://toolbelt.heroku.com to install'
     NOT_AUTHENTICATED: 'You are not logged in to heroku. Try `heroku login`.'
 
   constructor: ->
@@ -46,7 +47,9 @@ class Heroku extends Deployer
   destroy: ->
     console.log 'deleting Heroku app...'
     helper.execute 'git branch -D heroku'
-    helper.execute "heroku apps:destroy -a #{@_config.name} --confirm #{@_config.name}"
+
+    name = @_config.name
+    helper.execute "heroku apps:destroy -a #{name} --confirm #{name}"
 
   checkInstall: ->
     helper.checkGitRepo()
@@ -64,7 +67,9 @@ class Heroku extends Deployer
       console.log 'No Procfile was found. Adding default configuration.'
       defaultConfig = path.join(__dirname, 'config/*')
       cp(defaultConfig, './')
-      throw new Error('Please review the added configuration files, commit them, and rerun ship')
+
+      err = "Please review the added config files, commit them, and rerun ship"
+      throw new Error(err)
 
   createProject: ->
     if helper.execute 'git remote | grep heroku' then return

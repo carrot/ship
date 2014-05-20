@@ -24,7 +24,10 @@ class Dropbox extends Deployer
 
   configure: (data, cb) ->
     @config = data
-    @payload = if @config.target then path.join(@path, @config.target) else process.cwd()
+    if @config.target
+      @payload = path.join(@path, @config.target)
+    else
+      @payload = process.cwd()
     @app = dbox.app(app_key: @config.app_key, app_secret: @config.app_secret)
 
     # possibly use configstore to know when user has already authed so this
@@ -32,7 +35,8 @@ class Dropbox extends Deployer
     @app.requesttoken (status, request_token) ->
       console.log request_token
       # start up a tiny server just for callback (ugh)
-      # open: "https://www.dropbox.com/1/oauth/authorize?oauth_token=#{request_token.oauth_token}"
+      # open: "https://www.dropbox.com/1/oauth/authorize?
+      # oauth_token=#{request_token.oauth_token}"
       # on callback, continue
       @app.accesstoken request_token, (status, access_token) ->
         @access_token = access_token

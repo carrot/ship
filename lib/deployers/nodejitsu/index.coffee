@@ -16,7 +16,7 @@ class Nodejitsu extends Deployer
       name: null
 
     @errors =
-      not_installed: "You need to install nodejitsu first, try `npm install jitsu -g`"
+      not_installed: "You need to install nodejitsu, try `npm install jitsu -g`"
       not_logged_in: "You are not logged in to nodejitsu, try `jitsu login`"
 
   deploy: (cb) ->
