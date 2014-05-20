@@ -1,0 +1,6 @@
+--source-dir=test/fixtures/basic
+--ignore=ignoreme.html
+s3
+--access-key=XXX
+--secret-key=XXX
+--bucket=test-bucket

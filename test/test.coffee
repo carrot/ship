@@ -1,9 +1,10 @@
-should = require 'should'
-request = require 'request'
 require 'shelljs/global'
-fs = require 'fs'
 
-ship = require '../lib'
+should  = require 'should'
+request = require 'request'
+fs      = require 'fs'
+ship    = require '../lib'
+
 BaseDeployer = require '../lib/deployer'
 
 describe 'base deployer', ->
@@ -12,12 +13,12 @@ describe 'base deployer', ->
   it 'should take configuration & apply defaults/normalization', ->
     deployer.deploy(
       projectRoot: undefined
-      sourceDir: './blah/../test/sample-projects/1'
+      sourceDir: './blah/../test/fixtures/base'
       ignore: ['ship*.opts', 'blah']
     )
     deployer._config.should.eql(
       projectRoot: './',
-      sourceDir: 'test/sample-projects/1',
+      sourceDir: 'test/fixtures/base',
       ignore: [ 'ship*.opts', 'blah' ]
     )
 
@@ -34,14 +35,14 @@ describe 's3', ->
   re = /Your site is live at: (http:\/\/.*)/
 
   maybeIt = (
-    if fs.existsSync('test/ship.s3.opts')
+    if fs.existsSync('test/fixtures/s3/ship.s3.opts')
       it
     else
       it.skip
   )
 
   maybeIt 'should deploy via CLI', (done) ->
-    cmd = exec 'bin/ship test/ship.s3.opts', silent: true
+    cmd = exec 'bin/ship test/fixtures/s3/ship.s3.opts', silent: true
     # make sure it returned a url
     cmd.output.should.match(re)
     # hit the url and make sure the site is up
