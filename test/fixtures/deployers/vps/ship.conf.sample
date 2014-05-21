@@ -1,4 +1,0 @@
-vps:
-  host: 'xxx.xxx.xxxx'
-  user: 'xxx'
-  remote_target: '/var/www/xxx'

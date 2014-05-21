@@ -33,11 +33,11 @@
   },
   "devDependencies": {
     "coffee-script": "1.7.x",
-    "ftp-server": "^0.1.0",
-    "ftpd": "^0.2.10",
     "mocha": "*",
-    "request": "*",
-    "should": "*"
+    "should": "*",
+    "coffeelint": "*",
+    "chai": "*",
+    "chai-http": "0.4.x"
   },
   "keywords": [
     "deploy",
@@ -51,6 +51,7 @@
     "url": "https://github.com/carrot/ship.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "npm run lint && mocha",
+    "lint": "find lib/ -name '*.coffee' | xargs coffeelint"
   }
 }

@@ -2,3 +2,4 @@ node_modules
 src
 .DS_Store
 test/fixtures/deployers/**/*.conf
+test/fixtures/**/ship.*.opts

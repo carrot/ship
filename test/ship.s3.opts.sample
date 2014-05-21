@@ -1,6 +1,0 @@
---source-dir=test/sample-projects/1
---ignore=ignoreme.html
-s3
---secret-key=xxxx
---access-key=xxxx
---bucket=ship-test-bucket

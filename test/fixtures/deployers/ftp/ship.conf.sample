@@ -1,5 +1,0 @@
-ftp:
-  host: 'ftp.xxx.com'
-  root: '/public_html/xxx'
-  username: 'xxx'
-  password: 'xxx'

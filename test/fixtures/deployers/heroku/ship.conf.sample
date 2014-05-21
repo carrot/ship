@@ -1,3 +1,0 @@
-heroku:
-  name: 'test app'
-  target: 'public'

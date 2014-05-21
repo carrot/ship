@@ -27,7 +27,7 @@ class S3 extends Deployer
     @configSchema.schema.bucket =
       type: 'string'
       required: true
-      description: 'Must be unique across all existing buckets in S3. Will be created if it doesn\'t exist.'
+      description: 'Must be unique across all existing buckets in S3.'
     @configSchema.schema.delete =
       type: 'boolean'
       required: true
@@ -45,7 +45,7 @@ class S3 extends Deployer
     @checkConfig().then(@listObjects).then((objects) =>
       # filter out the files that we want to deploy/keep
       W.promise((resolve, reject) =>
-        @getFileList((err, res) =>
+        @getFileList((err, res) ->
           if err
             reject err
           else
@@ -63,8 +63,8 @@ class S3 extends Deployer
           console.log "#{file.fullPath} -> #{file.url}"
         ).on('error', (err) ->
           reject(err)
-        ).on('close', =>
-            resolve()
+        ).on('close', ->
+          resolve()
         )
         @getFileList().pipe uploader
       ).then(@getBucketURL).then((url) ->
@@ -109,8 +109,11 @@ class S3 extends Deployer
         if err then reject err
         # workaround for github.com/aws/aws-sdk-js/issues/276
         data.LocationConstraint ?= 'us-east-1'
+
+        bucket = @_config.bucket
+        location = data.LocationConstraint
         resolve(
-          "http://#{@_config.bucket}.s3-website-#{data.LocationConstraint}.amazonaws.com"
+          "http://#{bucket}.s3-website-#{location}.amazonaws.com"
         )
       )
     )
@@ -120,7 +123,7 @@ class S3 extends Deployer
   ###
   listObjects: =>
     W.promise((resolve, reject) =>
-      @client.listObjects Bucket: @_config.bucket, (err, data) =>
+      @client.listObjects Bucket: @_config.bucket, (err, data) ->
         if err
           reject err
         else
