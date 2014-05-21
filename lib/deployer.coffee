@@ -1,8 +1,9 @@
-path = require 'path'
-readdirp = require 'readdirp'
-W = require 'when'
-_ = require 'lodash'
 ConfigSchema = require 'config-schema'
+path     = require 'path'
+readdirp = require 'readdirp'
+W        = require 'when'
+_        = require 'lodash'
+
 
 ###*
  * The base class for all deployers to inherit from.

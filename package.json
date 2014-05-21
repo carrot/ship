@@ -33,12 +33,11 @@
   },
   "devDependencies": {
     "coffee-script": "1.7.x",
-    "ftp-server": "^0.1.0",
-    "ftpd": "^0.2.10",
     "mocha": "*",
-    "request": "*",
     "should": "*",
-    "coffeelint": "*"
+    "coffeelint": "*",
+    "chai": "*",
+    "chai-http": "0.4.x"
   },
   "keywords": [
     "deploy",
