@@ -15,21 +15,16 @@ _urls =
 class Tumblr extends Deployer
 
   constructor: ->
-
     super()
-
     @configSchema.schema.email =
       type: 'string'
       required: true
-
     @configSchema.schema.password =
       type: 'string'
       required: true
-
     @configSchema.schema.blog =
       type: 'string'
       required: true
-
     @configSchema.schema.file =
       type: 'string'
       required: false
@@ -65,7 +60,6 @@ class Tumblr extends Deployer
     _post @_customize().GET
 
   deployTheme: (response) ->
-
     opts =
       json: true
       body:
@@ -93,14 +87,11 @@ _parse = (form, attrs) ->
   _.defaults data, attrs
 
 _req = (uri, method, options) ->
-
   W.promise (resolve, reject) ->
-
     _defaults =
       uri: uri
       method: method
       followAllRedirects: true
-
     request _.defaults(_defaults, options), (error, response) ->
       if error then reject error
       resolve response
