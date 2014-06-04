@@ -5,6 +5,7 @@ Pushes target to Tumblr's Customize API.
 
 ### Config Values
 
-**username**: your Tumblr username
+**email**: your Tumblr e-mail address
 **password**: your Tumblr password
-**target**: the HTML to send to the API
+**blog**: the blog to push the theme to.
+**filename**: _(optional)_ the file path (relative to the base path). `index.html` by default.
