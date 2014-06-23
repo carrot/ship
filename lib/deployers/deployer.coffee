@@ -10,14 +10,17 @@ class Deployer
     # - target: folder to deploy (default process.cwd())
     # - before: path to before hook script
     # - after: path to after hook script
-    
+
     @debug =
       log: (m) -> console.log("#{m}".grey)
       write: (m) -> process.stdout.write("#{m}".grey)
 
   configure: (slug, data) ->
     @config = data[slug]
-    @payload = if @config.target then path.join(@path, @config.target) else process.cwd()
+    @payload = if @config.target
+      path.join(@path, @config.target)
+    else
+      process.cwd()
 
   deploy: (cb) ->
     console.error('make sure you have defined a deploy method'.red)

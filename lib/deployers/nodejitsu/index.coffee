@@ -14,8 +14,9 @@ class Nodejitsu extends Deployer
       target: null
       name: null
 
-    @errors = 
-      not_installed: "You need to install nodejitsu first, try `npm install jitsu -g`"
+    @errors =
+      not_installed: "You need to install nodejitsu first, try `npm install
+      jitsu -g`"
       not_logged_in: "You are not logged in to nodejitsu, try `jitsu login`"
 
   deploy: (cb) ->
@@ -62,10 +63,10 @@ class Nodejitsu extends Deployer
     cmd = exec 'jitsu deploy'
     if cmd.code > 0 then throw cmd.output
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   sync = (func, ctx) ->
     fn.lift(func.bind(@))
 

@@ -21,9 +21,9 @@ class SFTPUploader
       .otherwise(deferred.reject)
       .ensure(deferred.resolve)
 
-  # 
+  #
   # @api private
-  # 
+  #
 
   create_folder_structure = ->
     deferred = W.defer()
@@ -35,7 +35,8 @@ class SFTPUploader
     # mirror project folder structure
     readdirp { root: @local }, (err, res) ->
       if err then return deferred.reject(err)
-      folders = _.pluck(res.directories, 'path').map((f) -> path.join(@release, f))
+      folders = _.pluck(res.directories, 'path').map (f) ->
+        path.join(@release, f)
       files = _.pluck(res.files, 'path')
 
       async.map folders, @sftp.mkdir, (err) ->
@@ -54,6 +55,6 @@ class SFTPUploader
       deferred.resolve()
 
     return deferred.promise
-  
+
   symlink_current = ->
     @sftp.symlink(@release, path.join(@remote, 'current'))

@@ -36,7 +36,10 @@ class VPS extends Deployer
     deferred = W.defer()
 
     ssh = new SSH
-    ssh.connect(host: @config.host, port: @config.port || 22, username: @config.username)
+    ssh.connect
+      host: @config.host
+      port: @config.port || 22
+      username: @config.username
     ssh.on('error', deferred.reject)
     ssh.on('ready', deferred.resolve)
 
@@ -63,16 +66,16 @@ class VPS extends Deployer
           deferred.resolve()
 
     return deferred.promise
-  
+
   run_after_script = ->
     deferred = W.defer()
     if not @config.after then return deferred.resolve()
     run_script.call(@, 'after', deferred)
     return deferred.promise
 
-  # 
+  #
   # @api private
-  # 
+  #
 
   run_script = (type, deferred) ->
     # make correct variables available here

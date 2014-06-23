@@ -46,19 +46,25 @@ class DefaultCommand
         console.error(error.stack.red)
         cb(err)
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   check_deployer_config = ->
     deferred = W.defer()
-    if @deployer then configure_deployer.call(@, deferred) else deferred.resolve()
+    if @deployer
+      configure_deployer.call(@, deferred)
+    else
+      deferred.resolve()
     return deferred.promise
 
   configure_deployer = (deferred) ->
-    if not @deployer then return deferred.resolve()
-    if not @config then return create_conf_with_deployer.call(@, deferred)
-    if not contains_deployer(@) then return add_deployer_to_conf.call(@, deferred)
+    if not @deployer
+      return deferred.resolve()
+    if not @config
+      return create_conf_with_deployer.call(@, deferred)
+    if not contains_deployer(@)
+      return add_deployer_to_conf.call(@, deferred)
     deferred.resolve()
 
   contains_deployer = (t) ->
@@ -84,7 +90,7 @@ class DefaultCommand
     nodefn
       .call(async.map, @deployers, (d, cb) => d.configure(@config, cb))
       .yield(@deployers)
-  
+
   deploy_async = (deployers) ->
     nodefn.call async.map, deployers, (d, cb) ->
       if process.env.NODE_ENV == 'test' then d.mock_deploy(cb) else d.deploy(cb)

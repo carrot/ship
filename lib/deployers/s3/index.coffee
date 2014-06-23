@@ -21,11 +21,16 @@ class S3 extends Deployer
       secret_key: null
       access_key: null
       # region: defaults to 'us-east-1'
-      # bucket: defaults to the current folder name. the bucket name you choose must be unique across all existing bucket names in Amazon S3
+      # bucket: defaults to the current folder name. the bucket name you choose
+      # must be unique across all existing bucket names in Amazon S3
 
     @errors =
-      access_denied: "Access Denied: Either your credentials are incorrect, or your bucket name is already taken. Please verify your credentials and/or specify a different bucket name."
-      permanent_redirect: "Permanent Redirect: This probably means you have set an incorrect region. Make sure you're bucket's region matches what you set in the configuration."
+      access_denied: "Access Denied: Either your credentials are incorrect, or
+      your bucket name is already taken. Please verify your credentials and/or
+      specify a different bucket name."
+      permanent_redirect: "Permanent Redirect: This probably means you have set
+      an incorrect region. Make sure you're bucket's region matches what you set
+      in the configuration."
 
   configure: (data, cb) ->
     @config = data.s3
@@ -41,7 +46,10 @@ class S3 extends Deployer
       region: @config.region
 
     @client = new AWS.S3
-    @payload = if @config.target then path.join(@path, @config.target) else @path
+    @payload = if @config.target
+      path.join(@path, @config.target)
+    else
+      @path
     @ignores = ['ship*.conf']
     if data.ignore then @ignores = @ignores.concat(data.ignore)
 
@@ -66,10 +74,10 @@ class S3 extends Deployer
         if err then return console.error(err)
         @client.deleteBucket { Bucket: @config.bucket }, cb
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   check_config = ->
     deferred = W.defer()
 
@@ -103,7 +111,8 @@ class S3 extends Deployer
 
       async.map files, put_file.bind(@), (err) =>
         if err then return deferred.reject(err)
-        post_deply_message = "S3: ".bold + "Your site is live at: http://#{@config.bucket}.s3-website-#{@config.region}.amazonaws.com"
+        post_deply_message = "S3: ".bold + "Your site is live at:
+        http://#{@config.bucket}.s3-website-#{@config.region}.amazonaws.com"
         deferred.resolve(post_deply_message)
 
     return deferred.promise
@@ -143,7 +152,8 @@ class S3 extends Deployer
 
   remove_ignores = (files, ignores) ->
     mask = []
-    mask.push _(ignores).map((i) -> minimatch(f.path, i)).contains(true) for f in files
+    for f in files
+      mask.push _(ignores).map((i) -> minimatch(f.path, i)).contains(true)
     files.filter((m,i) -> not mask[i])
 
 module.exports = S3

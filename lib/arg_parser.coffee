@@ -12,7 +12,8 @@ class ArgsParser
     @errors =
       missing_deployer: "Make sure to specify a deployer!"
       deployer_not_found: "I don't think we have that deployer in stock :("
-      path_nonexistant: "It doesn't look like you have specified a path to a folder"
+      path_nonexistant: "It doesn't look like you have specified a path to a
+      folder"
 
     # ship
     if args.length < 1
@@ -27,10 +28,17 @@ class ArgsParser
     if args.length == 1
 
       # if the arg passed is a deployer, assume path is cwd
-      if is_deployer(args[0]) then return { path: @path, config: find_conf_file(@path, env), deployer: args[0] }
+      if is_deployer(args[0])
+        return {
+          path: @path
+          config: find_conf_file(@path, env)
+          deployer: args[0]
+        }
 
       # if the arg passed is not a deployer, assume it's a path
-      if not path_exists(args[0]) then return new Error(@errors.path_nonexistant)
+      if not path_exists(args[0])
+        return new Error(@errors.path_nonexistant)
+
       config = find_conf_file(args[0], env)
       if not config then return new Error(@errors.missing_deployer)
       return { path: args[0], config: config, deployer: false }
@@ -39,14 +47,22 @@ class ArgsParser
     if args.length > 1
 
       # two args, both path and deployer must exist
-      if not path_exists(args[0]) then return new Error(@errors.path_nonexistant)
-      if not is_deployer(args[1]) then return new Error(@errors.deployer_not_found)
-      return { path: args[0], config: find_conf_file(@path, env), deployer: args[1] }
+      if not path_exists(args[0])
+        return new Error(@errors.path_nonexistant)
 
-  # 
+      if not is_deployer(args[1])
+        return new Error(@errors.deployer_not_found)
+
+      return {
+        path: args[0]
+        config: find_conf_file(@path, env)
+        deployer: args[1]
+      }
+
+  #
   # @api private
-  # 
-  
+  #
+
   find_conf_file = (p, env) ->
     env = if env? and env != '' then ".#{env}" else ''
     p = path.join(p, "ship#{env}.conf")

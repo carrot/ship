@@ -15,9 +15,13 @@ class Heroku extends Deployer
     # name: name of the app on heroku
 
     @errors =
-      git_not_installed: "Git not installed - check out http://git-scm.com to install"
-      toolbelt_not_installed: "Heroku toolbelt not installed - check out https://toolbelt.heroku.com to install"
-      git_not_initialized: "Git must be initialized in order to deploy to heroku. \nFor help getting started with git, check out http://try.github.io/levels/1/challenges/1"
+      git_not_installed: "Git not installed - check out http://git-scm.com to
+      install"
+      toolbelt_not_installed: "Heroku toolbelt not installed - check out
+      https://toolbelt.heroku.com to install"
+      git_not_initialized: "Git must be initialized in order to deploy to
+      heroku. \nFor help getting started with git, check out
+      http://try.github.io/levels/1/challenges/1"
       not_authenticated: "You are not logged in to heroku, try `heroku login`"
       commit_not_made: "You have to make at least one commit to deploy"
       changes_not_committed: "Commit your changes before deploying"
@@ -39,14 +43,20 @@ class Heroku extends Deployer
 
   destroy: (cb) ->
     execute_in_dir(@payload, 'git branch -D heroku')
-    execute_in_dir(@payload, 'heroku apps:destroy ship-testing-app --ship-testing-app')
+    execute_in_dir(@payload, 'heroku apps:destroy ship-testing-app
+      --ship-testing-app')
 
   check_install = ->
-    if not which('git') then throw @errors.git_not_installed
-    if not which('heroku') then throw @errors.toolbelt_not_installed
-    if not fs.existsSync(path.join(@payload, '.git')) then throw @errors.git_not_initialized
-    if execute_in_dir(@payload, "git rev-list HEAD --count").match(/fatal/) then throw @errors.commit_not_made
-    if execute_in_dir(@payload, "git diff HEAD") != '' then throw @errors.changes_not_committed
+    if not which('git')
+      throw @errors.git_not_installed
+    if not which('heroku')
+      throw @errors.toolbelt_not_installed
+    if not fs.existsSync(path.join(@payload, '.git'))
+      throw @errors.git_not_initialized
+    if execute_in_dir(@payload, "git rev-list HEAD --count").match(/fatal/)
+      throw @errors.commit_not_made
+    if execute_in_dir(@payload, "git diff HEAD") != ''
+      throw @errors.changes_not_committed
 
   check_auth = ->
     deferred = W.defer()
@@ -75,10 +85,10 @@ class Heroku extends Deployer
     url = out.match(/(http:\/\/.*\.herokuapp\.com)/)[1]
     "Heroku: ".bold + "your site is live at #{url}"
 
-  # 
+  #
   # @api private
-  # 
-  
+  #
+
   sync = (func) -> fn.lift(func)
 
   execute_in_dir = (dir, cmd) ->

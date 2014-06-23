@@ -15,7 +15,7 @@ class Github extends Deployer
     @config =
       target: null
 
-    @errors = 
+    @errors =
       not_installed: 'You must install git - see http://git-scm.com'
       remote_origin: 'Make sure you have a remote origin branch for github'
       make_commit: 'You need to make a commit before deploying'
@@ -38,7 +38,7 @@ class Github extends Deployer
     if not execute('git remote | grep origin')
       return deferred.reject(@errors.remote_origin)
 
-    @original_branch = execute('git rev-parse --abbrev-ref HEAD') 
+    @original_branch = execute('git rev-parse --abbrev-ref HEAD')
     if not @original_branch then return deferred.reject(@errors.make_commit)
 
     @debug.log "starting on branch #{original_branch}"
@@ -58,7 +58,7 @@ class Github extends Deployer
     deferred = W.defer()
     @debug.log 'removing source files'
 
-    opts = { root: '', directoryFilter: ["!#{@public}", '!.git'] };
+    opts = { root: '', directoryFilter: ["!#{@public}", '!.git'] }
 
     readdirp opts, (err, res) ->
       if err then return deferred.reject(err)
@@ -70,7 +70,7 @@ class Github extends Deployer
     if @public == @path then return fn.call()
 
     target = path.join(@public, '*')
-    execute("mv -f #{path.resolve(target)} #{@path}");
+    execute("mv -f #{path.resolve(target)} #{@path}")
     rm '-rf', @public
     fn.call()
 
@@ -80,16 +80,16 @@ class Github extends Deployer
 
     @debug.log "switching back to #{@original_branch} branch"
     execute "git checkout #{@original_branch}"
- 
+
     @debug.log 'deployed to github pages'
     fn.call()
 
-  # 
+  #
   # @api private
-  # 
+  #
 
   execute = (input) ->
-    cmd = exec(input, { silent: true });
+    cmd = exec(input, { silent: true })
     if cmd.code > 0 or cmd.output == '' then false else cmd.output.trim()
 
 module.exports = Github
