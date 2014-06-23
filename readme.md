@@ -112,9 +112,11 @@ project.config_prompt()
 project.write_config();
 
 // To actually deploy, just call adapter.deploy(). This returns a promise so
-// you know when it's done.
+// you know when it's done. It also emits progress events along the way, since
+// some deployments take a while and you might want to keep track of progress.
 
 project.deploy(project_root)
+  .progress(console.log)
   .catch(console.error)
   .done(function(res){
     console.log('successfully deployed!');
