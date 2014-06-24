@@ -44,8 +44,16 @@ describe 'api', ->
       should.not.exist(project.config)
 
   describe 'config_prompt', ->
-    it 'should prompt the user to enter config info via command line'
-    it 'should set the resulting info to @config'
+
+    it 'should prompt the user to enter config info via command line', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      project.config_prompt()
+        .progress (prompt) ->
+          prompt.rl.emit("line", "1")
+          prompt.rl.emit("line", "2")
+        .tap (res) -> res.should.deep.equal(secret_key: '1', access_key: '2')
+        .tap -> project.config.should.deep.equal(secret_key: '1', access_key: '2')
+        .should.be.fulfilled
 
   describe 'write_config', ->
     it 'should write a shipfile with the config info to the project root'

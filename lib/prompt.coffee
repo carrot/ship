@@ -1,20 +1,28 @@
 require 'colors'
-prompt   = require 'prompt'
-sequence = require 'when/sequence'
+inquirer = require 'inquirer'
+W        = require 'when'
+
+###*
+ * A light wrapper for the prompt interface, which uses inquirer to gather info
+ * from the user via command line. The use of deferred and the progress event
+ * are mainly for testing. You get access the the readline object from the
+ * prompt once it has started up, so this can be grabbed from the progress event
+ * and written to in order to use automated tests.
+ *
+ * @param  {String} name - name of the deployer being used
+ * @param  {Array} required - required config params to ask for
+ * @return {Promise} promise containing user-entered details
+###
 
 module.exports = (name, required) ->
-  console.log "please enter the following config details for
-  #{name.bold}".green
-  console.log "need help? see http://ship.com/#{name}"
+  console.log "Please enter the following config details for #{name.bold}".green
+  console.log "Need help? see http://ship.com/#{name}".grey
 
-  prompt.message = ''
-  prompt.delimiter = ''
+  deferred = W.defer()
 
-  if process.env.NODE_ENV == 'test'
-    helpers = require '../test/helpers'
-    prompt.start(stdin: helpers.stdin)
-  else
-    prompt.start()
+  questions = required.map((v) -> { name: v, message: v } )
+  prompt = inquirer.prompt(questions, deferred.resolve)
 
-  keys = Object.keys(required)
-  sequence(keys, ((k) -> nodefn.call(prompt.get, [k])))
+  deferred.notify(prompt)
+
+  return deferred.promise

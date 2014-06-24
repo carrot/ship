@@ -58,7 +58,7 @@ class Ship
 
   config_prompt: ->
     prompt(@deployer_name, @deployer.config.required)
-    .tap((res) => @config = res)
+      .tap((res) => @config = res)
 
   ###*
    * Writes the config values of the instance to `ship.conf` at the project
