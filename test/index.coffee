@@ -8,14 +8,14 @@ describe 'api', ->
   describe 'constructor', ->
 
     it 'should construct a new ship instance', ->
-      (=> new Ship(root: __dirname, deployer: 's3')).should.not.throw()
+      (-> new Ship(root: __dirname, deployer: 's3')).should.not.throw()
 
     it 'should error if passed an invalid deployer', ->
-      (=> new Ship(root: __dirname, deployer: 'wow'))
+      (-> new Ship(root: __dirname, deployer: 'wow'))
         .should.throw('wow is not a valid deployer')
 
     it 'should error if passed a nonexistant path to deploy', ->
-      (=> new Ship(root: 'wow', deployer: 's3')).should.throw()
+      (-> new Ship(root: 'wow', deployer: 's3')).should.throw()
 
   describe 'is_configured', ->
 

@@ -22,7 +22,7 @@ module.exports = (root, config) ->
 
   check_config.call(ctx)
     .then(upload_files.bind(ctx))
-    .done =>
+    .done ->
       d.resolve
         deployer: 's3'
         url: "http://#{config.bucket}.s3-website-#{config.region}.amazonaws.com"
