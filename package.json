@@ -21,7 +21,6 @@
     "aws-sdk": "1.x.x",
     "coffee-script": "1.7.x",
     "colors": "0.6.x",
-    "dbox": "0.6.x",
     "ftp": "0.3.x",
     "indx": "0.0.x",
     "js-yaml": "2.x.x",
@@ -32,7 +31,6 @@
     "optimist": "0.6.x",
     "prompt": "0.2.x",
     "readdirp": "0.x.x",
-    "semver": "2.x.x",
     "shelljs": "0.2.6",
     "ssh2": "0.2.x",
     "when": "3.2.x"
