@@ -18,7 +18,6 @@
     "url": "https://github.com/carrot/ship.git"
   },
   "dependencies": {
-    "async": "0.2.x",
     "aws-sdk": "1.x.x",
     "coffee-script": "1.7.x",
     "colors": "0.6.x",

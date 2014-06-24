@@ -1,11 +1,11 @@
 require 'colors'
-prompt = require 'prompt'
-async = require 'async'
+prompt   = require 'prompt'
+sequence = require 'when/sequence'
 
-module.exports = (cb) ->
+module.exports = (name, required) ->
   console.log "please enter the following config details for
-  #{@deployers[0].name.bold}".green
-  console.log "need help? see http://ship.com/#{@deployer}"
+  #{name.bold}".green
+  console.log "need help? see http://ship.com/#{name}"
 
   prompt.message = ''
   prompt.delimiter = ''
@@ -16,6 +16,5 @@ module.exports = (cb) ->
   else
     prompt.start()
 
-  keys = Object.keys(@deployers[0].config)
-  async.mapSeries(keys, ((k,c) -> prompt.get([k], c)), cb)
-
+  keys = Object.keys(required)
+  sequence(keys, ((k) -> nodefn.call(prompt.get, [k])))
