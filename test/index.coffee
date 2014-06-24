@@ -1,4 +1,7 @@
-path = require('path')
+path   = require 'path'
+fs     = require 'fs'
+yaml   = require 'js-yaml'
+nodefn = require 'when/node'
 
 describe 'api', ->
 
@@ -56,8 +59,24 @@ describe 'api', ->
         .should.be.fulfilled
 
   describe 'write_config', ->
-    it 'should write a shipfile with the config info to the project root'
-    it 'should error if instance has not been configured'
+
+    it 'should write a shipfile with the config info to the project root', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      project.configure(access_key: 'foo', secret_key: 'bar')
+      shipfile = path.join(__dirname, 'ship.conf')
+
+      project.write_config()
+        .then(nodefn.lift(fs.readFile, shipfile, 'utf8'))
+        .then(yaml.safeLoad)
+        .tap (res) ->
+          res.s3.access_key.should.equal('foo')
+          res.s3.secret_key.should.equal('bar')
+        .then(-> fs.unlinkSync(shipfile))
+        .should.be.fulfilled
+
+    it 'should error if instance has not been configured', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      (-> project.write_config()).should.throw('deployer has not yet been configured')
 
   describe 'deploy', ->
     it 'should load in root/shipfile.conf as config if present'
