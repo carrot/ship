@@ -1,8 +1,9 @@
-path = require 'path'
-fs = require 'fs'
-yaml = require 'js-yaml'
+path   = require 'path'
+fs     = require 'fs'
+yaml   = require 'js-yaml'
 prompt = require './prompt'
 nodefn = require 'when/node'
+_      = require 'lodash'
 
 class Ship
 
@@ -42,9 +43,9 @@ class Ship
   ###
 
   configure: (data) ->
-    config_keys = Object.keys(@deployer.config)
-    if not config_keys is Object.keys(data)
-      throw new Error("make sure to specify keys: #{config_keys.join(' ')}")
+    config_keys = @deployer.config.required
+    if not contains_keys(config_keys, Object.keys(data))
+      throw new Error("you must specify these keys: #{config_keys.join(' ')}")
     @config = data
 
   ###*
@@ -85,11 +86,24 @@ class Ship
       if not fs.existsSync(shipfile)
         throw new Error('you must configure the deployer')
 
-      @config = yaml.safeLoad(shipfile)
+      @config = yaml.safeLoad(shipfile)[@deployer_name]
 
       # diff the deployer's keys and the keys in @config, if they differ
       # throw an error with the missing keys noted
 
-    @deployer.deploy(@config)
+    @deployer(@root, @config)
+
+  ###*
+   * Given two arrays, ensure that the second array contains all values provided
+   * in the first array. This is for checking to ensure all config values are
+   * present.
+   *
+   * @param  {Array} set1 - user-provided keys
+   * @param  {Array} set2 - config-required keys
+   * @return {Boolean} if all keys in set1 are also present in set2
+  ###
+
+  contains_keys = (set1, set2) ->
+    _.isEqual(_.intersection(set2, set1), set2)
 
 module.exports = Ship

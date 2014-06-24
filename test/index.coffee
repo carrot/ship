@@ -31,8 +31,17 @@ describe 'api', ->
       project.is_configured().should.be.true
 
   describe 'configure', ->
-    it 'should correctly configure a deployer with passed in data'
-    it 'should error if passed in data does not match requirements'
+
+    it 'should correctly configure a deployer with passed in data', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      (-> project.configure(access_key: 1234, secret_key: 1234)).should.not.throw()
+      project.config.should.deep.equal(access_key: 1234, secret_key: 1234)
+
+    it 'should error if passed in data does not match requirements', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      (-> project.configure(wow: 1234, secret_key: 1234))
+        .should.throw('you must specify these keys: secret_key access_key')
+      should.not.exist(project.config)
 
   describe 'config_prompt', ->
     it 'should prompt the user to enter config info via command line'
