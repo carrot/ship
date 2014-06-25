@@ -28,7 +28,7 @@ describe 'api', ->
       project.config = {}
       project.is_configured().should.be.true
 
-    it 'should be condigured if a shipfile is present at root', ->
+    it 'should be configured if a shipfile is present at root', ->
       dir = path.join(_path, 'api/one_deployer')
       project = new Ship(root: dir, deployer: 's3')
       project.is_configured().should.be.true
@@ -46,6 +46,8 @@ describe 'api', ->
         .should.throw('you must specify these keys: secret_key access_key')
       should.not.exist(project.config)
 
+    it 'should not error if the deployer has no config requirements'
+
   describe 'config_prompt', ->
 
     it 'should prompt the user to enter config info via command line', ->
@@ -57,6 +59,8 @@ describe 'api', ->
         .tap (res) -> res.should.deep.equal(secret_key: '1', access_key: '2')
         .tap -> project.config.should.deep.equal(secret_key: '1', access_key: '2')
         .should.be.fulfilled
+
+    it 'should not activate the prompt if deployer has no config requirements'
 
   describe 'write_config', ->
 
@@ -98,3 +102,5 @@ describe 'api', ->
       project = new Ship(root: dir, deployer: 'nowhere')
       project.deploy()
         .should.be.rejectedWith('you must specify these keys: nothing')
+
+    it 'should not error if not configured and deployer has no config requirements'
