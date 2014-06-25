@@ -2,5 +2,4 @@ language: node_js
 node_js:
   - 0.10
 env:
-  - secure: "A7O7kxsyOjSNIReeDiSjhElGtA6YAlNqfd+4Zc5hy9QFlbrUEbqMRqipzoRMmueIRTajxGPplHytbS/R0msjPou7RaEu0glS/SZoqAr0ndJ5aiOg0Vz9DvSuXRjbkbZtV6oDZEPojYAhYABMGslpw1ncIW2IGuuq92KLTr+jxIM="
-  - secure: "HmYGmtlJtbPrNYnAxbNZl/S8clI/4l6fmWsR5IZC4MfuPyZ6lERVrkJUGdwZvtUvLwYD8cUu3JgXPi34C2yE2Jo3qamYC3b0pxstekNxpjtfP0OnUsJkKh3rhaG8P9khrmSfn/cB6ut5dwiUpZIo1253AWkE8ATmRi8vw22Osjs="
+  - secure: "T6+abdXNKRO6tR+JfevVEl1Wc8YN8oOwFQLQQmZWdudkpOnVnwCVMSbk5iyRCVzasYw5ZIiFXtGkeylTi7GmfsB2UI06eMTnC8O3j2+her6ESZdO4Ev3vE8rXG7ifUue8xzly13jXUvCNPUy5vzqSAXdlCLpOaUOQcfGgtOXiGo="
