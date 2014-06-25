@@ -92,6 +92,11 @@ describe 'api', ->
         .tap -> project.config.should.deep.equal(nothing: 'wow')
         .should.be.fulfilled
 
+    it 'should just deploy if already configured', ->
+      project = new Ship(root: __dirname, deployer: 'nowhere')
+      project.configure(nothing: 'foo')
+      project.deploy().should.be.fulfilled
+
     it 'should error if not configured and no shipfile present', ->
       project = new Ship(root: __dirname, deployer: 'nowhere')
       project.deploy()
