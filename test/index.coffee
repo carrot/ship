@@ -29,7 +29,7 @@ describe 'api', ->
       project.is_configured().should.be.true
 
     it 'should be condigured if a shipfile is present at root', ->
-      dir = path.join(_path, 'commands/one_deployer')
+      dir = path.join(_path, 'api/one_deployer')
       project = new Ship(root: dir, deployer: 's3')
       project.is_configured().should.be.true
 
@@ -76,9 +76,25 @@ describe 'api', ->
 
     it 'should error if instance has not been configured', ->
       project = new Ship(root: __dirname, deployer: 's3')
-      (-> project.write_config()).should.throw('deployer has not yet been configured')
+      project.write_config()
+        .should.be.rejectedWith('deployer has not yet been configured')
 
   describe 'deploy', ->
-    it 'should load in root/shipfile.conf as config if present'
-    it 'should error if not configured and no shipfile present'
-    it "should error if shipfile keys don't match the deployer's"
+
+    it 'should load in root/shipfile.conf as config if present', ->
+      dir = path.join(_path, 'api/one_deployer')
+      project = new Ship(root: dir, deployer: 'nowhere')
+      project.deploy()
+        .tap -> project.config.should.deep.equal(nothing: 'wow')
+        .should.be.fulfilled
+
+    it 'should error if not configured and no shipfile present', ->
+      project = new Ship(root: __dirname, deployer: 'nowhere')
+      project.deploy()
+        .should.be.rejectedWith('you must configure the deployer')
+
+    it "should error if shipfile keys don't match the deployer's", ->
+      dir = path.join(_path, 'api/incorrect_config')
+      project = new Ship(root: dir, deployer: 'nowhere')
+      project.deploy()
+        .should.be.rejectedWith('you must specify these keys: nothing')

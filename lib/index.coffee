@@ -2,6 +2,7 @@ path   = require 'path'
 fs     = require 'fs'
 yaml   = require 'js-yaml'
 prompt = require './prompt'
+W      = require 'when'
 nodefn = require 'when/node'
 _      = require 'lodash'
 
@@ -43,8 +44,8 @@ class Ship
   ###
 
   configure: (data) ->
-    config_keys = @deployer.config.required
-    if not contains_keys(config_keys, Object.keys(data))
+    config_keys = @deployer.config?.required
+    if config_keys and not contains_keys(config_keys, Object.keys(data))
       throw new Error("you must specify these keys: #{config_keys.join(' ')}")
     @config = data
 
@@ -57,7 +58,7 @@ class Ship
   ###
 
   config_prompt: ->
-    prompt(@deployer_name, @deployer.config.required)
+    prompt(@deployer_name, @deployer.config?.required)
       .tap((res) => @config = res)
 
   ###*
@@ -68,7 +69,7 @@ class Ship
   ###
 
   write_config: ->
-    if not @config then throw new Error('deployer has not yet been configured')
+    if not @config then return W.reject('deployer has not yet been configured')
     dest = path.join(@root, 'ship.conf')
     conf = {}; conf[@deployer_name] = @config
     nodefn.call(fs.writeFile, dest, yaml.safeDump(conf))
@@ -80,17 +81,15 @@ class Ship
    * @return {Promise} promise for finished deploy
   ###
 
-  deploy: ->
+  deploy: (target) ->
+    target ?= @root
+
     if not @config
-      shipfile = path.join(@root, 'ship.conf')
+      if not fs.existsSync(path.join(@root, 'ship.conf'))
+        return W.reject('you must configure the deployer')
 
-      if not fs.existsSync(shipfile)
-        throw new Error('you must configure the deployer')
-
-      @config = yaml.safeLoad(shipfile)[@deployer_name]
-
-      # diff the deployer's keys and the keys in @config, if they differ
-      # throw an error with the missing keys noted
+      try @configure(load_shipfile.call(@))
+      catch err then return W.reject(err)
 
     @deployer(@root, @config)
 
@@ -99,6 +98,7 @@ class Ship
    * in the first array. This is for checking to ensure all config values are
    * present.
    *
+   * @private
    * @param  {Array} set1 - user-provided keys
    * @param  {Array} set2 - config-required keys
    * @return {Boolean} if all keys in set1 are also present in set2
@@ -106,5 +106,16 @@ class Ship
 
   contains_keys = (set1, set2) ->
     _.isEqual(_.intersection(set2, set1), set2)
+
+  ###*
+   * Loads the configuration for the specified deployer from the shipfile.
+   *
+   * @private
+   * @return {Object} - relevant config info
+  ###
+
+  load_shipfile = ->
+    f = path.join(@root, 'ship.conf')
+    yaml.safeLoad(fs.readFileSync(f, 'utf8'))[@deployer_name]
 
 module.exports = Ship
