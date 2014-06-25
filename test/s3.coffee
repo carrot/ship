@@ -12,6 +12,8 @@ describe 's3', ->
       project.configure
         access_key: process.env.S3_ACCESS_KEY
         secret_key: process.env.S3_SECRET_KEY
+        bucket: 'ship-s3-test'
+        ignore: ['ignoreme.html']
 
     project.deploy()
       .progress(progress_spy)

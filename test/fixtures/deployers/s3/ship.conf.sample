@@ -1,5 +1,5 @@
 s3:
-  bucket: 'xxx'
   access_key: 'xxx'
   secret_key: 'xxx'
+  bucket: 'ship-s3-test'
   ignore: ['ignoreme.html']
