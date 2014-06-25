@@ -5,4 +5,4 @@ As you can probably guess, tests for a library like this are immensely difficult
 
 This means two things: first, that the test suite takes a long time to run, and second that without publishing access keys to our own accounts, there was no way to make these tests run out of the box for contributors.
 
-If you'd like to run the tests, you need to copy the `ship.conf.sample` files in the `fixtures/deployers/**` directories, rename them to just `ship.conf`, and fill in actual details for your account. Once you have filled in your details, the tests should be able to be run successfully. And don't worry, the tests will also remove any files that they deploy to any service once the test is complete.
+If you'd like to run the tests, you need to copy the `ship.conf.sample` files in the `fixtures/deployers/**` directories, rename them to just `ship.conf`, and fill in actual details for your account. Once you have filled in your details, the tests should be able to be run successfully. And don't worry, the tests will also remove any files that they deploy to any service once the test is complete, so you won't have any junk left over on whatever service you have authorized.

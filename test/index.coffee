@@ -43,7 +43,7 @@ describe 'api', ->
     it 'should error if passed in data does not match requirements', ->
       project = new Ship(root: __dirname, deployer: 's3')
       (-> project.configure(wow: 1234, secret_key: 1234))
-        .should.throw('you must specify these keys: secret_key access_key')
+        .should.throw('you must specify these keys: access_key secret_key')
       should.not.exist(project.config)
 
     it 'should not error if the deployer has no config requirements'
@@ -56,8 +56,8 @@ describe 'api', ->
         .progress (prompt) ->
           prompt.rl.emit("line", "1")
           prompt.rl.emit("line", "2")
-        .tap (res) -> res.should.deep.equal(secret_key: '1', access_key: '2')
-        .tap -> project.config.should.deep.equal(secret_key: '1', access_key: '2')
+        .tap (res) -> res.should.deep.equal(access_key: '1', secret_key: '2')
+        .tap -> project.config.should.deep.equal(access_key: '1', secret_key: '2')
         .should.be.fulfilled
 
     it 'should not activate the prompt if deployer has no config requirements'

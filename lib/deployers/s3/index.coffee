@@ -18,7 +18,7 @@ module.exports = (root, config) ->
   client = create_client(config)
 
   d.notify("Deploying #{root} to Amazon S3")
-  ctx = { d: d, client: client, config: config }
+  ctx = { d: d, client: client, config: config, root: root }
 
   check_config.call(ctx)
     .then(upload_files.bind(ctx))
@@ -26,8 +26,10 @@ module.exports = (root, config) ->
       d.resolve
         deployer: 's3'
         url: "http://#{config.bucket}.s3-website-#{config.region}.amazonaws.com"
-        _destroy: destroy.bind(ctx)
+        destroy: destroy.bind(ctx)
     , d.reject
+
+  return d.promise
 
 module.exports.config =
   required: ['secret_key', 'access_key']
@@ -51,13 +53,14 @@ create_client = (config) ->
   new AWS.S3
 
 check_config = ->
-  nodefn.call(@client.getBucketWebsite, Bucket: @config.bucket).catch (err) ->
+  nodefn.call(@client.getBucketWebsite.bind(@client), Bucket: @config.bucket)
+  .catch (err) =>
     switch err.code
       when 'NoSuchBucket'
-        create_bucket.call(@)
+        return create_bucket.call(@)
         .then(create_site_config.bind(@))
       when 'NoSuchWebsiteConfiguration'
-        create_site_config.call(@)
+        return create_site_config.call(@)
       when 'AccessDenied'
         throw errors.access_denied
       when 'PermanentRedirect'
@@ -84,13 +87,14 @@ create_site_config = ->
   .tap(=> @d.notify 'Static website configuration set up')
 
 upload_files = ->
-  readdirp { root: @root }, (err, res) =>
-    files = _.pluck(remove_ignores(res.files, @ignores), 'path')
+  nodefn.call(readdirp, { root: @root })
+  .then (res) =>
+    files = _.pluck(remove_ignores(res.files, @config.ignore), 'path')
     W.map(files, put_file.bind(@))
 
 put_file = (fpath, cb) ->
   nodefn.call(fs.readFile, path.join(@root, fpath))
-  .then (contents) => nodefn.call @client.putObject,
+  .then (contents) => nodefn.call @client.putObject.bind(@client),
     Bucket: @config.bucket
     Key: fpath
     Body: contents
@@ -105,10 +109,10 @@ remove_ignores = (files, ignores) ->
   files.filter((m,i) -> not mask[i])
 
 destroy = ->
-  nodefn.call(@client.listObjects, { Bucket: @config.bucket })
-    .then =>
-      nodefn.call @client.deleteObjects,
+  nodefn.call(@client.listObjects.bind(@client), { Bucket: @config.bucket })
+    .then (data) =>
+      nodefn.call @client.deleteObjects.bind(@client),
         Bucket: @config.bucket
         Delete: { Objects: data.Contents.map((i) -> { Key: i.Key }) }
     .then =>
-      nodefn.call(@client.deleteBucket, Bucket: @config.bucket )
+      nodefn.call(@client.deleteBucket.bind(@client), Bucket: @config.bucket )
