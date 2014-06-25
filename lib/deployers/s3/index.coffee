@@ -32,7 +32,7 @@ module.exports = (root, config) ->
   return d.promise
 
 module.exports.config =
-  required: ['secret_key', 'access_key']
+  required: ['access_key', 'secret_key']
   optional: ['region', 'bucket', 'ignore']
 
 errors =

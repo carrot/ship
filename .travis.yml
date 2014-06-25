@@ -1,5 +1,7 @@
 language: node_js
 node_js:
   - 0.10
+after_script:
+  - npm run coveralls
 env:
   - secure: "T6+abdXNKRO6tR+JfevVEl1Wc8YN8oOwFQLQQmZWdudkpOnVnwCVMSbk5iyRCVzasYw5ZIiFXtGkeylTi7GmfsB2UI06eMTnC8O3j2+her6ESZdO4Ev3vE8rXG7ifUue8xzly13jXUvCNPUy5vzqSAXdlCLpOaUOQcfGgtOXiGo="

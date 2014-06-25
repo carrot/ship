@@ -1,7 +1,7 @@
 Ship
 ----
 
-[![npm](http://img.shields.io/npm/v/ship.svg?style=flat)](https://badge.fury.io/js/ship) [![tests](http://img.shields.io/travis/carrot/ship/master.svg?style=flat)](https://travis-ci.org/carrot/ship) [![dependencies](http://img.shields.io/gemnasium/carrot/ship.svg?style=flat)](https://gemnasium.com/carrot/ship)
+[![npm](http://img.shields.io/npm/v/ship.svg?style=flat)](https://badge.fury.io/js/ship) [![tests](http://img.shields.io/travis/carrot/ship/master.svg?style=flat)](https://travis-ci.org/carrot/ship) [![coverage](http://img.shields.io/coveralls/carrot/charge.svg?style=flat)](https://coveralls.io/r/carrot/charge) [![dependencies](http://img.shields.io/gemnasium/carrot/ship.svg?style=flat)](https://gemnasium.com/carrot/ship)
 
 Multi-platform deployment with node.
 
