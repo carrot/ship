@@ -18,22 +18,22 @@
     "url": "https://github.com/carrot/ship.git"
   },
   "dependencies": {
-    "aws-sdk": "1.x.x",
+    "aws-sdk": "1.x",
     "coffee-script": "1.7.x",
     "colors": "0.6.x",
     "ftp": "0.3.x",
-    "indx": "0.0.x",
+    "indx": "0.1.x",
     "inquirer": "0.5.x",
-    "js-yaml": "2.x.x",
+    "js-yaml": "3.x",
     "lodash": "2.x.x",
     "mime": "1.x.x",
-    "minimatch": "0.2.x",
-    "open": "0.0.x",
+    "minimatch": "0.3.x",
+    "open": "0.0.5",
     "optimist": "0.6.x",
-    "readdirp": "0.x.x",
-    "shelljs": "0.2.6",
+    "readdirp": "1.x",
+    "shelljs": "0.3.x",
     "ssh2": "0.2.x",
-    "when": "3.2.x"
+    "when": "3.x"
   },
   "devDependencies": {
     "chai": "1.x",
