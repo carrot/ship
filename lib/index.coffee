@@ -91,7 +91,7 @@ class Ship
       try @configure(load_shipfile.call(@))
       catch err then return W.reject(err)
 
-    @deployer(@root, @config)
+    @deployer(target, @config)
 
   ###*
    * Given two arrays, ensure that the second array contains all values provided
