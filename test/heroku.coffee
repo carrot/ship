@@ -1,8 +1,12 @@
 describe 'heroku', ->
 
-  it.skip 'deploys a basic site', (done) ->
-    test_path = path.join(test_dir, 'deployers/heroku')
-    new cmd.default([test_path]).run (err, res) =>
-      if err then done(err)
-      # do the actual test
-      res.deployers[0].destroy(done)
+  it 'deploys a basic site to heroku', (done) ->
+    project = new Ship(root: path.join(_path, 'deployers/heroku'), deployer: 'heroku')
+
+    if process.env.TRAVIS
+      project.configure
+        name: 'ship-testing-app'
+        api_key: '8849ba7a0462bc4efe4d242e465bc414f99f1b12'
+
+    project.deploy()
+      .should.be.fulfilled
