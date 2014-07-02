@@ -33,6 +33,7 @@
     "open": "0.0.5",
     "optimist": "0.6.x",
     "readdirp": "1.x",
+    "request": "2.x",
     "ssh2": "0.2.x",
     "tar": "^0.1.20",
     "when": "3.x"

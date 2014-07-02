@@ -1,6 +1,6 @@
 describe 'heroku', ->
 
-  it 'deploys a basic site to heroku', (done) ->
+  it 'deploys a basic site to heroku', ->
     project = new Ship(root: path.join(_path, 'deployers/heroku'), deployer: 'heroku')
 
     if process.env.TRAVIS

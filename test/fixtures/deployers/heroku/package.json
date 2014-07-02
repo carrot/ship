@@ -1,10 +1,17 @@
 {
   "name": "testing-app",
   "version": "0.0.1",
+  "description": "An app used for testing ship's heroku deployer",
+  "author": "Jeff Escalante",
+  "main": "index.js",
   "dependencies": {
     "connect": "2.x"
   },
+  "scripts": {
+    "start": "node index.js"
+  },
   "engines": {
-    "node": ">=0.10.0"
-  }
+    "node": "0.10.x"
+  },
+  "license": "MIT"
 }
