@@ -25,7 +25,6 @@ module.exports = (root, config) ->
     .then(build_tree)
     .then(create_commit)
     .then(update_gh_pages_branch)
-    .catch(console.error)
     .done(d.resolve, d.reject)
 
   return d.promise
