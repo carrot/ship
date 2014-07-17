@@ -25,6 +25,7 @@ module.exports = (root, config) ->
     .then(build_tree)
     .then(create_commit)
     .then(update_gh_pages_branch)
+    .catch(console.error)
     .done(d.resolve, d.reject)
 
   return d.promise
@@ -88,7 +89,7 @@ create_initial_commit = ->
 ###
 
 build_tree = ->
-  file_map(@root, { ignore_files: @config.ignore })
+  file_map(@root, { file_ignores: @config.ignore })
     .then (tree) => format_tree.call(@, path: '', children: tree)
 
 ###*
@@ -101,28 +102,18 @@ build_tree = ->
 ###
 
 format_tree = (root) ->
-  dirs = find_all_of_type(root.children, 'directory')
-  files = find_all_of_type(root.children, 'file')
+  dirs = _.where(root.children, { type: 'directory' })
+  files = _.where(root.children, { type: 'file' })
 
   if dirs.length
     W.map(dirs, format_tree.bind(@))
-      .then (res) => res.concat(W.map(files, create_blob.bind(@)))
+      .then (dir_objects) =>
+        W.map(files, create_blob.bind(@))
+        .then (file_objects) -> dir_objects.concat(file_objects)
       .then(create_tree.bind(@, root))
   else
     W.map(files, create_blob.bind(@))
       .then(create_tree.bind(@, root))
-
-###*
- * Filters an array of objects for objects that have the given type key.
- *
- * @param  {Array} arr - an array containing objects which have a type property
- * @param  {String} type - desired value of the 'type' key in the objects
- * @return {Array} array of results
-###
-
-find_all_of_type = (arr, type) ->
-  res = _.find(arr, { type: type }) or []
-  Array::concat(res)
 
 ###*
  * Creates a blob through github's API, given a file.
@@ -134,7 +125,7 @@ find_all_of_type = (arr, type) ->
 create_blob = (file) ->
   nodefn.call(fs.readFile, file.full_path, 'utf8')
   .then(get_blob_sha.bind(@))
-  .then (sha) -> { path: file.path, mode: '100644', type: 'blob', sha: sha }
+  .then (sha) -> { path: path.basename(file.path), mode: '100644', type: 'blob', sha: sha }
 
 ###*
  * Creates a tree through github's API, given an array of contents.
@@ -146,7 +137,7 @@ create_blob = (file) ->
 
 create_tree = (root, tree) ->
   get_tree_sha.call(@, tree)
-  .then (sha) -> { path: root.path, mode: '040000', type: 'tree', sha: sha }
+  .then (sha) -> { path: path.basename(root.path), mode: '040000', type: 'tree', sha: sha }
 
 ###*
  * Given a file's content, creates a blob through github and returns the sha.
