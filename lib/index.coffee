@@ -105,7 +105,7 @@ class Ship
   ###
 
   contains_keys = (set1, set2) ->
-    _.isEqual(_.intersection(set2, set1), set1.sort())
+    _.isEqual(_.intersection(set2, set1).sort(), set1.sort())
 
   ###*
    * Loads the configuration for the specified deployer from the shipfile.
