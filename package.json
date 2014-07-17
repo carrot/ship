@@ -23,6 +23,7 @@
     "colors": "0.6.x",
     "fstream": "^0.1.28",
     "ftp": "0.3.x",
+    "github": "0.2.x",
     "heroku-client": "^1.4.0",
     "indx": "0.1.x",
     "inquirer": "0.5.x",
