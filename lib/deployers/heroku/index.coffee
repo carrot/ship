@@ -7,6 +7,7 @@ fstream = require 'fstream'
 request = require 'request'
 
 module.exports = (root, config) ->
+  d = W.defer()
   heroku = new Heroku(token: config.api_key)
   app = heroku.apps(config.name)
 
@@ -20,29 +21,47 @@ module.exports = (root, config) ->
 
   W.all([tar_process, app_process])
     .then (res) ->
-      W(heroku.apps(config.name).builds().create
+      W heroku.apps(config.name).builds().create
         source_blob:
           url: "http://107.170.142.86:1111/#{res[0]}"
           version: res[0]
-        )
     .then (res) ->
-      d = W.defer()
-      check_app_status(heroku, res.id, config.name, d)
-      return d.promise
+      d2 = W.defer()
+      check_app_status(heroku, res.id, config.name, d2, d)
+      return d2.promise
     .then (id) -> W(heroku.apps(config.name).builds(id).result().info())
     .tap (res) ->
-      console.log res.lines.map((l)-> l.line).join('')
-    .finally ->
+      d.notify(res.lines.map((l)-> l.line).join(''))
+    .done ->
       fs.unlinkSync(path.join(root, "#{config.name}.tar"))
-      destroy(heroku, config.name)
+      d.resolve
+        deployer: 'gh-pages'
+        url: "http://#{config.name}.herokuapp.com"
+        destroy: destroy.bind(@, heroku, config.name)
+    , d.reject
 
-# blarghhhh
-check_app_status = (heroku, id, name, d) ->
+  return d.promise
+
+
+###*
+ * Loops every second to check the build status. Once it is no longer 'pending',
+ * allows the process to continue.
+ *
+ * @todo  refactor this to be passed a context and contain it's own recursion
+ *
+ * @param  {Object} heroku - heroku instance
+ * @param  {Integer} id - app id
+ * @param  {String} name - app name
+ * @param  {Deferred} d - deferred object
+ * @return {Promise} a promise that the app is no longer pending
+###
+
+check_app_status = (heroku, id, name, d, dmain) ->
   heroku.apps(name).builds(id).info().then (res) ->
     switch res.status
       when 'pending'
-        process.stdout.write '.'
-        check_app_status(heroku, id, name, d)
+        dmain.notify('working')
+        check_app_status(heroku, id, name, d, dmain)
       else
         d.resolve(res.id)
 
