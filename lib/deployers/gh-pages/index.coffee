@@ -124,7 +124,11 @@ format_tree = (root) ->
 create_blob = (file) ->
   nodefn.call(fs.readFile, file.full_path, 'utf8')
   .then(get_blob_sha.bind(@))
-  .then (sha) -> { path: path.basename(file.path), mode: '100644', type: 'blob', sha: sha }
+  .then (sha) ->
+    path: path.basename(file.path)
+    mode: '100644'
+    type: 'blob'
+    sha: sha
 
 ###*
  * Creates a tree through github's API, given an array of contents.
@@ -136,7 +140,11 @@ create_blob = (file) ->
 
 create_tree = (root, tree) ->
   get_tree_sha.call(@, tree)
-  .then (sha) -> { path: path.basename(root.path), mode: '040000', type: 'tree', sha: sha }
+  .then (sha) ->
+    path: path.basename(root.path)
+    mode: '040000'
+    type: 'tree'
+    sha: sha
 
 ###*
  * Given a file's content, creates a blob through github and returns the sha.
