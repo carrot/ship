@@ -1,3 +1,5 @@
+config = require('../config')
+
 describe 'gh-pages', ->
 
   it 'deploys a basic site to github pages', ->
@@ -6,7 +8,7 @@ describe 'gh-pages', ->
     if process.env.TRAVIS
       project.configure
         username: 'shiptester'
-        password: process.env.GH_PASS
+        password: config.github.password
         repo: 'shiptester/test'
 
     project.deploy()
