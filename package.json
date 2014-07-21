@@ -21,6 +21,7 @@
     "aws-sdk": "1.x",
     "coffee-script": "1.7.x",
     "colors": "0.6.x",
+    "file-map": "0.0.1",
     "fstream": "^0.1.28",
     "ftp": "0.3.x",
     "github": "0.2.x",
