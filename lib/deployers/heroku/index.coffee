@@ -5,6 +5,7 @@ path    = require 'path'
 Heroku  = require 'heroku-client'
 tar     = require 'tar'
 fstream = require 'fstream'
+zlib    = require 'zlib'
 request = require 'request'
 
 module.exports = (root, config) ->
@@ -36,7 +37,7 @@ module.exports = (root, config) ->
       return d2.promise
     .then (res) -> W(heroku.apps(config.name).builds(res.id).result().info())
     .finally ->
-      fs.unlinkSync(path.join(root, "#{config.name}.tar"))
+      fs.unlinkSync(path.join(root, "#{config.name}.tar.gz"))
     .done ->
       d.resolve
         deployer: 'heroku'
@@ -83,7 +84,7 @@ edge_create_build = (heroku, name, id) ->
 
 check_app_status = (heroku, id, name, d) ->
   heroku.apps(name).builds(id).info().then (res) ->
-    console.log res.status
+    switch res.status
       when 'pending'
         check_app_status(heroku, id, name, d)
       else
@@ -100,10 +101,11 @@ check_app_status = (heroku, id, name, d) ->
 
 create_tar = (root, name) ->
   d = W.defer()
-  tar_path = path.join(root, "#{name}.tar")
+  tar_path = path.join(root, "#{name}.tar.gz")
 
   stream = fstream.Reader(path: root, type: 'Directory')
     .pipe(tar.Pack(noProprietary: true))
+    .pipe(zlib.createGzip())
     .pipe(fs.createWriteStream(tar_path))
 
   stream.on('close', d.resolve.bind(d, tar_path))
