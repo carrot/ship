@@ -1,4 +1,4 @@
-config = require('../config')
+config = require '../config'
 
 describe 'gh-pages', ->
 
