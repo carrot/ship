@@ -1,7 +1,10 @@
 language: node_js
 node_js:
-  - 0.10
+  - 0.1
 after_script:
   - npm run coveralls
+before_script:
+  - openssl aes-256-cbc -k "$secret" -in config.coffee.enc -d -a -out config.coffee
 env:
-  - secure: "T6+abdXNKRO6tR+JfevVEl1Wc8YN8oOwFQLQQmZWdudkpOnVnwCVMSbk5iyRCVzasYw5ZIiFXtGkeylTi7GmfsB2UI06eMTnC8O3j2+her6ESZdO4Ev3vE8rXG7ifUue8xzly13jXUvCNPUy5vzqSAXdlCLpOaUOQcfGgtOXiGo="
+  global:
+    - secure: okmyA3HeyYkQYuz+Xo9oi3dc8eMuBSMuWAG9QAhZEX7BW31f854fEZoZttT2SvPUN8XjVaAAe6AMTkkHS9hMZb+k5pZ17XoEoffKCDh/rCVy/agTm1zWgOoIkOBSgdI4tZDWlaJY/iUMNvK4U9p339bmBX84Eyx1phM3WdxtKtc=

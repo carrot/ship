@@ -1,6 +1,7 @@
 path    = require 'path'
 request = require 'request'
 nodefn  = require 'when/node'
+config  = require('../config')
 
 describe 's3', ->
 
@@ -10,8 +11,8 @@ describe 's3', ->
 
     if process.env.TRAVIS
       project.configure
-        access_key: process.env.S3_ACCESS_KEY
-        secret_key: process.env.S3_SECRET_KEY
+        access_key: config.s3.access_key
+        secret_key: config.s3.secret_key
         bucket: 'ship-s3-test'
         ignore: ['ignoreme.html']
 

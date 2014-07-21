@@ -1,4 +1,5 @@
 node_modules
 .DS_Store
 test/fixtures/deployers/**/*.conf
-.env
+config.coffee
+encrypt-config.sh
