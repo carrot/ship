@@ -1,12 +1,15 @@
 W       = require 'when'
+nodefn  = require 'when/node'
 fs      = require 'fs'
 path    = require 'path'
 Heroku  = require 'heroku-client'
 tar     = require 'tar'
 fstream = require 'fstream'
+zlib    = require 'zlib'
 request = require 'request'
 
 module.exports = (root, config) ->
+  d = W.defer()
   heroku = new Heroku(token: config.api_key)
   app = heroku.apps(config.name)
 
@@ -20,31 +23,72 @@ module.exports = (root, config) ->
 
   W.all([tar_process, app_process])
     .then (res) ->
-      W(heroku.apps(config.name).builds().create
-        source_blob:
-          url: "http://107.170.142.86:1111/#{res[0]}"
-          version: res[0]
-        )
-    .then (res) ->
-      d = W.defer()
-      check_app_status(heroku, res.id, config.name, d)
-      return d.promise
-    .then (id) -> W(heroku.apps(config.name).builds(id).result().info())
+      edge_create_build(heroku, config.name, res[0])
     .tap (res) ->
-      console.log res.lines.map((l)-> l.line).join('')
+      d2 = W.defer()
+      stream = request(res.stream_url)
+      stream.on('end', d2.resolve)
+      stream.on('error', d2.reject)
+      stream.on 'data', (data) -> d.notify(String(data))
+      return d2.promise
+    .tap (res) ->
+      d2 = W.defer()
+      check_app_status(heroku, res.id, config.name, d2)
+      return d2.promise
+    .then (res) -> W(heroku.apps(config.name).builds(res.id).result().info())
     .finally ->
-      fs.unlinkSync(path.join(root, "#{config.name}.tar"))
-      destroy(heroku, config.name)
+      fs.unlinkSync(path.join(root, "#{config.name}.tar.gz"))
+    .done ->
+      d.resolve
+        deployer: 'heroku'
+        url: "http://#{config.name}.herokuapp.com"
+        destroy: destroy.bind(@, heroku, config.name)
+    , d.reject
 
-# blarghhhh
+  return d.promise
+
+###*
+ * Create a new build using the edge api, which will return a streaming build
+ * status url so that we can stream it correctly.
+ *
+ * @param  {Object} heroku - heroku instance
+ * @param  {String} name - app name
+ * @param  {String} id - uuid of the tarball
+ * @return {Promise} - promise for the created app
+###
+
+edge_create_build = (heroku, name, id) ->
+  nodefn.call heroku.request.bind(heroku),
+    method: 'POST',
+    path: "/apps/#{name}/builds",
+    headers:
+      Accept: 'application/vnd.heroku+json; version=edge',
+    body:
+      source_blob:
+        url: "http://107.170.142.86:1111/#{id}"
+        version: id
+
+###*
+ * Loops every second to check the build status. Once it is no longer 'pending',
+ * allows the process to continue.
+ *
+ * @todo this should be eliminated, but in testing, sometimes the stream ending
+ *       did not correctly indicate a full build, so it's here for security
+ *
+ * @param  {Object} heroku - heroku instance
+ * @param  {Integer} id - app id
+ * @param  {String} name - app name
+ * @param  {Deferred} d - deferred object
+ * @return {Promise} a promise that the app is no longer pending
+###
+
 check_app_status = (heroku, id, name, d) ->
   heroku.apps(name).builds(id).info().then (res) ->
     switch res.status
       when 'pending'
-        process.stdout.write '.'
         check_app_status(heroku, id, name, d)
       else
-        d.resolve(res.id)
+        d.resolve()
 
 ###*
  * Given a directory path, create a tarball of that directory and drop it as
@@ -57,10 +101,11 @@ check_app_status = (heroku, id, name, d) ->
 
 create_tar = (root, name) ->
   d = W.defer()
-  tar_path = path.join(root, "#{name}.tar")
+  tar_path = path.join(root, "#{name}.tar.gz")
 
   stream = fstream.Reader(path: root, type: 'Directory')
     .pipe(tar.Pack(noProprietary: true))
+    .pipe(zlib.createGzip())
     .pipe(fs.createWriteStream(tar_path))
 
   stream.on('close', d.resolve.bind(d, tar_path))
