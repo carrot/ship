@@ -8,22 +8,22 @@ fstream = require 'fstream'
 zlib    = require 'zlib'
 request = require 'request'
 
-module.exports = (root, config) ->
+module.exports = (root, opts) ->
   d = W.defer()
-  heroku = new Heroku(token: config.api_key)
-  app = heroku.apps(config.name)
+  heroku = new Heroku(token: opts.api_key)
+  app = heroku.apps(opts.name)
 
-  tar_process = create_tar(root, config.name).then(upload_tar)
+  tar_process = create_tar(root, opts.name).then(upload_tar)
 
   app_process = W(app.info())
     .catch (err) ->
       if err.body.id isnt 'not_found' then throw err
-      W(heroku.apps().create(name: config.name))
+      W(heroku.apps().create(name: opts.name))
         .then (res) -> app = res
 
   W.all([tar_process, app_process])
     .then (res) ->
-      edge_create_build(heroku, config.name, res[0])
+      edge_create_build(heroku, opts.name, res[0])
     .tap (res) ->
       d2 = W.defer()
       stream = request(res.stream_url)
@@ -33,16 +33,16 @@ module.exports = (root, config) ->
       return d2.promise
     .tap (res) ->
       d2 = W.defer()
-      check_app_status(heroku, res.id, config.name, d2)
+      check_app_status(heroku, res.id, opts.name, d2)
       return d2.promise
-    .then (res) -> W(heroku.apps(config.name).builds(res.id).result().info())
+    .then (res) -> W(heroku.apps(opts.name).builds(res.id).result().info())
     .finally ->
-      fs.unlinkSync(path.join(root, "#{config.name}.tar.gz"))
+      fs.unlinkSync(path.join(root, "#{opts.name}.tar.gz"))
     .done =>
       d.resolve
         deployer: 'heroku'
-        url: "http://#{config.name}.herokuapp.com"
-        destroy: destroy.bind(@, heroku, config.name)
+        url: "http://#{opts.name}.herokuapp.com"
+        destroy: destroy.bind(@, heroku, opts.name)
     , d.reject
 
   return d.promise
