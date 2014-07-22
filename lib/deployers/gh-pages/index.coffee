@@ -25,7 +25,11 @@ module.exports = (root, config) ->
     .then(build_tree)
     .then(create_commit)
     .then(update_gh_pages_branch)
-    .done(d.resolve, d.reject)
+    .done ->
+      d.resolve
+        deployer: 'gh-pages'
+        url: "http://#{repo_user}.github.io/#{repo_name}"
+    , d.reject
 
   return d.promise
 

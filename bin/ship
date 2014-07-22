@@ -3,13 +3,20 @@
 require('coffee-script/register');
 require('colors');
 
-var argv = require('optimist').alias('e', 'environment').argv,
-    colors = require('colors'),
-    ship = require('../lib'),
-    Commands = require('../lib/commands');
+var cli = new (require('../lib/cli')),
+    pkg = require('../package.json'),
+    notifier = require('update-notifier')({
+      packageName: pkg.name,
+      packageVersion: pkg.version,
+    });
 
-default_cmd = new Commands['default'](argv._, argv.environment)
+// new version notification
+notifier.notify();
 
-default_cmd.run(function(err, res){
-  if (err) return console.error(err.red);
-});
+cli.on('data', console.log.bind(console));
+cli.on('info', function(m){ console.log(("▸ " + m).grey); });
+cli.on('success', function(m){ console.log(("✓ " + m).green); });
+cli.on('err', function(err){ console.error("✘ ".red + err); });
+cli.on('inline', process.stdout.write.bind(process.stdout));
+
+cli.run(process.argv.slice(2));

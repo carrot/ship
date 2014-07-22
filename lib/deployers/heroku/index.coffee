@@ -38,7 +38,7 @@ module.exports = (root, config) ->
     .then (res) -> W(heroku.apps(config.name).builds(res.id).result().info())
     .finally ->
       fs.unlinkSync(path.join(root, "#{config.name}.tar.gz"))
-    .done ->
+    .done =>
       d.resolve
         deployer: 'heroku'
         url: "http://#{config.name}.herokuapp.com"
