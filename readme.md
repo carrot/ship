@@ -40,7 +40,7 @@ If you are using ship directly for your own deployments, its primary interface i
 The command line interface is simple -- just follow the format below
 
 ```
-ship /path/to/folder -d deployer-name
+ship /path/to/folder -to deployer-name
 ```
 
 For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop -to ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
