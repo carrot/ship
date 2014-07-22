@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "argparse": "0.1.x",
-    "aws-sdk": "1.x",
+    "aws-sdk": "2.x",
     "coffee-script": "1.7.x",
     "colors": "0.6.x",
     "file-map": "0.0.1",
