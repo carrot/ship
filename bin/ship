@@ -10,13 +10,10 @@ var cli = new (require('../lib/cli')),
       packageVersion: pkg.version,
     });
 
-// new version notification
 notifier.notify();
 
-cli.on('data', console.log.bind(console));
 cli.on('info', function(m){ console.log(("▸ " + m).grey); });
 cli.on('success', function(m){ console.log(("✓ " + m).green); });
 cli.on('err', function(err){ console.error("✘ ".red + err); });
-cli.on('inline', process.stdout.write.bind(process.stdout));
 
 cli.run(process.argv.slice(2));

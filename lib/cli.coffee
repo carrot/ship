@@ -3,7 +3,7 @@ pkg          = require '../package.json'
 ArgParse     = require('argparse').ArgumentParser
 EventEmitter = require('events').EventEmitter
 util         = require 'util'
-Ship         = require './'
+Ship         = require './index'
 
 ###*
  * @class  CLI
@@ -26,7 +26,7 @@ class CLI extends EventEmitter
     @parser.addArgument ['-to', '--to'],
       help: "Where you'd like to deploy your site to"
 
-    @parser.addArgument ['-e', '--environment'],
+    @parser.addArgument ['-e', '--env'],
       help: "The environment you'd like to deploy to"
 
     @parser.addArgument ['root'],
@@ -45,8 +45,8 @@ class CLI extends EventEmitter
   run: (args) ->
     if typeof args is 'string' then args = args.split(' ')
     args = @parser.parseArgs(args)
-    try ship = new Ship(root: args.root, deployer: args.to)
-    catch err then @emit('err', err)
+    try ship = new Ship(root: args.root, deployer: args.to, env: args.env)
+    catch err then return @emit('err', err)
 
     if not ship.is_configured()
       ship.config_prompt().with(ship)
