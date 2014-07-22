@@ -14,12 +14,12 @@ If you often need to deploy files quickly to bunch of different platforms, or yo
 Ship is small library that deploys files smoothly to the platforms listed below:
 
 - [Amazon S3](lib/deployers/s3)
-- [Linux VPS](lib/deployers/vps)
 - [Heroku](lib/deployers/heroku)
 - [Github Pages](lib/deployers/gh-pages)
-- [FTP](lib/deployers/ftp)
 
 And many more coming soon, like:
+- Linux VPS
+- FTP
 - Divshot
 - Tumblr
 - Dropbox
@@ -40,10 +40,10 @@ If you are using ship directly for your own deployments, its primary interface i
 The command line interface is simple -- just follow the format below
 
 ```
-ship /path/to/folder deployer
+ship /path/to/folder -d deployer-name
 ```
 
-For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
+For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop -d ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
 
 After the first time running `ship` on a folder, you can skip the deployer name if you'd like to deploy to the same target. If you have deployed the same folder to multiple targets and you run it without the deployer argument, ship will deploy to all targets.
 
@@ -54,7 +54,6 @@ Available deployers are as such:
 - Amazon s3 - `s3`
 - Github Pages - `gh-pages`
 - Heroku - `heroku`
-- Linux VPS - `vps`
 
 ### ship.conf
 
@@ -115,12 +114,18 @@ project.write_config();
 // you know when it's done. It also emits progress events along the way, since
 // some deployments take a while and you might want to keep track of progress.
 
-project.deploy(project_root)
+// If you want to deploy a directory different than the root you passed to the
+// ship constructor, pass the path in as an argument to the deploy function. If
+// you don't it will just deploy the root passed to the constructor.
+
+project.deploy('path/to/folder/public')
   .progress(console.log)
-  .catch(console.error)
   .done(function(res){
     console.log('successfully deployed!');
     console.log(res);
+  }, function(err){
+    console.log('there was an error : (');
+    console.log(err);
   });
 
 // The response returned by the deployer contains as much useful information as
