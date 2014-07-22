@@ -17,6 +17,10 @@ describe 'api', ->
     it 'should error if passed a nonexistant path to deploy', ->
       (-> new Ship(root: 'wow', deployer: 's3')).should.throw()
 
+    it 'should correctly format the shipfile with an environment passed', ->
+      project = new Ship(root: __dirname, deployer: 'nowhere', env: 'staging')
+      path.basename(project.shipfile).should.equal('ship.staging.conf')
+
   describe 'is_configured', ->
 
     it 'should not be configured if no @config or shipfile', ->
@@ -107,5 +111,10 @@ describe 'api', ->
       project = new Ship(root: dir, deployer: 'nowhere')
       project.deploy()
         .should.be.rejectedWith('you must specify these keys: nothing')
+
+    it 'should use the correct shipfile given an environment', ->
+      dir = path.join(_path, 'api/staging_env')
+      project = new Ship(root: dir, deployer: 'nowhere', env: 'staging')
+      project.deploy().should.be.fulfilled
 
     it 'should not error if not configured and deployer has no config requirements'

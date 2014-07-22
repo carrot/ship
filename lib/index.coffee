@@ -18,6 +18,8 @@ class Ship
   constructor: (opts) ->
     @root = path.resolve(opts.root)
     @deployer_name = opts.deployer
+    @env = opts.env
+    @shipfile = path.join(@root, "ship#{if @env then '.' + @env else ''}.conf")
 
     try @deployer = require("./deployers/#{opts.deployer}")
     catch err then throw new Error("#{opts.deployer} is not a valid deployer")
@@ -34,7 +36,7 @@ class Ship
 
   is_configured: ->
     if @config then return true
-    if fs.existsSync(path.join(@root, 'ship.conf')) then return true
+    if fs.existsSync(@shipfile) then return true
     false
 
   ###*
@@ -70,9 +72,8 @@ class Ship
 
   write_config: ->
     if not @config then return W.reject('deployer has not yet been configured')
-    dest = path.join(@root, 'ship.conf')
     conf = {}; conf[@deployer_name] = @config
-    nodefn.call(fs.writeFile, dest, yaml.safeDump(conf))
+    nodefn.call(fs.writeFile, @shipfile, yaml.safeDump(conf))
 
   ###*
    * Deploy the files at project root with the given deployer. Returns a promise
@@ -85,7 +86,7 @@ class Ship
     target ?= @root
 
     if not @config
-      if not fs.existsSync(path.join(@root, 'ship.conf'))
+      if not fs.existsSync(@shipfile)
         return W.reject('you must configure the deployer')
 
       try @configure(load_shipfile.call(@))
@@ -115,7 +116,6 @@ class Ship
   ###
 
   load_shipfile = ->
-    f = path.join(@root, 'ship.conf')
-    yaml.safeLoad(fs.readFileSync(f, 'utf8'))[@deployer_name]
+    yaml.safeLoad(fs.readFileSync(@shipfile, 'utf8'))[@deployer_name]
 
 module.exports = Ship
