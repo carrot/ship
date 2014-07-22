@@ -5,10 +5,10 @@ Pushes target to amazon s3, at a publicly available bucket intended for serving 
 
 ### Config Values
 
-**access_key**: you can get this from the s3 account panel    
-**secret_key**: you can get this from the s3 account panel    
-**bucket**: _(optional)_ the name of your bucket, defaults to current folder name    
-**region**: _(optional)_ region of your bucket, defaults to `us-east-1`
+- **access_key**: you can get this from the s3 account panel
+- **secret_key**: you can get this from the s3 account panel
+- **bucket**: _(optional)_ the name of your bucket, defaults to current folder name
+- **region**: _(optional)_ region of your bucket, defaults to `us-east-1`
 
 ### Getting Keys
 

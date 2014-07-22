@@ -5,5 +5,5 @@ Pushes to [heroku](https://heroku.com) directly through heroku's platform API, a
 
 ### Config Values
 
-**name**: what you want to name the project on heroku
-**api_key**: heroku api key. get this from your [account page](https://dashboard.heroku.com/account)
+- **name**: what you want to name the project on heroku
+- **api_key**: heroku api key. get this from your [account page](https://dashboard.heroku.com/account)

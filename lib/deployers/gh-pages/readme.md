@@ -5,5 +5,5 @@ The github pages deployer does not require any external dependencies. That's rig
 
 ### Config Values
 
-**username**: your github account username
-**password**: your github account password
+- **username**: your github account username
+- **password**: your github account password
