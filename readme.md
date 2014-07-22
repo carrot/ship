@@ -1,27 +1,31 @@
 Ship
 ----
 
-[![npm](https://badge.fury.io/js/ship.png)](http://badge.fury.io/js/ship)
-[![tests](https://travis-ci.org/carrot/ship.png?branch=master)](https://travis-ci.org/carrot/ship)
-[![dependencies](https://david-dm.org/carrot/ship.png)](https://david-dm.org/carrot/ship)
+[![npm](http://img.shields.io/npm/v/ship.svg?style=flat)](https://badge.fury.io/js/ship) [![tests](http://img.shields.io/travis/carrot/ship/master.svg?style=flat)](https://travis-ci.org/carrot/ship) [![coverage](http://img.shields.io/coveralls/carrot/ship.svg?style=flat)](https://coveralls.io/r/carrot/ship) [![dependencies](http://img.shields.io/gemnasium/carrot/ship.svg?style=flat)](https://gemnasium.com/carrot/ship)
 
 Multi-platform deployment with node.
 
-> **Note:** This library is _incomplete_, still in development, and you should not attempt to use it for anything, yet. As soon as it's ready, this note will be removed, and releases will be tagged.
+> **Note:** This project is in early development, and versioning is a little different. [Read this](http://markup.im/#q4_cRZ1Q) for more details.
 
 ### Why should you care?
 
-If you often need to deploy files to different platforms, or you have an app or library written in node and would like to give your users the ability to deploy files to a variety of platforms, ship is probably what you are looking for.
+If you often need to deploy files quickly to bunch of different platforms, or you have an app or library written in node and would like to give your users the ability to deploy files to a variety of platforms, ship is probably what you are looking for.
 
 Ship is small library that deploys files smoothly to the platforms listed below:
 
 - [Amazon S3](lib/deployers/s3)
-- [Github Pages](lib/deployers/gh-pages)
 - [Heroku](lib/deployers/heroku)
-- [Nodejitsu](lib/deployers/nodejitsu)
-- [FTP](lib/deployers/ftp)
-- [Dropbox](lib/deployers/dropbox)
-- [Linux VPS](lib/deployers/vps)
+- [Github Pages](lib/deployers/gh-pages)
+
+And many more coming soon, like:
+- Linux VPS
+- FTP
+- Divshot
+- Tumblr
+- Dropbox
+- BitBalloon
+- SiteLeaf
+- Email
 
 Ship is also built on the adapter pattern, so if there's another platforms you'd like to deploy to, the project structure is easy to understand, and you can write a deployer, send a pull request, and we'd be happy to include it.
 
@@ -36,10 +40,10 @@ If you are using ship directly for your own deployments, its primary interface i
 The command line interface is simple -- just follow the format below
 
 ```
-ship /path/to/folder deployer
+ship /path/to/folder -d deployer-name
 ```
 
-For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
+For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop -to ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
 
 After the first time running `ship` on a folder, you can skip the deployer name if you'd like to deploy to the same target. If you have deployed the same folder to multiple targets and you run it without the deployer argument, ship will deploy to all targets.
 
@@ -50,10 +54,6 @@ Available deployers are as such:
 - Amazon s3 - `s3`
 - Github Pages - `gh-pages`
 - Heroku - `heroku`
-- Nodejitsu - `nodejitsu`
-- FTP - `ftp`
-- Dropbox - `dropbox`
-- Linux VPS - `vps`
 
 ### ship.conf
 
@@ -73,57 +73,69 @@ Finally, some deployers support built in 'ignores'. If you'd like to ignore a fi
 
 ### Javascript API
 
-The interface is fairly straightforward. An example is below:
+The interface is fairly straightforward. An example is below. Please note that this is not a working example to be pasted into your project, it's a walkthrough of the public API at a high level.
 
 ```js
-var ship = require('ship'),
-    s3 = ship['s3'],
-    q = require('q');
+// First thing's first, let's create a new instance of Ship with the adapter we
+// want to deploy with and the folder we want to be deployed.
 
-// first, you might want to make sure the deployer
-// has been configured. this means that there's
-// a yaml file at the project root called `ship.conf`
-// with the relevant config details.
+var Ship = require('ship');
+var project = new Ship({ root: 'path/to/folder', adapter: 's3' });
 
-if (!s3.configured) {
+// First, you might want to make sure the deployer has been configured. This
+// means that either there's a yaml file at the project root called `ship.conf`
+// with the relevant config details for that deployer, or you have manually
+// configured the instance. You can quickly check whether the adapter has been
+// configured or not as such:
 
-  // you can manually enter config values
+project.is_configured(); // returns a boolean
 
-  s3.configure({
-    token: 'xxxx',
-    secret: 'xxxx'
-  });
+// If the adapter has been configured already as indicated above, you can skip
+// the part below discussing manual configuration. If it has not however, you
+// need to manually configure the deployer. You can do this by calling
+// `configure` directly with the config values as such:
 
-  // or you can use ship's command line prompt to collect it
-  // which returns a callback or promise.
-  // if there is no `ship.conf` file present, this command
-  // will create one and attempt to add it to `.gitignore`
+project.configure({ token: 'xxxx', secret: 'xxxx' });
 
-  s3.configPrompt(function(err){
-    if (err) return console.error(err);
-    console.log('configured');
-  });
+// Or you can use ship's command line prompt to collect the info. This method is
+// async and returns a promise.
 
-}
+project.config_prompt()
+  .then(function(){ console.log('configured!'); });
 
-// to actually deploy, just call .deploy().
-// you can use a callback function so you know when it's done
+// You might want to write the details to a `ship.conf` file once they have been
+// collected so you don't need to continually input them. A convenience method
+// will do this for you quickly, and try to add `ship.conf` to a `.gitignore` if
+// there is one present, since you don't want to deploy or push it.
 
-s3.deploy('path/to/folder', function(err, res){
-  if (err) return console.error(err);
-  console.log('successfully deployed!');
-  console.log(res);
-});
+project.write_config();
 
-// ship also returns a promise you can use if you'd like
+// To actually deploy, just call adapter.deploy(). This returns a promise so
+// you know when it's done. It also emits progress events along the way, since
+// some deployments take a while and you might want to keep track of progress.
 
-s3.deploy('path/to/folder')
-  .catch(function(err){ console.error(err); })
+// If you want to deploy a directory different than the root you passed to the
+// ship constructor, pass the path in as an argument to the deploy function. If
+// you don't it will just deploy the root passed to the constructor.
+
+project.deploy('path/to/folder/public')
+  .progress(console.log)
   .done(function(res){
     console.log('successfully deployed!');
     console.log(res);
+  }, function(err){
+    console.log('there was an error : (');
+    console.log(err);
   });
 
+// The response returned by the deployer contains as much useful information as
+// possible. If possible, it will contain a `url`, so you can open up the site
+// and check it on the spot. Each deployer has a slightly different response,
+// you can find more specific details in that deployer's docs.
 ```
 
-So in summary, require `ship`, get the deployer name you are after, make sure it's configured, run `deploy` and pass it a path to the file or folder you want to deploy, and get feedback with a callback or promise.
+So in summary, require `ship`, initialize it with a folder and deployer, make sure it's configured, run `deploy`, then celebrate great success!
+
+### License & Contributing
+
+Ship is licensed under [MIT](license.md). See [contributing.md](contributing.md) for more information on contributing to ship.

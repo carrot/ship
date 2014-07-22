@@ -10,37 +10,56 @@
     "shipit"
   ],
   "bin": {
-    "ship": "./bin/ship"
+    "ship": "bin/ship"
   },
-  "main": "./lib",
+  "main": "lib",
   "repository": {
     "type": "git",
     "url": "https://github.com/carrot/ship.git"
   },
   "dependencies": {
-    "optimist": "0.6.x",
+    "argparse": "0.1.x",
+    "aws-sdk": "2.x",
     "coffee-script": "1.7.x",
-    "js-yaml": "2.x.x",
     "colors": "0.6.x",
-    "indx": "0.0.x",
-    "async": "0.2.x",
-    "prompt": "0.2.x",
+    "file-map": "0.0.1",
+    "fstream": "0.1.x",
     "ftp": "0.3.x",
-    "readdirp": "0.x.x",
-    "dbox": "0.6.x",
-    "semver": "2.x.x",
-    "open": "0.0.x",
-    "mime": "1.x.x",
-    "ssh2": "0.2.x",
-    "when": "2.x.x",
-    "aws-sdk": "1.x.x",
-    "minimatch": "0.2.x",
-    "lodash": "2.x.x",
-    "shelljs": "0.2.6"
+    "github": "0.2.x",
+    "heroku-client": "1.5.x",
+    "indx": "0.1.x",
+    "inquirer": "0.5.x",
+    "js-yaml": "3.x",
+    "lodash": "2.x",
+    "mime": "1.x",
+    "minimatch": "0.4.x",
+    "open": "0.0.5",
+    "optimist": "0.6.x",
+    "readdirp": "1.x",
+    "request": "2.x",
+    "ssh2": "0.3.x",
+    "tar": "0.1.x",
+    "update-notifier": "0.2.x",
+    "when": "3.x"
   },
   "devDependencies": {
+    "chai": "1.x",
+    "chai-as-promised": "4.x",
+    "coffeelint": "*",
+    "coveralls": "*",
+    "istanbul": "*",
     "mocha": "*",
-    "should": "*",
-    "request": "*"
+    "mocha-lcov-reporter": "*",
+    "mockery": "1.x",
+    "request": "*",
+    "sinon": "1.x",
+    "sinon-chai": "2.x"
+  },
+  "scripts": {
+    "test": "npm run lint && mocha",
+    "lint": "find lib/ -name '*.coffee' | xargs coffeelint",
+    "coverage": "make build; istanbul cover _mocha --report html -- -R spec && open coverage/index.html && make unbuild",
+    "coveralls": "make build; istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage; make unbuild",
+    "encrypt": "./encrypt-config.sh"
   }
 }

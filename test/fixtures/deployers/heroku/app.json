@@ -1,0 +1,7 @@
+{
+  "name": "Ship Testing App",
+  "description": "An app used for testing ship's heroku deployer",
+  "repository": "https://github.com/carrot/ship",
+  "logo": "http://node-js-sample.herokuapp.com/node.svg",
+  "keywords": ["node", "testing", "static"]
+}

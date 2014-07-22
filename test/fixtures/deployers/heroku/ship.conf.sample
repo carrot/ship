@@ -1,3 +1,3 @@
 heroku:
-  name: 'test app'
-  target: 'public'
+  name: 'ship-testing-app'
+  api_key: 'xxx'

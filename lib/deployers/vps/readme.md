@@ -1,17 +1,19 @@
 Linux VPS
 ---------
 
+> **Note:** This deployer is not functional at the moment, it's a work in progress.
+
 Deploys files to a server via ssh. Allows automated local and remote command execution before and after deploys. Deploys are zero-downtime and the previous 10 deploys are backed up.
 
 ### Config Values
 
-**user**: user to log in to the server with    
-**host**: ip address or hostname of the server    
-**target**: folder you wish to deploy    
-**remote_target**: path you wish to deploy to on the server    
-**key**: _(optional)_ path to .pem    
-**port**: _(optional)_ port to connect through. defaults to `21`    
-**before**: _(optional)_ path to before [hook script](#)    
+**user**: user to log in to the server with
+**host**: ip address or hostname of the server
+**target**: folder you wish to deploy
+**remote_target**: path you wish to deploy to on the server
+**key**: _(optional)_ path to .pem
+**port**: _(optional)_ port to connect through. defaults to `21`
+**before**: _(optional)_ path to before [hook script](#)
 **after**: _(optional)_ path to after [hook script](#)
 
 ### Hook Scripts
