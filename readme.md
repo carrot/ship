@@ -119,7 +119,7 @@ project.write_config();
 // you don't it will just deploy the root passed to the constructor.
 
 project.deploy('path/to/folder/public')
-  .progress(console.log)
+  .progress(console.log.bind(console))
   .done(function(res){
     console.log('successfully deployed!');
     console.log(res);
