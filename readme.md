@@ -35,7 +35,7 @@ Ship is also built on the adapter pattern, so if there's another platforms you'd
 
 ### Usage
 
-If you are using ship directly for your own deployments, its primary interface is through the command line. If you'd like to integrate it into your node app, skip to the section below on the javascript API.
+If you are using ship directly for your own deployments, its primary interface is through the command line. If you'd like to integrate it into your node app, skip to the section below on the [javascript API](#javascript-api).
 
 The command line interface is simple -- just follow the format below
 
