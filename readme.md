@@ -76,21 +76,21 @@ Finally, some deployers support built in 'ignores'. If you'd like to ignore a fi
 The interface is fairly straightforward. An example is below. Please note that this is not a working example to be pasted into your project, it's a walkthrough of the public API at a high level.
 
 ```js
-// First thing's first, let's create a new instance of Ship with the adapter we
+// First thing's first, let's create a new instance of Ship with the deployer we
 // want to deploy with and the folder we want to be deployed.
 
 var Ship = require('ship');
-var project = new Ship({ root: 'path/to/folder', adapter: 's3' });
+var project = new Ship({ root: 'path/to/folder', deployer: 's3' });
 
 // First, you might want to make sure the deployer has been configured. This
 // means that either there's a yaml file at the project root called `ship.conf`
 // with the relevant config details for that deployer, or you have manually
-// configured the instance. You can quickly check whether the adapter has been
+// configured the instance. You can quickly check whether the deployer has been
 // configured or not as such:
 
 project.is_configured(); // returns a boolean
 
-// If the adapter has been configured already as indicated above, you can skip
+// If the deployer has been configured already as indicated above, you can skip
 // the part below discussing manual configuration. If it has not however, you
 // need to manually configure the deployer. You can do this by calling
 // `configure` directly with the config values as such:
@@ -110,7 +110,7 @@ project.config_prompt()
 
 project.write_config();
 
-// To actually deploy, just call adapter.deploy(). This returns a promise so
+// To actually deploy, just call project.deploy(). This returns a promise so
 // you know when it's done. It also emits progress events along the way, since
 // some deployments take a while and you might want to keep track of progress.
 
