@@ -82,6 +82,20 @@ describe 'api', ->
         .then(-> fs.unlinkSync(shipfile))
         .should.be.fulfilled
 
+    it 'should write to an alternate path if an override is provided', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      project.configure(access_key: 'foo', secret_key: 'bar')
+      shipfile = path.join(__dirname, '../ship.conf')
+
+      project.write_config(shipfile)
+        .then(nodefn.lift(fs.readFile, shipfile, 'utf8'))
+        .then(yaml.safeLoad)
+        .tap (res) ->
+          res.s3.access_key.should.equal('foo')
+          res.s3.secret_key.should.equal('bar')
+        .then(-> fs.unlinkSync(shipfile))
+        .should.be.fulfilled
+
     it 'should error if instance has not been configured', ->
       project = new Ship(root: __dirname, deployer: 's3')
       project.write_config()

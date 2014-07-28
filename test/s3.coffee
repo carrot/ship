@@ -26,4 +26,5 @@ describe 's3', ->
         .tap (r) -> r[0].body.should.not.match /i am a-scared/
       .then (res) -> res.destroy()
       .tap -> progress_spy.should.have.callCount(7)
+      .catch (err) -> console.error(err); throw err
       .should.be.fulfilled

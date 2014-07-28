@@ -70,10 +70,10 @@ class Ship
    * @return {Promise} promise for the written config file
   ###
 
-  write_config: ->
+  write_config: (override) ->
     if not @config then return W.reject('deployer has not yet been configured')
     conf = {}; conf[@deployer_name] = @config
-    nodefn.call(fs.writeFile, @shipfile, yaml.safeDump(conf))
+    nodefn.call(fs.writeFile, (override or @shipfile), yaml.safeDump(conf))
 
   ###*
    * Deploy the files at project root with the given deployer. Returns a promise

@@ -12,4 +12,5 @@ describe 'gh-pages', ->
         repo: 'shiptester/test'
 
     project.deploy()
+      .catch (err) -> console.error(err); throw err
       .should.be.fulfilled
