@@ -13,7 +13,11 @@ file_map  = require 'file-map'
 module.exports = (root, config) ->
   d = W.defer()
 
-  config.ignore = _.compact(['ship*.conf'].concat(config.ignore))
+  config.ignore = _.compact([
+    'ship*.conf',
+    '.gitignore',
+    '.git{/**,}',
+    '**/node_modules{/**,}'].concat(config.ignore))
   repo_user = config.repo.split('/')[0]
   repo_name = config.repo.split('/')[1]
 
@@ -92,7 +96,8 @@ create_initial_commit = ->
 ###
 
 build_tree = ->
-  file_map(@root, { file_ignores: @config.ignore })
+  i = @config.ignore
+  file_map(@root, { file_ignores: i, directory_ignores: i })
     .then (tree) => format_tree.call(@, path: '', children: tree)
 
 ###*
@@ -126,7 +131,7 @@ format_tree = (root) ->
 ###
 
 create_blob = (file) ->
-  nodefn.call(fs.readFile, file.full_path, 'utf8')
+  nodefn.call(fs.readFile, file.full_path)
   .then(get_blob_sha.bind(@))
   .then (sha) ->
     path: path.basename(file.path)
@@ -161,8 +166,8 @@ get_blob_sha = (content) ->
   nodefn.call @gh.gitdata.createBlob.bind(@gh),
     user: @user
     repo: @repo
-    content: content
-    encoding: 'utf8'
+    content: content.toString('base64')
+    encoding: 'base64'
   .then (res) -> res.sha
 
 ###*
