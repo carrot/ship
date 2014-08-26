@@ -25,7 +25,7 @@
     "file-map": "0.0.1",
     "fstream": "0.1.x",
     "ftp": "0.3.x",
-    "github": "0.2.x",
+    "github": "git://github.com/jenius/node-github.git#create-blob-content",
     "heroku-client": "1.5.x",
     "indx": "0.2.x",
     "inquirer": "0.5.x",

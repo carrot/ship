@@ -20,6 +20,7 @@ describe 'heroku', ->
         progress_spy.should.have.been.calledWith('-----> Node.js app detected\n')
         progress_spy.should.have.been.calledWith('-----> Installing dependencies\n')
         progress_spy.should.have.been.calledWith('-----> Discovering process types\n')
+        # progress_spy.should.have.been.calledWith('-----> Launching')
       .tap (res) ->
         nodefn.call(request, res.url)
         .tap (r) -> r[0].body.should.match /look ma, it worked/
