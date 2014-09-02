@@ -13,7 +13,6 @@ module.exports = (root, config) ->
 
   config.region ?= 'us-east-1'
   config.bucket ?= root.split(path.sep).reverse()[0]
-  config.ignore = _.compact(['ship*.conf'].concat(config.ignore))
 
   client = create_client(config)
 

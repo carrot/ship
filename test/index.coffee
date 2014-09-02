@@ -42,13 +42,21 @@ describe 'api', ->
     it 'should correctly configure a deployer with passed in data', ->
       project = new Ship(root: __dirname, deployer: 's3')
       (-> project.configure(access_key: 1234, secret_key: 1234)).should.not.throw()
-      project.config.should.deep.equal(access_key: 1234, secret_key: 1234)
+      project.config.should.deep.equal
+        access_key: 1234
+        secret_key: 1234
+        ignore: ['**/ship*.conf']
 
     it 'should error if passed in data does not match requirements', ->
       project = new Ship(root: __dirname, deployer: 's3')
       (-> project.configure(wow: 1234, secret_key: 1234))
         .should.throw('you must specify these keys: access_key secret_key')
       should.not.exist(project.config)
+
+    it 'should always ignore shipfiles', ->
+      project = new Ship(root: __dirname, deployer: 's3')
+      project.configure(access_key: 1234, secret_key: 1234)
+      project.config.ignore.should.include '**/ship*.conf'
 
     it 'should not error if the deployer has no config requirements'
 
@@ -107,7 +115,10 @@ describe 'api', ->
       dir = path.join(_path, 'api/one_deployer')
       project = new Ship(root: dir, deployer: 'nowhere')
       project.deploy()
-        .tap -> project.config.should.deep.equal(nothing: 'wow')
+        .tap ->
+          project.config.should.deep.equal
+            nothing: 'wow'
+            ignore: ['**/ship*.conf']
         .should.be.fulfilled
 
     it 'should just deploy if already configured', ->
