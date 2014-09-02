@@ -29,6 +29,9 @@ class CLI extends EventEmitter
     @parser.addArgument ['-e', '--env'],
       help: "The environment you'd like to deploy to"
 
+    @parser.addArgument ['-c', '--conf'],
+      help: "Path to the folder containing your ship.conf file"
+
     @parser.addArgument ['root'],
       nargs: '?'
       defaultValue: process.cwd()
@@ -45,7 +48,11 @@ class CLI extends EventEmitter
   run: (args) ->
     if typeof args is 'string' then args = args.split(' ')
     args = @parser.parseArgs(args)
-    try ship = new Ship(root: args.root, deployer: args.to, env: args.env)
+    try ship = new Ship
+      root:     args.root
+      deployer: args.to
+      env:      args.env
+      conf:     args.conf
     catch err then return @emit('err', err)
 
     if not ship.is_configured()

@@ -21,10 +21,16 @@ describe 'api', ->
       project = new Ship(root: __dirname, deployer: 'nowhere', env: 'staging')
       path.basename(project.shipfile).should.equal('ship.staging.conf')
 
+    it 'should find the shipfile in a custom conf directory', ->
+      p         = path.join(_path, 'api', 'custom_conf_path')
+      conf_path = path.join(p, 'conf')
+      project = new Ship(root: p, deployer: 'nowhere', conf: conf_path)
+      project.shipfile.should.equal(path.join(conf_path, 'ship.conf'))
+
     it 'should look for a shipfile in cwd if not present in root', ->
-      cwd = process.cwd()
+      cwd      = process.cwd()
       test_cwd = path.join(_path, 'api', 'cwd')
-      dir = path.join(test_cwd, 'no_ship_conf')
+      dir      = path.join(test_cwd, 'no_ship_conf')
 
       process.chdir(test_cwd)
       project = new Ship(root: dir, deployer: 'nowhere')
@@ -78,10 +84,10 @@ describe 'api', ->
 
   describe 'write_config', ->
 
-    it 'should write a shipfile with the config info to the project root', ->
+    it 'should write a shipfile with the config info to the cwd', ->
       project = new Ship(root: __dirname, deployer: 's3')
       project.configure(access_key: 'foo', secret_key: 'bar')
-      shipfile = path.join(__dirname, 'ship.conf')
+      shipfile = path.join(process.cwd(), 'ship.conf')
 
       project.write_config()
         .then(nodefn.lift(fs.readFile, shipfile, 'utf8'))
