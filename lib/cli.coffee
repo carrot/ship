@@ -7,7 +7,7 @@ Ship         = require './index'
 
 ###*
  * @class  CLI
- * @classdesc command line interface to sprout
+ * @classdesc command line interface to ship
 ###
 
 class CLI extends EventEmitter

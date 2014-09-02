@@ -19,7 +19,7 @@ class Ship
     @root = path.resolve(opts.root)
     @deployer_name = opts.deployer
     @env = opts.env
-    @shipfile = path.join(@root, "ship#{if @env then '.' + @env else ''}.conf")
+    @shipfile = find_shipfile.call(@)
 
     try @deployer = require("./deployers/#{opts.deployer}")
     catch err then throw new Error("#{opts.deployer} is not a valid deployer")
@@ -107,6 +107,10 @@ class Ship
 
   contains_keys = (set1, set2) ->
     _.isEqual(_.intersection(set2, set1).sort(), set1.sort())
+
+  find_shipfile = ->
+    p = (dir) => path.join(dir, "ship#{if @env then '.' + @env else ''}.conf")
+    _.find(_.map([@root, process.cwd()], p), fs.existsSync) || p(@root)
 
   ###*
    * Loads the configuration for the specified deployer from the shipfile.

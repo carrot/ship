@@ -21,6 +21,16 @@ describe 'api', ->
       project = new Ship(root: __dirname, deployer: 'nowhere', env: 'staging')
       path.basename(project.shipfile).should.equal('ship.staging.conf')
 
+    it 'should look for a shipfile in cwd if not present in root', ->
+      cwd = process.cwd()
+      test_cwd = path.join(_path, 'api', 'cwd')
+      dir = path.join(test_cwd, 'no_ship_conf')
+
+      process.chdir(test_cwd)
+      project = new Ship(root: dir, deployer: 'nowhere')
+      project.shipfile.should.equal(path.join(test_cwd, 'ship.conf'))
+      process.chdir(cwd)
+
   describe 'is_configured', ->
 
     it 'should not be configured if no @config or shipfile', ->
