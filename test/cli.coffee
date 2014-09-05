@@ -83,6 +83,14 @@ describe 'cli', ->
       done()
     @cli.run("-to nowhere -e foo")
 
+  it 'deploys using an custom ship.conf directory if -c is passed', (done) ->
+    dir = 'conf_dir'
+    @cli.once('err', done)
+    @cli.once 'success', ->
+      options_spy.conf.should.equal(dir)
+      done()
+    @cli.run("-to nowhere -c #{dir}")
+
   after ->
     mockery.deregisterAll()
     mockery.disable()

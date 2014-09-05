@@ -17,9 +17,10 @@ class Ship
 
   constructor: (opts) ->
     @root = path.resolve(opts.root)
+    @conf = if opts.conf then path.resolve(opts.conf)
     @deployer_name = opts.deployer
     @env = opts.env
-    @shipfile = path.join(@root, "ship#{if @env then '.' + @env else ''}.conf")
+    @shipfile = find_shipfile.call(@)
 
     try @deployer = require("./deployers/#{opts.deployer}")
     catch err then throw new Error("#{opts.deployer} is not a valid deployer")
@@ -109,6 +110,20 @@ class Ship
 
   contains_keys = (set1, set2) ->
     _.isEqual(_.intersection(set2, set1).sort(), set1.sort())
+
+  ###*
+   * Determines the path to the Shipfile. It uses the conf option if present,
+   * otherwise it looks in root, then the current working directory. If neither
+   * exist, it sets the shipfile to be inside root.
+   *
+   * @private
+   * @return {String} - path to shipfile
+  ###
+
+  find_shipfile = ->
+    p = (dir) => path.join(dir, "ship#{if @env then '.' + @env else ''}.conf")
+    if @conf then return p(@conf)
+    _.find(_.map([@root, process.cwd()], p), fs.existsSync) || p(process.cwd())
 
   ###*
    * Loads the configuration for the specified deployer from the shipfile.
