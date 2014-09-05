@@ -14,7 +14,6 @@ module.exports = (root, config) ->
   d = W.defer()
 
   config.ignore = _.compact([
-    'ship*.conf',
     '.gitignore',
     '.git{/**,}',
     '**/node_modules{/**,}'].concat(config.ignore))

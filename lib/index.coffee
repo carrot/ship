@@ -49,6 +49,8 @@ class Ship
     config_keys = @deployer.config?.required
     if config_keys and not contains_keys(config_keys, Object.keys(data))
       throw new Error("you must specify these keys: #{config_keys.join(' ')}")
+    data.ignore ?= []
+    data.ignore.push('**/ship*.conf')
     @config = data
 
   ###*
