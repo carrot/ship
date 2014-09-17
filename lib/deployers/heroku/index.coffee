@@ -47,6 +47,9 @@ module.exports = (root, opts) ->
 
   return d.promise
 
+module.exports.config =
+  required: ['name', 'api_key']
+
 ###*
  * Create a new build using the edge api, which will return a streaming build
  * status url so that we can stream it correctly.
