@@ -57,7 +57,7 @@ class CLI extends EventEmitter
 
     if not ship.is_configured()
       ship.config_prompt().with(ship)
-        .then(ship.write_config)
+        .then(-> ship.write_config())
         .then(deploy.bind(@, ship))
     else
       deploy.call(@, ship)
