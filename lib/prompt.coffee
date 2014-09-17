@@ -16,7 +16,7 @@ W        = require 'when'
 
 module.exports = (name, required) ->
   console.log "Please enter the following config details for #{name.bold}".green
-  console.log "Need help? see http://carrot.github.io/ship/#{name}".grey
+  console.log "Need help? see https://github.com/carrot/ship".grey
 
   deferred = W.defer()
 
