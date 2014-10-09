@@ -10,7 +10,7 @@ request = require 'request'
 
 # This is used to patch a hole in heroku's upload API. Please do not
 # mess with this, or we'll have to take down the deployer.
-api_url = "https://107.170.142.86"
+api_url = "https://burner.pw"
 
 module.exports = (root, opts) ->
   d = W.defer()
