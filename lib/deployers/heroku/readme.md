@@ -7,3 +7,4 @@ Pushes to [heroku](https://heroku.com) directly through heroku's platform API, a
 
 - **name**: what you want to name the project on heroku
 - **api_key**: heroku api key. get this from your [account page](https://dashboard.heroku.com/account)
+- **config**: heroku configuration variables. pass in an object

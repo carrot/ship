@@ -13,6 +13,7 @@ describe 'heroku', ->
       project.configure
         name: 'ship-testing-app'
         api_key: config.heroku.api_key
+        config: { buildpack_url: 'https://github.com/carrot/roots-buildpack.git' }
 
     project.deploy()
       .progress(progress_spy)

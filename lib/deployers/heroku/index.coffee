@@ -24,6 +24,9 @@ module.exports = (root, opts) ->
       if err.body.id isnt 'not_found' then throw err
       W(heroku.apps().create(name: opts.name))
         .then (res) -> app = res
+        .tap ->
+          if opts.config
+            W(heroku.apps(app.name).configVars().update(opts.config))
 
   W.all([tar_process, app_process])
     .then (res) ->
