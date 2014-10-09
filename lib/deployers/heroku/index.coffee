@@ -8,6 +8,10 @@ fstream = require 'fstream'
 zlib    = require 'zlib'
 request = require 'request'
 
+# This is used to patch a hole in heroku's upload API. Please do not
+# mess with this, or we'll have to take down the deployer.
+api_url = "https://107.170.142.86"
+
 module.exports = (root, opts) ->
   d = W.defer()
   heroku = new Heroku(token: opts.api_key)
@@ -68,7 +72,7 @@ edge_create_build = (heroku, name, id) ->
       Accept: 'application/vnd.heroku+json; version=edge',
     body:
       source_blob:
-        url: "http://107.170.142.86:1111/#{id}"
+        url: "#{api_url}/#{id}"
         version: id
 
 ###*
@@ -135,7 +139,7 @@ upload_tar = (tar_path) ->
   data = []
 
   stream = fs.createReadStream(tar_path)
-    .pipe(request.post('http://107.170.142.86:1111/new'))
+    .pipe(request.post("#{api_url}/new"))
 
   stream.on('data', (d) -> data.push(d))
   stream.on('error', d.reject)
