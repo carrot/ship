@@ -32,6 +32,7 @@ module.exports = (root, config) ->
       d.resolve
         deployer: 'gh-pages'
         url: "http://#{repo_user}.github.io/#{repo_name}"
+        destroy: destroy.bind(@)
     , d.reject
 
   return d.promise
@@ -68,6 +69,7 @@ get_latest_gh_pages_commit = ->
   .catch (err) =>
     msg = JSON.parse(err.message).message
     if msg == 'Git Repository is empty.' then create_initial_commit.call(@)
+    if msg == 'Not Found' then create_branch.call(@)
 
 ###*
  * If a repo is empty, a commit needs to be created before trees can be pushed.
@@ -84,6 +86,20 @@ create_initial_commit = ->
     path: 'README.md'
     content: new Buffer("#{@user}/#{@repo}").toString('base64')
   .then (res) -> res.sha
+
+create_branch = ->
+  get_default_branch.call(@).then (branch) =>
+    nodefn.call @gh.gitdata.createReference,
+      user: @user
+      repo: @repo
+      ref: 'refs/heads/gh-pages'
+      sha: branch.commit.sha
+
+get_default_branch = ->
+  nodefn.call @gh.repos.getBranches,
+    user: @user
+    repo: @repo
+  .then (res) -> res[0]
 
 ###*
  * Runs through the root and recrusively builds up the structure in the format
@@ -213,3 +229,13 @@ update_gh_pages_branch = (commit) ->
     ref: 'heads/gh-pages'
     sha: commit.sha
     force: true
+
+###*
+ * Removes the gh-pages branch, undoing the deploy.
+###
+
+destroy = ->
+  nodefn.call @gh.gitdata.deleteReference,
+    user: @user
+    repo: @repo
+    ref: 'heads/gh-pages'
