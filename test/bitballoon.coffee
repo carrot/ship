@@ -11,7 +11,7 @@ describe 'bitballoon', ->
     if process.env.TRAVIS
       project.configure
         name: 'ship-testing'
-        access_token: config.bitballoon.token
+        access_token: config.bitballoon.access_token
 
     project.deploy()
       .catch (err) -> console.error(err); throw err
