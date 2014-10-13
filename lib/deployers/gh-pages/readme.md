@@ -8,3 +8,4 @@ The github pages deployer does not require any external dependencies. That's rig
 - **username**: your github account username
 - **password**: your github account password
 - **repo**: username/repo -- for example "carrot/ship"
+- **branch**: optional branch name, defaults to "gh-pages"

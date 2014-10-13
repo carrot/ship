@@ -21,10 +21,16 @@ module.exports = (root, config) ->
   repo_name = config.repo.split('/')[1]
 
   gh = new GithubApi(version: "3.0.0", debug: false)
-  ctx = { root: root, gh: gh, config: config, user: repo_user, repo: repo_name }
+  ctx =
+    root: root
+    gh: gh
+    config: config
+    user: repo_user
+    repo: repo_name
+    branch: config.branch or 'gh-pages'
 
   authenticate.call(ctx).with(ctx)
-    .then(get_latest_gh_pages_commit)
+    .then(get_latest_commit)
     .then(build_tree)
     .then(create_commit)
     .then(update_gh_pages_branch)
@@ -60,11 +66,11 @@ authenticate = ->
  * @return {Promise} a promise for the sha of the latest commit
 ###
 
-get_latest_gh_pages_commit = ->
+get_latest_commit = ->
   nodefn.call @gh.repos.getCommits,
     user: @user
     repo: @repo
-    sha: 'gh-pages'
+    sha: @branch
   .then (res) -> res[0].sha
   .catch (err) =>
     msg = JSON.parse(err.message).message
@@ -81,7 +87,7 @@ create_initial_commit = ->
   nodefn.call @gh.repos.createFile,
     user: @user
     repo: @repo
-    branch: 'gh-pages'
+    branch: @branch
     message: 'initial commit'
     path: 'README.md'
     content: new Buffer("#{@user}/#{@repo}").toString('base64')
@@ -92,7 +98,7 @@ create_branch = ->
     nodefn.call @gh.gitdata.createReference,
       user: @user
       repo: @repo
-      ref: 'refs/heads/gh-pages'
+      ref: "refs/heads/#{@branch}"
       sha: branch.commit.sha
 
 get_default_branch = ->
@@ -207,7 +213,7 @@ get_tree_sha = (tree) ->
 ###
 
 create_commit = (tree) ->
-  get_latest_gh_pages_commit.call(@)
+  get_latest_commit.call(@)
     .then (sha) => nodefn.call @gh.gitdata.createCommit,
       user: @user
       repo: @repo
@@ -226,7 +232,7 @@ update_gh_pages_branch = (commit) ->
   nodefn.call @gh.gitdata.updateReference,
     user: @user
     repo: @repo
-    ref: 'heads/gh-pages'
+    ref: "heads/#{@branch}"
     sha: commit.sha
     force: true
 
@@ -238,4 +244,4 @@ destroy = ->
   nodefn.call @gh.gitdata.deleteReference,
     user: @user
     repo: @repo
-    ref: 'heads/gh-pages'
+    ref: "heads/#{@branch}"
