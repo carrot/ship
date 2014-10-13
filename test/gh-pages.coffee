@@ -1,6 +1,7 @@
 request = require 'request'
 nodefn  = require 'when/node'
 config  = require '../config'
+path    = require 'path'
 
 describe 'gh-pages', ->
 

@@ -16,6 +16,7 @@ Ship is small library that deploys files smoothly to the platforms listed below:
 - [Amazon S3](lib/deployers/s3)
 - [Heroku](lib/deployers/heroku)
 - [Github Pages](lib/deployers/gh-pages)
+- [Bitballoon](lib/deployers/bitballoon)
 
 And many more coming soon, like:
 - Linux VPS
@@ -23,7 +24,6 @@ And many more coming soon, like:
 - Divshot
 - Tumblr
 - Dropbox
-- BitBalloon
 - SiteLeaf
 - Email
 
@@ -54,6 +54,7 @@ Available deployers are as such (linked to the documentation for authentication 
 - [Amazon S3](lib/deployers/s3) - `s3`
 - [Github Pages](lib/deployers/gh-pages) - `gh-pages`
 - [Heroku](lib/deployers/heroku) - `heroku`
+- [Bitballoon](lib/deployers/bitballoon) - `bitballoon`
 
 ### ship.conf
 
