@@ -72,6 +72,9 @@ get_latest_commit = ->
     repo: @repo
     sha: @branch
   .then (res) -> res[0].sha
+  # there is a race condition here which causes occasional failures when
+  # deploying to empty repositories, because catch does not resolve returned
+  # promises. hopefully this will be fixed soon.
   .catch (err) =>
     msg = JSON.parse(err.message).message
     if msg == 'Git Repository is empty.' then create_initial_commit.call(@)
@@ -222,7 +225,7 @@ create_commit = (tree) ->
       message: "deploy from ship"
 
 ###*
- * Points the gh-pages branch's HEAD to the sha of a given commit.
+ * Points the deploy target branch's HEAD to the sha of a given commit.
  *
  * @param  {Object} commit - github api representation of a commit
  * @return {Promise} promise for the github api's response to updating the ref
@@ -237,7 +240,7 @@ update_gh_pages_branch = (commit) ->
     force: true
 
 ###*
- * Removes the gh-pages branch, undoing the deploy.
+ * Removes the deploy target branch, undoing the deploy.
 ###
 
 destroy = ->

@@ -1,8 +1,10 @@
-config = require '../config'
+request = require 'request'
+nodefn  = require 'when/node'
+config  = require '../config'
 
 describe 'gh-pages', ->
 
-  it 'deploys a basic site to github pages', ->
+  it 'deploys a complex nested site to an empty repo', ->
     project = new Ship(root: path.join(_path, 'deployers/gh-pages'), deployer: 'gh-pages')
 
     if process.env.TRAVIS
@@ -12,12 +14,14 @@ describe 'gh-pages', ->
         repo: 'shiptester/test'
 
     project.deploy()
-      .catch (err) -> console.error(err); throw err
+      .tap ->
+        nodefn.call(request, "https://raw.githubusercontent.com/shiptester/test/gh-pages/index.html")
+        .tap (r) -> r[0].body.should.match /Testing Page/
       .then (res) -> res.destroy()
       .catch (err) -> console.error(err); throw err
       .should.be.fulfilled
 
-  it 'deploys a site without the gh-pages branch present', ->
+  it 'deploys a site to gh-pages when master is already present', ->
     project = new Ship(root: path.join(_path, 'deployers/gh-pages2'), deployer: 'gh-pages')
 
     if process.env.TRAVIS
@@ -27,7 +31,9 @@ describe 'gh-pages', ->
         repo: 'shiptester/test2'
 
     project.deploy()
-      .catch (err) -> console.error(err); throw err
+      .tap ->
+        nodefn.call(request, "https://raw.githubusercontent.com/shiptester/test2/gh-pages/index.html")
+        .tap (r) -> r[0].body.should.match /wow/
       .then (res) -> res.destroy()
       .catch (err) -> console.error(err); throw err
       .should.be.fulfilled
