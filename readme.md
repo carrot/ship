@@ -43,17 +43,17 @@ The command line interface is simple -- just follow the format below
 ship /path/to/folder -to deployer-name
 ```
 
-For example, if I wanted to ship my desktop via ftp to my server (why? no idea), I could run `ship /Users/jeff/Desktop -to ftp`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
+For example, if I wanted to ship my desktop via s3 to my server (why? no idea), I could run `ship /Users/jeff/Desktop -to s3`. Ship would then prompt me for authentication details if needed, and send the files off to their destination. It will also place a file called `ship.conf` in the root of the folder you shipped, and if you have a gitignore, add it to your gitignore because you don't want to commit your sensitive information. Next time you ship it, you won't need to enter your details because they are already saved to that file.
 
 After the first time running `ship` on a folder, you can skip the deployer name if you'd like to deploy to the same target. If you have deployed the same folder to multiple targets and you run it without the deployer argument, ship will deploy to all targets.
 
 Finally, if you are inside the folder you want to deploy, you can run ship without the path argument. If you name your folder the same thing as one of the deployers, things will get confused, so don't do that please.
 
-Available deployers are as such:
+Available deployers are as such (linked to the documentation for authentication details, if needed):
 
-- Amazon s3 - `s3`
-- Github Pages - `gh-pages`
-- Heroku - `heroku`
+- [Amazon S3](lib/deployers/s3) - `s3`
+- [Github Pages](lib/deployers/gh-pages) - `gh-pages`
+- [Heroku](lib/deployers/heroku) - `heroku`
 
 ### ship.conf
 
