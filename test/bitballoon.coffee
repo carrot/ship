@@ -14,12 +14,10 @@ describe 'bitballoon', ->
         access_token: config.bitballoon.access_token
 
     project.deploy()
-      .catch (err) -> console.error(err); throw err
       .tap (res) ->
         node.call(request, res.url)
         .tap (r) -> r[0].body.should.match /bitballoon deployer working, yay!/
       .then -> project.deploy()
-      .catch (err) -> console.error(err); throw err
       .tap (res) -> res.destroy()
       .catch (err) -> console.error(err); throw err
       .should.be.fulfilled
