@@ -15,8 +15,8 @@ class SFTPUploader
     @local = local
     @remote = remote
 
-    create_folder_structure.call(@)
-      .with(@)
+    W().with(@)
+      .then(create_folder_structure)
       .then(upload_files)
       .then(symlink_current)
 

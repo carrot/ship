@@ -4,13 +4,11 @@ path         = require 'path'
 SSH          = require 'ssh2'
 SFTPUploader = require './uploader'
 
-module.exports = (root, config) ->
+module.exports = (@root, @config) ->
   @d = W.defer()
-  @root = root
-  @config = config
 
-  test_connection.call(@)
-    .with(@)
+  W().with(@)
+    .then(test_connection)
     .then(run_before_script)
     .then(deploy_files)
     .then(run_after_script)
@@ -39,7 +37,7 @@ deploy_files = ->
   nodefn.call(ssh.sftp)
     .tap (sftp) ->
       uploader = new SFTPUploader(sftp)
-      uploader.upload_project(@root, @config.remote_target)
+      uploader.upload_project(@root, @config.target)
     .tap (sftp) -> sftp.end()
 
 run_after_script = ->
