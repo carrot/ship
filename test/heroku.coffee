@@ -25,7 +25,6 @@ describe 'heroku', ->
       .tap (res) ->
         nodefn.call(request, res.url)
         .tap (r) -> r[0].body.should.match /look ma, it worked/
-      .catch (err) -> console.error(err); throw err
       .then (res) -> res.destroy()
       .catch (err) -> console.error(err); throw err
       .should.be.fulfilled

@@ -22,7 +22,7 @@ module.exports = (root, opts) ->
   app_process = W(app.info())
     .catch (err) ->
       if err.body.id isnt 'not_found' then throw err
-      W(heroku.apps().create(name: opts.name))
+      W(heroku.apps().create(name: opts.name, stack: 'cedar-14'))
         .then (res) -> app = res
         .tap ->
           if opts.config
@@ -142,7 +142,7 @@ upload_tar = (tar_path) ->
   data = []
 
   stream = fs.createReadStream(tar_path)
-    .pipe(request.post("#{api_url}/new"))
+    .pipe(request.post(rejectUnauthorized: false, url: "#{api_url}/new"))
 
   stream.on('data', (d) -> data.push(d))
   stream.on('error', d.reject)
