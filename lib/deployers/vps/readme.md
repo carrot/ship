@@ -1,9 +1,9 @@
 Linux VPS
 ---------
 
-This deployer will push files via SFTP to any Linux-based VPS. It also allows the opportunity to run a basic script both before and after the deploy, both remotely and locally. Note that this deployer does have handling for passwords, so you should add your ssh key to the VPS so that you don't need one. You should do this anyway though.
+This deployer will push files via SFTP to any Linux-based VPS. It also allows the opportunity to run a basic script both before and after the deploy, both remotely and locally. Note that this deployer does not have handling for passwords, so you should add your ssh key to the VPS so that you don't need one. You should do this anyway though.
 
-This deployer has zero-downtime deploys, which is achieved by deploying to a different directory and once finished swapping it out for the target. Ship stores it's "releases directory" at `~/.ship-releases`, so the target directory will always be a symlink to here.
+This deployer performs zero-downtime deploys, which is achieved by deploying to a different directory and once finished swapping it out for the target. Ship stores it's "releases directory" at `~/.ship-releases`, so the target directory will always be a symlink to here.
 
 ### Config Values
 
