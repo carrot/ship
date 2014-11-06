@@ -74,8 +74,10 @@ get_latest_commit = ->
   .then (res) -> res[0].sha
   .catch (err) =>
     msg = JSON.parse(err.message).message
-    if msg == 'Git Repository is empty.' then return create_initial_commit.call(@)
-    if msg == 'Not Found' then return create_branch.call(@)
+    if msg == 'Git Repository is empty.'
+      return create_initial_commit.call(@)
+    if msg == 'Not Found'
+      return create_branch.call(@)
     throw err
 
 ###*
