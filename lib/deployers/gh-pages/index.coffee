@@ -72,13 +72,11 @@ get_latest_commit = ->
     repo: @repo
     sha: @branch
   .then (res) -> res[0].sha
-  # there is a race condition here which causes occasional failures when
-  # deploying to empty repositories, because catch does not resolve returned
-  # promises. hopefully this will be fixed soon.
   .catch (err) =>
     msg = JSON.parse(err.message).message
-    if msg == 'Git Repository is empty.' then create_initial_commit.call(@)
-    if msg == 'Not Found' then create_branch.call(@)
+    if msg == 'Git Repository is empty.' then return create_initial_commit.call(@)
+    if msg == 'Not Found' then return create_branch.call(@)
+    throw err
 
 ###*
  * If a repo is empty, a commit needs to be created before trees can be pushed.
