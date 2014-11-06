@@ -1,7 +1,7 @@
 {
   "name": "ship",
   "preferGlobal": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Carrot Creative <dev@carrotcreative.com>",
   "description": "multi-platform deployment with node",
   "keywords": [
@@ -20,7 +20,7 @@
   "dependencies": {
     "argparse": "0.1.x",
     "aws-sdk": "2.x",
-    "bitballoon": "0.2.x",
+    "bitballoon": "~0.2.1",
     "coffee-script": "1.8.x",
     "colors": "1.x",
     "file-map": "0.0.1",
