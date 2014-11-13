@@ -17,12 +17,12 @@ Ship is small library that deploys files smoothly to the platforms listed below:
 - [Heroku](lib/deployers/heroku)
 - [Github Pages](lib/deployers/gh-pages)
 - [Bitballoon](lib/deployers/bitballoon)
+- [Linux VPS](lib/deployers/vps)
 
 And many more coming soon, like:
-- Linux VPS
 - FTP
-- Divshot
 - Tumblr
+- Divshot
 - Dropbox
 - SiteLeaf
 - Email
@@ -55,6 +55,7 @@ Available deployers are as such (linked to the documentation for authentication 
 - [Github Pages](lib/deployers/gh-pages) - `gh-pages`
 - [Heroku](lib/deployers/heroku) - `heroku`
 - [Bitballoon](lib/deployers/bitballoon) - `bitballoon`
+- [Linux VPS](lib/deployers/vps) - `vps`
 
 ### ship.conf
 
