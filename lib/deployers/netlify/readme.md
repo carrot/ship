@@ -12,7 +12,7 @@ Netlify can easily be set up for continuous deployment off a github branch, whic
 
 You can easily generate an access token for netlify using their [CLI tool](https://github.com/netlify/netlify-cli).
 
-- `npm install netlify -g`
+- `npm install netlify-cli -g`
 - `netlify open` - You just need to run any command in order to trigger the authentication flow with the Netlify website.
 - Authorize the CLI client with your Netlify account
 - `cat ~/.netlify/config` - You should see your access token in this file.
