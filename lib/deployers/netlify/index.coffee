@@ -22,6 +22,9 @@ module.exports = (root, config) ->
 
   return d.promise
 
+module.exports.config =
+  required: ['name', 'access_token']
+
 ###*
  * Checks to see if your site is already on netlify or not. Returns either a
  * site object or undefined.
