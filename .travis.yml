@@ -7,4 +7,4 @@ before_script:
   - openssl aes-256-cbc -k "$secret" -in config.coffee.enc -d -a -out config.coffee
 env:
   global:
-    - secure: "g90Sdc3qsrjQTUoYs5YC+R+/uaPhrZ2I3SuZBgDDaLziwS0i+vLzqPubPRyKrI/kRs0iI2o4rIwKKixnlWE42tIS4meSR0maNNvjlqrcSYMQGkjrReHt5/MCRl4lAW/5EW4jhv/Kw2jpBeJjkyQEH1WVmF4rc+ZBFVo5ww2qpVk="
+    - secure: "DPYz7qDCECGDAaVk66gQ+seZ58DNU2PGPkoaaIz9LCHlHlUMV0Xpen+eS2k42SMfR2PjIWr/PyillfPJ4UkudMcIa5ubGSS8zjFBJfiek5RMNrklEO3IK1WZTwUL64UzmTQVQ5bNbsZEUopcKCYF8/APem4+5zifEk8TOYwSLSM="

@@ -1,8 +1,9 @@
 test
 src
-examples
 Makefile
 contributing.md
 .editorconfig
 .travis.yml
 config.coffee
+encrypt-config.sh
+config.coffee.enc
