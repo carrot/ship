@@ -3,6 +3,9 @@ W       = require 'when'
 node    = require 'when/node'
 _       = require 'lodash'
 
+# This is used to resolve a name to a netlify preview domain for site lookups
+preview_domain = ".netlify.com"
+
 module.exports = (root, config) ->
   d = W.defer()
 
@@ -32,8 +35,11 @@ module.exports.config =
 ###
 
 lookup = ->
-  node.call(@client.sites.bind(@client))
-    .then (sites) => _.find(sites, name: @config.name)
+  id = if @config.name.indexOf(preview_domain) != -1
+    @config.name
+  else
+    @config.name + preview_domain
+  node.call(@client.site.bind(@client), id)
 
 ###*
  * Creates a new site on netlify with a given name.
