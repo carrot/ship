@@ -26,9 +26,10 @@ module.exports = (root, config) ->
     cordova         : cordova
 
   W().with(data)
-    .then checkProjectExistence
-    .then createOrUpdateProject
-    .then checkPlatformExistence
+    .then check_project_existence
+    .then create_or_update_project
+    .then check_platform_existence
+    .then add_and_build_platform
     .done ->
       d.resolve deployer: 'android'
     , d.reject
@@ -38,7 +39,7 @@ module.exports = (root, config) ->
 module.exports.config =
   required: ['packageName', 'name']
 
-checkProjectExistence =  ->
+check_project_existence =  ->
   @d.notify "Checking for existing Cordova project..."
   node.call(fs.readFile, path.join(@out, 'config.xml'))
     .then =>
@@ -46,7 +47,7 @@ checkProjectExistence =  ->
     .catch =>
       @project_exists = false; @d.notify "Existing project not found"
 
-createOrUpdateProject = ->
+create_or_update_project = ->
   if @project_exists
     update.call(@)
   else
@@ -58,28 +59,47 @@ create = ->
     .progress (process) =>
       process.stdout.on 'data', (data) => @d.notify(data.toString().trim())
       process.stderr.on 'data', (data) => console.error(data.toString().trim())
-    .then copyFiles.bind(@)
+    .then copy_files.bind(@)
     .then => @d.notify "Done creating new Cordova project"
 
 update = ->
-  copyFiles.call(@)
+  copy_files.call(@)
 
-copyFiles = ->
+copy_files = ->
   @d.notify "Copying files..."
   www_dir = path.join(@parent_root, @out, 'www')
-  removeDir(www_dir)
-    .then moveDir.bind(@, @root, www_dir)
+  remove_dir(www_dir)
+    .then move_dir.bind(@, @root, www_dir)
 
-removeDir = (dir) ->
+remove_dir = (dir) ->
   node.call fs.remove, dir
 
-moveDir = (root, dir) ->
+move_dir = (root, dir) ->
   node.call fs.move, root, dir, clobber: true
 
-checkPlatformExistence = ->
+check_platform_existence = ->
   @d.notify "Checking platform existence..."
   node.call(fs.readdir, path.join(@out, 'platforms', 'android'))
     .then =>
       @platform_exists = true; @d.notify "Android platform exists"
     .catch =>
       @platform_exists = false; @d.notify "Android platform not added"
+
+add_and_build_platform = ->
+  if not @platform_exists
+    @d.notify "Adding Android platform..."
+    args = ['platform', 'add', 'android']
+    spawn @cordova, args, cwd: path.join(@parent_root, @out)
+      .progress (process) =>
+        process.stdout.on 'data', (data) => @d.notify(data.toString().trim())
+        process.stderr.on 'data', (data) => console.error(data.toString().trim())
+      .then build_platform.bind(@)
+  else
+    build_platform.call(@)
+
+build_platform = ->
+  args = ['build', 'android']
+  spawn @cordova, args, cwd: path.join(@parent_root, @out)
+    .progress (process) =>
+      process.stdout.on 'data', (data) => @d.notify(data.toString().trim())
+      process.stderr.on 'data', (data) => console.error(data.toString().trim())
