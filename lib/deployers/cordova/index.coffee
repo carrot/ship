@@ -18,9 +18,9 @@ module.exports = (root, config) ->
   )
 
   # throw a warning for each missing configuration
-  ['packageName', 'name', 'platforms'].forEach (prop) ->
+  ['package_name', 'name', 'platforms'].forEach (prop) ->
     switch prop
-      when 'packageName' then msg = "com.company.project"
+      when 'package_name' then msg = "com.company.project"
       when 'name' then msg = "ProjectName"
       when 'platforms' then msg = "ios android"
     if not config[prop] then d.reject "#{prop} not specified - example: #{msg}"
@@ -31,6 +31,7 @@ module.exports = (root, config) ->
     d               : d # a reference to the deferred object
     config          : config # the deployer config
     platforms       : config.platforms.split(' ') # array of platforms
+    build_type      : config.build_type or 'release'
     root            : root # root path
     parent_root     : parent_root # parent dir of root path
     project_exists  : null # project existence flag
@@ -51,7 +52,8 @@ module.exports = (root, config) ->
   return d.promise
 
 module.exports.config =
-  required: ['packageName', 'name', 'platforms']
+  required: ['package_name', 'name', 'platforms']
+  optional: ['build_type']
 
 ###*
  * checks for `root/../cordova/config.xml` to determine if the project
@@ -78,7 +80,7 @@ create_or_update_project = ->
  * @return {[Promise} - the created project
 ###
 create_project = ->
-  args = ['create', @out, @config.packageName, @config.name]
+  args = ['create', @out, @config.package_name, @config.name]
   spawn_cordova.call @, args, @parent_root
     .then copy_files.bind(@)
     .then => @d.notify "Done creating new Cordova project"
@@ -98,7 +100,7 @@ copy_files = ->
   @d.notify "Copying files..."
   www_dir = path.join(@parent_root, @out, 'www')
   remove_dir(www_dir)
-    .then move_dir.bind(@, @root, www_dir)
+    .then copy_dir.bind(@, @root, www_dir)
 
 ###*
  * removes a directory
@@ -109,13 +111,13 @@ remove_dir = (dir) ->
   node.call fs.remove, dir
 
 ###*
- * moves a directory
+ * copies a directory
  * @param  {String} src - path to the source directory
  * @param  {String} dest - path to the destination directory
  * @return {Promise} - the moved directory
 ###
-move_dir = (src, dest) ->
-  node.call fs.move, root, dir, clobber: true
+copy_dir = (src, dest) ->
+  node.call fs.copy, src, dest, clobber: true
 
 ###*
  * checks if each platform exists by inspecting the platform folder
@@ -149,7 +151,7 @@ add_platforms = ->
  * @return {Promise} - for the built cordova packages
 ###
 build_platforms = ->
-  args = ['build']
+  args = ['build', "--#{@build_type}"]
   spawn_cordova.call @, args, path.join(@parent_root, @out)
 
 ###*
