@@ -22,7 +22,7 @@ describe 'cordova', ->
       .tap -> progress_spy.should.have.been.called
       .tap (res) ->
         node.call fs.readFile, path.resolve(project.root, '..', 'cordova/config.xml')
-          .tap (contents) -> node.call parseString, contents
+          .then (contents) -> node.call parseString, contents
           .tap (result) ->
             result.widget.name.should.match /CordovaTest/
       .then (res) -> res.destroy()
