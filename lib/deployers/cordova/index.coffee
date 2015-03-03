@@ -45,8 +45,10 @@ module.exports = (root, config) ->
     .then check_platform_existence
     .then add_platforms
     .then build_platforms
-    .done ->
-      d.resolve deployer: 'cordova'
+    .done =>
+      d.resolve
+        deployer: 'cordova'
+        destroy: destroy.bind(@)
     , d.reject
 
   return d.promise
@@ -165,3 +167,10 @@ spawn_cordova = (args, cwd) ->
     .progress (process) =>
       process.stdout.on 'data', (data) => @d.notify(data.toString().trim())
       process.stderr.on 'data', (data) => console.error(data.toString().trim())
+
+###*
+ * destroys the built `cordova` directory
+ * @return {Promise} for the destroyed `cordova` directory
+###
+destroy = ->
+  node.call fs.remove, @out

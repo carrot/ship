@@ -6,7 +6,7 @@ Wraps the Cordova CLI and builds your static site into a mobile app in the `cord
 ### Config Values
 
 - **package_name**: domain name of your app package, e.g. `com.awesomecompany.coolapp`
-- **name**: name of the project
+- **name**: name of the project, e.g. `CoolApp`
 - **platforms**: a space-separated list of the platforms you want to build an app for, e.g. `ios android`
 - **build_type**: (optional, defaults to "release") the build command argument, e.g. `cordova build --release`
 
