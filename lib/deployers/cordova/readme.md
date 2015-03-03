@@ -31,6 +31,11 @@ already for this to work - Android Studio for Android, xCode for iOS, etc.
 This will build an APK for you, but it will not sign or zipalign it for you. That
 is left up to you.
 
+### Using Roots?
+If you're using [Roots](https://github.com/jenius/roots) then you will need to
+add `cordova` and `cordova/**` to your `ignores` array in `app.coffee` to prevent
+recursive file generation. Failing to do so will likely result in very slow emulators!
+
 ### Help! My CSS and Images aren't working!
 Yeah, well, that's Cordova for you... The fix is to make sure that all
 your `link` elements have a `type="text/css"` attribute and then ensure
