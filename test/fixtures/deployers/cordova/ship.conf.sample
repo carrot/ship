@@ -1,5 +1,0 @@
-cordova:
-  package_name: com.cordova.test
-  name: CordovaTest
-  build_type: release
-  platforms: android

@@ -32,11 +32,12 @@ module.exports = (root, config) ->
     config          : config # the deployer config
     platforms       : config.platforms.split(' ') # array of platforms
     build_type      : config.build_type or 'release'
+    build_app       : config.build_app or true # `cordova build`?
     root            : root # root path
     parent_root     : parent_root # parent dir of root path
     project_exists  : null # project existence flag
     platform_exists : {} # platform existence flags
-    out             : 'cordova' # out directory
+    out             : config.out_dir or 'cordova' # out directory
     cordova         : cordova # path to cordova node binary
 
   W().with(data)
@@ -45,17 +46,17 @@ module.exports = (root, config) ->
     .then check_platform_existence
     .then add_platforms
     .then build_platforms
-    .done =>
+    .done ->
       d.resolve
         deployer: 'cordova'
-        destroy: destroy.bind(@)
+        destroy: destroy.bind(data)
     , d.reject
 
   return d.promise
 
 module.exports.config =
   required: ['package_name', 'name', 'platforms']
-  optional: ['build_type']
+  optional: ['build_type', 'out_dir', 'build_app']
 
 ###*
  * checks for `root/../cordova/config.xml` to determine if the project
@@ -154,7 +155,7 @@ add_platforms = ->
 ###
 build_platforms = ->
   args = ['build', "--#{@build_type}"]
-  spawn_cordova.call @, args, path.join(@parent_root, @out)
+  spawn_cordova.call @, args, path.join(@parent_root, @out) if @build_app
 
 ###*
  * util function for spawning cordova and having it notify of progress
@@ -173,4 +174,4 @@ spawn_cordova = (args, cwd) ->
  * @return {Promise} for the destroyed `cordova` directory
 ###
 destroy = ->
-  node.call fs.remove, @out
+  node.call fs.remove, path.join(@parent_root, @out)
