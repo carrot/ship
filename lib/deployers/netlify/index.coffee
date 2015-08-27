@@ -39,7 +39,7 @@ lookup = ->
     @config.name
   else
     @config.name + preview_domain
-  node.call(@client.site.bind(@client), id)
+  node.call(@client.site.bind(@client), id).catch(() -> null)
 
 ###*
  * Creates a new site on netlify with a given name.
