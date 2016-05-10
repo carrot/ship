@@ -5,7 +5,9 @@ Ship
 
 Multi-platform deployment with node.
 
-> **Note:** This project is in early development, and versioning is a little different. [Read this](http://markup.im/#q4_cRZ1Q) for more details.
+:no_entry: :no_entry: **We are no longer supporting the `ship` project**. :no_entry: :no_entry:
+
+> **Explanation:** We have found that supporting these different deployment platforms is too difficult for us to keep up with right now. We may re-start this project in the future, but for now you should **use it at your own risk**
 
 ### Why should you care?
 
