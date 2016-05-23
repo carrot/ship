@@ -20,6 +20,7 @@ Ship is small library that deploys files smoothly to the platforms listed below:
 - [Github Pages](lib/deployers/gh-pages)
 - [Bitballoon](lib/deployers/bitballoon)
 - [Netlify](lib/deployers/netlify)
+- [Neocities](lib/deployers/neocities)
 
 And many more coming soon, like:
 - Linux VPS
