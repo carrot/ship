@@ -20,6 +20,7 @@ Ship is small library that deploys files smoothly to the platforms listed below:
 - [Github Pages](lib/deployers/gh-pages)
 - [Bitballoon](lib/deployers/bitballoon)
 - [Netlify](lib/deployers/netlify)
+- [Cordova](lib/deployers/cordova)
 
 And many more coming soon, like:
 - Linux VPS
@@ -59,6 +60,7 @@ Available deployers are as such (linked to the documentation for authentication 
 - [Heroku](lib/deployers/heroku) - `heroku`
 - [Bitballoon](lib/deployers/bitballoon) - `bitballoon`
 - [Netlify](lib/deployers/netlify) - `netlify`
+- [Cordova](lib/deployers/cordova) - `cordova`
 
 ### ship.conf
 
