@@ -65,6 +65,8 @@ Available deployers are as such (linked to the documentation for authentication 
 This is a simple file used by ship to hold on to config values for various platforms. It's a yaml file and is quite straightforward. An example might look like this, if it was configured for amazon s3.
 
 ```
+ignore: []
+
 s3:
   access_key: 'xxxx'
   secret_key: 'xxxx'
